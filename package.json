@@ -1,0 +1,70 @@
+{
+  "name": "projects",
+  "version": "0.0.0",
+  "description": "projects",
+  "license": "MIT",
+  "repository": "",
+  "author": "",
+  "keywords": [
+    ""
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "build": "npm run clean && npm run lint && tsc --version && tsc --pretty",
+    "test": "npm run build && mocha --compilers ts:ts-node/register --recursive 'test/**/*-spec.ts'",
+    "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",
+    "watch": "npm run build -- --watch",
+    "watch:test": "npm run test -- --watch",
+    "start": "npm run build && node lib/app.js"
+  },
+  "dependencies": {
+    "express": "^4.15.2",
+    "moment": "^2.18.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^3.0.0",
+    "@types/express": "^4.0.35",
+    "@types/log4js": "0.0.32",
+    "@types/mocha": "^2.0.0",
+    "@types/node": "^6.0.68",
+    "@types/request": "0.0.42",
+    "@types/supertest": "^2.0.0",
+    "chai": "^3.0.0",
+    "express": "^4.15.2",
+    "log4js": "^1.1.1",
+    "mocha": "^3.0.0",
+    "nodemon": "^1.11.0",
+    "nyc": "^10.0.0",
+    "request": "^2.81.0",
+    "rimraf": "^2.0.0",
+    "supertest": "^3.0.0",
+    "ts-node": "^2.0.0",
+    "tslint": "^4.0.0",
+    "typescript": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "nyc": {
+    "include": [
+      "src/*.ts"
+    ],
+    "exclude": [
+      "lib"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [],
+    "all": true
+  }
+}
