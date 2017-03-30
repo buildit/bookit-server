@@ -21,7 +21,7 @@
     "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",
     "watch": "npm run build -- --watch",
     "watch:test": "npm run test -- --watch",
-    "start": "npm run build && node lib/app.js"
+    "start": "npm run build && node lib/rest/index.js"
   },
   "dependencies": {
     "express": "^4.15.2",
