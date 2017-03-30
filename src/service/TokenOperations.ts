@@ -13,6 +13,8 @@ export class TokenOperations {
       resource: 'https://graph.microsoft.com',
     };
 
+    console.log(JSON.stringify(params));
+
     return new Promise((resolve, reject) => {
       request.post({url: this.conf.tokenEndpoint, form: params}, (err, response, body) => {
 
