@@ -1,8 +1,8 @@
 import * as chai from 'chai';
-import DateTimeFormat = Intl.DateTimeFormat;
 import * as moment from 'moment';
 import {Meeting} from '../../../src/model/Meeting';
 import {StubMeetings} from '../../../src/service/stub/StubMeetings';
+import DateTimeFormat = Intl.DateTimeFormat;
 
 const expect = chai.expect;
 

@@ -1,11 +1,8 @@
 import * as request from 'request';
-import {IConfig} from '../config';
-/**
- * Created by romansafronov on 3/28/17.
- */
+import {ApiSecret} from '../model/ConfigRoot';
 
 export class TokenOperations {
-  constructor(private conf: IConfig) {
+  constructor(private conf: ApiSecret) {
   }
 
   public withToken(): Promise<string> {

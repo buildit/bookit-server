@@ -1,9 +1,9 @@
 import {expect} from 'chai';
+import * as express from 'express';
 import * as request from 'supertest';
 import {registerBookitRest} from '../../src/rest/server';
-import * as express from 'express';
-import {StubRooms} from '../../src/service/stub/StubRooms';
 import {StubMeetings} from '../../src/service/stub/StubMeetings';
+import {StubRooms} from '../../src/service/stub/StubRooms';
 
 const stubRooms = new StubRooms(['white', 'black']);
 

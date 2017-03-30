@@ -1,8 +1,8 @@
-import {AppConfig} from './config';
-import {TokenOperations} from './service/TokenOperations';
+import {AppConfig} from './config/config';
 import {GraphAPI} from './service/GraphAPI';
+import {TokenOperations} from './service/TokenOperations';
 
-new TokenOperations(AppConfig).withToken()
+new TokenOperations(AppConfig.graphApi).withToken()
   .then((token) => {
     console.log(`Token is ${token}`);
     return new GraphAPI().getUsers(token);
