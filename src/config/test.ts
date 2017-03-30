@@ -1,11 +1,12 @@
 import {ConfigRoot} from '../model/ConfigRoot';
+require('dotenv').config();
 
 const devConf: ConfigRoot = {
   port: 3000,
   graphApi: {
-    clientId: '3140930b-1a27-4e28-8139-d350e3c30843',
-    clientSecret: '22JmnRwek9O+KyBbk/XicqZw0Z9sqVHpMpjB8U2N2YM=',
-    tokenEndpoint: 'https://login.windows.net/92261769-1013-420f-8d22-32da90a97f5b/oauth2/token',
+    clientId: process.env.MICROSOFT_CLIENT_ID,
+    clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+    tokenEndpoint: process.env.MICROSOFT_CLIENT_TOKEN_,
   },
   roomLists: [
     {
