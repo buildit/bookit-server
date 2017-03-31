@@ -6,16 +6,16 @@ export class TokenOperations {
   }
 
   public withToken(): Promise<string> {
-    const params = {
-      client_id: this.conf.clientId,
-      client_secret: this.conf.clientSecret,
-      grant_type: 'client_credentials',
-      resource: 'https://graph.microsoft.com',
-    };
-
-    console.log(JSON.stringify(params));
 
     return new Promise((resolve, reject) => {
+
+      const params = {
+        client_id: this.conf.clientId,
+        client_secret: this.conf.clientSecret,
+        grant_type: 'client_credentials',
+        resource: 'https://graph.microsoft.com',
+      };
+
       request.post({url: this.conf.tokenEndpoint, form: params}, (err, response, body) => {
 
         const data = JSON.parse(body);

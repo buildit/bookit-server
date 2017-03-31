@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {CloudUsers} from '../../../src/service/cloud/CloudUsers';
-const svc = new CloudUsers();
+import {AppConfig} from '../../../src/config/config';
+const svc = new CloudUsers(AppConfig.graphApi);
 
 describe('Cloud User service', () => {
   it('returns a list of users', () => {

@@ -2,13 +2,12 @@ import * as moment from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
 import {Meetings} from '../Meetings';
+import {Moment} from 'moment';
 
 export class StubMeetings implements Meetings {
-  getMeetings(email: string, start: Date, end: Date): Promise<Meeting[]> {
+  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve, reject) => {
-      const startMoment = moment(start);
-      const endMoment = moment(end);
-      const hours = endMoment.diff(startMoment, 'hours');
+      const hours = end.diff(start, 'hours');
 
       const res: Meeting[] = [];
 
@@ -17,8 +16,9 @@ export class StubMeetings implements Meetings {
         const idx = (i / 4);
 
         res.push({
-          start: startMoment.clone().add(i, 'hours').toDate(),
-          end: startMoment.clone().add(i + 1, 'hours').toDate(),
+          id: `uuid-${idx}`,
+          start: start.clone().add(i, 'hours').toDate(),
+          end: start.clone().add(i + 1, 'hours').toDate(),
           title: `meeting ${idx}`,
           location: `location ${idx}`,
           participants: [{name: `part ${idx}`, email: `part-${idx}@designit.com`} as Participant]

@@ -1,15 +1,13 @@
-import {ConfigRoot, Env} from '../model/ConfigRoot';
-import * as dotenv from 'dotenv';
 import * as assert from 'assert';
+import {ConfigRoot} from '../model/ConfigRoot';
+import AppEnv from './env';
 
-dotenv.config();
-
-const env = process.env as Env;
-const clientSecret = env.MICROSOFT_CLIENT_SECRET;
+const clientSecret = AppEnv.MICROSOFT_CLIENT_SECRET;
 
 assert(clientSecret, 'Please set MICROSOFT_CLIENT_SECRET in your env');
 
 const conf: ConfigRoot = {
+  useCloud: false,
   port: 8888,
   roomLists: [],
   graphApi: {

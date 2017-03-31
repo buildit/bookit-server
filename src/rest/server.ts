@@ -9,6 +9,9 @@ import {StubMeetings} from '../service/stub/StubMeetings';
 import {StubRooms} from '../service/stub/StubRooms';
 import {TokenOperations} from '../service/TokenOperations';
 import {RootLog as logger} from '../utils/RootLogger';
+import {Services} from '../Services';
+import {Meeting} from '../model/Meeting';
+import {MeetingsOps} from '../service/MeetingsOps';
 
 
 function roomList(req: Request): string {
@@ -45,7 +48,10 @@ function checkParam(cond: boolean, message: string, res: Response): boolean {
 // TODO: DI kicks in here
 export function registerBookitRest(app: Express,
                                    roomSvc: Rooms = new StubRooms(),
-                                   meetingSvc: Meetings = new StubMeetings()): Express {
+                                   meetingSvc: Meetings = Services.createMeetings()): Express {
+
+  const meetingsOps = new MeetingsOps(meetingSvc);
+
   app.get('/', (req, res) => {
     console.log(req);
     res.send('done');
@@ -93,18 +99,9 @@ export function registerBookitRest(app: Express,
       if (!roomResponse.found) {
         sendNotFound(res);
       } else {
-        Promise.all(roomResponse.rooms
-          .map(room =>
-            meetingSvc.getMeetings(room.email, start.toDate(), end.toDate())
-              .then(m => {
-                return {room, meetings: m};
-              })))
-          .then(meetingList => {
-            res.json(meetingList);
-          })
-          .catch(err => {
-            sendError(err, res);
-          });
+        meetingsOps.getRoomListMeetings(roomResponse.rooms, start, end)
+          .then(result => res.json(result))
+          .catch(err => sendError(err, res));
       }
     }
   });

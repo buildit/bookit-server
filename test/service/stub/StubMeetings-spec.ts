@@ -10,11 +10,12 @@ describe('stub meetings', () => {
   it('should generate one meeting every four hours', () => {
     const meetings = new StubMeetings();
     let startMom = moment('2013-02-08 01');
-    const start = startMom.toDate();
-    const end = moment('2013-02-08 06').toDate();
+    const start = startMom;
+    const end = moment('2013-02-08 06');
 
     const meetingsExpected: Meeting[] = [
       {
+        id: 'uuid-0',
         title: 'meeting 0',
         start: startMom.clone().toDate(),
         end: startMom.clone().add(1, 'hour').toDate(),
@@ -22,6 +23,7 @@ describe('stub meetings', () => {
         participants: [{name: 'part 0', email: 'part-0@designit.com'}]
       },
       {
+        id: 'uuid-1',
         title: 'meeting 1',
         start: startMom.clone().add(4, 'hours').toDate(),
         end: startMom.clone().add(5, 'hours').toDate(),

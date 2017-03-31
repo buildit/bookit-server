@@ -3,18 +3,21 @@ import {Meeting} from '../../model/Meeting';
 import {Meetings} from '../Meetings';
 import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
+import {Moment} from 'moment';
 
 
 export class CloudMeetings extends CloudBase implements Meetings {
-  getMeetings(email: string, start: Date, end: Date): Promise<Meeting[]> {
 
+  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
+    const startDateTime = start.toISOString();
+    const endDateTime = end.toISOString();
     return this.client
       .api(`/users/${email}/calendar/calendarView`)
-      .query({startDateTime: '2016-11-08T19:00:00.0000000', endDateTime: '2018-11-08T19:00:00.0000000'})
+      .query({startDateTime, endDateTime})
       .get()
-      .then(response => {
-        return response.value.map((meeting: any) => this.mapMeeting(meeting));
-      }) as Promise<Meeting[]>;
+      .then(response => response.value.map((meeting: any) => this.mapMeeting(meeting)))
+      // todo: fix me please!!!!!!!
+      .catch(err => []) as Promise<Meeting[]>;
   }
 
   private mapMeeting(meeting: any): Meeting {
@@ -31,7 +34,12 @@ export class CloudMeetings extends CloudBase implements Meetings {
         };
       });
     }
-    return {title: meeting.subject, location: meeting.location.displayName, participants, start, end};
+    return {
+      id: meeting.id as string,
+      title: meeting.subject as string,
+      location: meeting.location.displayName as string,
+      participants, start, end
+    };
   }
 }
 
