@@ -1,8 +1,6 @@
-import {Client} from '@microsoft/microsoft-graph-client'
-import {Meetings} from '../Meetings';
-import {Meeting} from '../../model/Meeting';
-import {TokenOperations} from '../TokenOperations';
+import {Client} from '@microsoft/microsoft-graph-client';
 import {AppConfig} from '../../config/config';
+import {TokenOperations} from '../TokenOperations';
 
 const tokenOperations = new TokenOperations(AppConfig.graphApi);
 
