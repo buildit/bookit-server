@@ -34,6 +34,7 @@
     "@microsoft/microsoft-graph-types": "^0.4.1",
     "@types/chai": "^3.0.0",
     "@types/config": "0.0.32",
+    "@types/dotenv": "^2.0.20",
     "@types/express": "^4.0.35",
     "@types/log4js": "0.0.32",
     "@types/mocha": "^2.0.0",

@@ -16,3 +16,7 @@ export interface ApiSecret {
   clientSecret: string;
   tokenEndpoint: string;
 }
+
+export interface Env {
+  readonly MICROSOFT_CLIENT_SECRET: string;
+}
