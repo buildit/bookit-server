@@ -13,6 +13,8 @@
  
  ## Useful links
  
- [https://portal.office.com/](Office Portal) (resource management)
- [https://portal.azure.com](Azure Portal) (application management)
+ [Office Portal](https://portal.office.com/) (resource management)
  
+ [Azure Portal](https://portal.azure.com) (application management)
+ 
+ [Calendar REST API reference](https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/resources/calendar)  
