@@ -28,6 +28,7 @@
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
     "config": "^1.25.1",
+    "cwait": "^1.0.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "moment": "^2.18.1"

@@ -14,31 +14,40 @@ export class CloudMeetings extends CloudBase implements Meetings {
     return this.client
       .api(`/users/${email}/calendar/calendarView`)
       .query({startDateTime, endDateTime})
+      .top(999) //FIXME: should limit???
       .get()
-      .then(response => response.value.map((meeting: any) => this.mapMeeting(meeting)))
+      .then(response => {
+        return response.value.map((meeting: any) => this.mapMeeting(meeting));
+      })
       // todo: fix me please!!!!!!!
       .catch(err => []) as Promise<Meeting[]>;
   }
 
   private mapMeeting(meeting: any): Meeting {
-// todo: TZ
-    const start = moment(meeting.start).toDate();
-    const end = moment(meeting.end).toDate();
+    const start = moment(meeting.start.dateTime).toDate();
+    const end = moment(meeting.end.dateTime).toDate();
     let participants: Participant[] = [];
     if (meeting.attendees) {
       participants = meeting.attendees.map((attendee: any) => {
         console.log(attendee);
         return {
           name: attendee.emailAddress.name,
-          email: attendee.emailAddress.email
+          email: attendee.emailAddress.address
         };
       });
     }
+    const owner: Participant = {
+      email: meeting.organizer.emailAddress.address,
+      name: meeting.organizer.emailAddress.name
+    };
+
     return {
       id: meeting.id as string,
       title: meeting.subject as string,
-      location: meeting.location.displayName as string,
-      participants, start, end
+      participants,
+      owner,
+      start,
+      end
     };
   }
 }

@@ -21,7 +21,8 @@ export class StubMeetings implements Meetings {
           end: start.clone().add(i + 1, 'hours').toDate(),
           title: `meeting ${idx}`,
           location: `location ${idx}`,
-          participants: [{name: `part ${idx}`, email: `part-${idx}@designit.com`} as Participant]
+          participants: [{name: `part ${idx}`, email: `part-${idx}@designit.com`} as Participant],
+          owner: {name: `owner ${idx}`, email: `owner-${idx}@designit.com`}
         });
       }
       resolve(res);

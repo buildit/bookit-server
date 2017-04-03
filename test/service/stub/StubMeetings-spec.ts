@@ -20,7 +20,8 @@ describe('stub meetings', () => {
         start: startMom.clone().toDate(),
         end: startMom.clone().add(1, 'hour').toDate(),
         location: 'location 0',
-        participants: [{name: 'part 0', email: 'part-0@designit.com'}]
+        participants: [{name: 'part 0', email: 'part-0@designit.com'}],
+        owner: {name: 'owner 0', email: 'owner-0@designit.com'}
       },
       {
         id: 'uuid-1',
@@ -28,7 +29,8 @@ describe('stub meetings', () => {
         start: startMom.clone().add(4, 'hours').toDate(),
         end: startMom.clone().add(5, 'hours').toDate(),
         location: 'location 1',
-        participants: [{name: 'part 1', email: 'part-1@designit.com'}]
+        participants: [{name: 'part 1', email: 'part-1@designit.com'}],
+        owner: {name: 'owner 1', email: 'owner-1@designit.com'}
       }
     ];
 

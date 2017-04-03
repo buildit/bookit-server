@@ -1,8 +1,8 @@
-import {CloudMeetings} from '../../../src/service/cloud/CloudMeetings';
-import {MeetingHelper} from '../../helper/MeetingHelper';
 import {expect} from 'chai';
-import moment = require('moment');
 import {AppConfig} from '../../../src/config/config';
+import {CloudMeetings} from '../../../src/service/cloud/CloudMeetings';
+import {MeetingHelper} from '../../../src/utils/data/MeetingHelper';
+import moment = require('moment');
 
 const svc = new CloudMeetings(AppConfig.graphApi);
 const ROMAN_ID = 'romans@myews.onmicrosoft.com';
@@ -28,10 +28,9 @@ class BeforeAfter {
   }
 
   test(steps: any): any {
-    return () => {
-      const up = this.setup() as Promise<any>;
-      return up.then(steps());
-    };
+    const up = this.setup() as Promise<any>;
+    const then = up.then(steps);
+    return () => then;
   }
 }
 
@@ -43,11 +42,12 @@ describe('Cloud Meetings service', () => {
 
   it('returns a list of meetings',
     setup(() => {
-      return helper.createEvent(subject, start);
+      return helper.createEvent(subject, start, moment.duration(1, 'minute'), [{name: 'Joe', email: 'joe@nowhere'}]);
     }).test(() => {
       return svc.getMeetings(ROMAN_ID, start, end).then(meetings => {
         expect(meetings.length).to.be.eq(1);
         expect(meetings[0].title).to.be.eq(subject);
+        expect(meetings[0].participants).to.be.deep.eq([{name: 'Joe', email: 'joe@nowhere'}]);
       });
     }));
 

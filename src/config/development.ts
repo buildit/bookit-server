@@ -24,7 +24,7 @@ const devConf: ConfigRoot = {
   roomLists: [
     {
       name: 'nyc',
-      rooms: colors.map(color => r(color))
+      rooms: colors.map(color => r(color)) //[{name: 'roman', email: 'romans@myews.onmicrosoft.com'}]
     }
   ]
 };

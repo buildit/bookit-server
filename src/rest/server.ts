@@ -4,14 +4,12 @@ import * as moment from 'moment';
 import {AppConfig} from '../config/config';
 import {GraphAPI} from '../service/GraphAPI';
 import {Meetings} from '../service/Meetings';
+import {MeetingsOps} from '../service/MeetingsOps';
 import {Rooms} from '../service/Rooms';
-import {StubMeetings} from '../service/stub/StubMeetings';
 import {StubRooms} from '../service/stub/StubRooms';
 import {TokenOperations} from '../service/TokenOperations';
-import {RootLog as logger} from '../utils/RootLogger';
 import {Services} from '../Services';
-import {Meeting} from '../model/Meeting';
-import {MeetingsOps} from '../service/MeetingsOps';
+import {RootLog as logger} from '../utils/RootLogger';
 
 
 function roomList(req: Request): string {
