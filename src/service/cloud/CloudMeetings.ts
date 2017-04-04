@@ -24,12 +24,11 @@ export class CloudMeetings extends CloudBase implements Meetings {
   }
 
   private mapMeeting(meeting: any): Meeting {
-    const start = moment(meeting.start.dateTime).toDate();
-    const end = moment(meeting.end.dateTime).toDate();
+    const start = moment.utc(meeting.start.dateTime).toDate();
+    const end = moment.utc(meeting.end.dateTime).toDate();
     let participants: Participant[] = [];
     if (meeting.attendees) {
       participants = meeting.attendees.map((attendee: any) => {
-        console.log(attendee);
         return {
           name: attendee.emailAddress.name,
           email: attendee.emailAddress.address
