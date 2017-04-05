@@ -42,7 +42,7 @@ describe('Cloud Meetings service', () => {
 
   it('returns a list of meetings',
     setup(() => {
-      return helper.createEvent(subject, start, moment.duration(1, 'minute'), [{name: 'Joe', email: 'joe@nowhere'}]);
+      return helper.createEvent(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{name: 'Joe', email: 'joe@nowhere'}]);
     }).test(() => {
       return svc.getMeetings(ROMAN_ID, start, end).then(meetings => {
         expect(meetings.length).to.be.eq(1);
