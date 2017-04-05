@@ -23,7 +23,8 @@
     "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",
     "watch": "npm run build -- --watch",
     "watch:test": "npm run test -- --watch",
-    "dev": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/rest/index.js"
+    "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config nodemon --delay 2.5 --watch lib lib/rest/index.js",
+    "dev": "concurrently --kill-others 'npm run watch' 'npm run start'"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
@@ -47,6 +48,7 @@
     "@types/request": "0.0.42",
     "@types/supertest": "^2.0.0",
     "chai": "^3.0.0",
+    "concurrently": "^3.4.0",
     "express": "^4.15.2",
     "log4js": "^1.1.1",
     "mocha": "^3.0.0",
