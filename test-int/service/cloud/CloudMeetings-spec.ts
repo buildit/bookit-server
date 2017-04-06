@@ -22,6 +22,16 @@ function setup(action: any): BeforeAfter {
   return new BeforeAfter(action);
 }
 
+function retry(action: () => Promise<any>, check: (val: any) => boolean): Promise<any> {
+  return action().then(val => {
+    if (!check(val)) {
+      return action();
+    } else {
+      return val;
+    }
+  });
+}
+
 // todo mocha?
 class BeforeAfter {
   constructor(private setup: any) {
@@ -42,9 +52,13 @@ describe('Cloud Meetings service', () => {
 
   it('returns a list of meetings',
     setup(() => {
-      return helper.createEvent(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{name: 'Joe', email: 'joe@nowhere'}]);
+      return helper.createEvent(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{
+        name: 'Joe',
+        email: 'joe@nowhere'
+      }]);
     }).test(() => {
-      return svc.getMeetings(ROMAN_ID, start, end).then(meetings => {
+
+      return retry(() => svc.getMeetings(ROMAN_ID, start, end), val => val.length === 1).then(meetings => {
         expect(meetings.length).to.be.eq(1);
         expect(meetings[0].title).to.be.eq(subject);
         expect(meetings[0].participants).to.be.deep.eq([{name: 'Joe', email: 'joe@nowhere'}]);
