@@ -26,7 +26,7 @@
     "watch:int": "npm run test:int -- --watch",
     "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config nodemon --delay 2.5 --watch lib lib/rest/index.js",
     "dev": "concurrently --kill-others 'npm run watch' 'npm run start'",
-    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRUnner.js"
+    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
