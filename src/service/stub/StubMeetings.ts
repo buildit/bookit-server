@@ -28,4 +28,12 @@ export class StubMeetings implements Meetings {
       resolve(res);
     });
   }
+
+  createEvent(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
+    throw new Error('Not implemented for stub');
+  }
+
+  deleteEvent(owner: string, id: string): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 }

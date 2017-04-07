@@ -1,22 +1,21 @@
+import * as assert from 'assert';
+import {TaskQueue} from 'cwait';
+import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
-import moment = require('moment');
-import {CloudBase} from '../../service/cloud/CloudBase';
-import {CloudMeetings} from '../../service/cloud/CloudMeetings';
 import {AppConfig} from '../../config/config';
 import {Meeting} from '../../model/Meeting';
-import {TaskQueue} from 'cwait';
 import {Participant} from '../../model/Participant';
+import {CloudBase} from '../../service/cloud/CloudBase';
+import {Meetings} from '../../service/Meetings';
 
 export class MeetingHelper extends CloudBase {
 
-  private meetingsSvc = new CloudMeetings(AppConfig.graphApi);
-
-  private constructor(private email: string, private queue: TaskQueue<Promise<any>>) {
+  private constructor(private email: string, private meetingsSvc: Meetings, private queue: TaskQueue<Promise<any>>) {
     super(AppConfig.graphApi);
   }
 
-  static calendarOf(email: string, queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {
-    return new MeetingHelper(email, queue);
+  static calendarOf(email: string, meetings: Meetings, queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {
+    return new MeetingHelper(email, meetings, queue);
   }
 
   getMeetings(start: Moment, end: Moment): Promise<Meeting[]> {
@@ -30,7 +29,7 @@ export class MeetingHelper extends CloudBase {
           return;
         })
         .catch(() => {
-          //todo: should catch 404 only
+          // todo: should catch 404 only
           return;
         })));
     });
@@ -41,37 +40,11 @@ export class MeetingHelper extends CloudBase {
   }
 
   createEvent(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
-
-    const attendees = participants.map(participant => (
-      {
-        type: 'required',
-        emailAddress: {
-          name: participant.name,
-          address: participant.email
-        }
-      }
-    ));
-
-    const eventData = {
-      originalStartTimeZone: 'UTC',
-      originalEndTimeZone: 'UTC',
-      subject: subj,
-      sensitivity: 'normal',
-      isAllDay: false,
-      responseRequested: true,
-      showAs: 'busy',
-      type: 'singleInstance',
-      body: {contentType: 'text', content: 'hello from helper'},
-      start: {dateTime: moment.utc(start), timeZone: 'UTC'},
-      end: {dateTime: moment.utc(start.clone().add(duration)), timeZone: 'UTC'},
-      location: {displayName: 'helper', address: {}},
-      attendees,
-    };
-    console.log(JSON.stringify(eventData));
-    return this.client.api(`/users/${this.email}/calendar/events`).post(eventData) as Promise<any>;
+    assert(participants.length === 1);
+    return this.meetingsSvc.createEvent(subj, start, duration, {name: 'no used', email: this.email}, participants[0]);
   }
 
   deleteEvent(id: string): Promise<any> {
-    return this.client.api(`/users/${this.email}/calendar/events/${id}`).delete() as Promise<any>;
+    return this.meetingsSvc.deleteEvent(this.email, id);
   }
 }

@@ -1,10 +1,10 @@
 import {TaskQueue} from 'cwait';
-import * as http from 'http';
 import {Duration, Moment} from 'moment';
 import {AppConfig} from '../../config/config';
-import {MeetingHelper} from './MeetingHelper';
-import moment = require('moment');
+import {Meetings} from '../../service/Meetings';
 import {RootLog as logger} from '../RootLogger';
+import {MeetingHelper} from './MeetingHelper';
+import * as moment from 'moment';
 
 export interface GeneratorConfig {
   readonly titles: string[];
@@ -26,16 +26,17 @@ const DEFAULT_CONFIG: GeneratorConfig = {
 
 const queue = new TaskQueue(Promise, 7);
 
-export function EventGenerator(start: Moment = moment().add(-1, 'day'),
+export function EventGenerator(svc: Meetings,
+                               start: Moment = moment().add(-1, 'day'),
                                end: Moment = moment().add(1, 'weeks'),
                                config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
   return Promise.all(AppConfig.roomLists[0].rooms
-    .map(room => regenerateEvents(room.email, start, end, DEFAULT_CONFIG)));
+    .map(room => regenerateEvents(room.email, start, end, svc, DEFAULT_CONFIG)));
 }
 
-function regenerateEvents(email: string, start: Moment, end: Moment, conf: GeneratorConfig): Promise<any> {
-  const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, queue);
-  const roomMeetingHelper = MeetingHelper.calendarOf(email, queue);
+function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetings, conf: GeneratorConfig): Promise<any> {
+  const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
+  const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
 
   return Promise.all(
     [roomMeetingHelper.cleanupMeetings(start, end), meetingHelper.cleanupMeetings(start, end)])
@@ -79,11 +80,3 @@ function random15MinDelay(maxDuration: Duration) {
 function randomOf<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-
-console.log(`max: ${http.globalAgent.maxSockets}`);
-
-// create random events with meaningful topics
-// 2 weeks by default
-EventGenerator()
-  .then(() => console.log('Done'))
-  .catch(err => console.error('Failed!', err));
