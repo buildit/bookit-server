@@ -1,7 +1,10 @@
 import * as assert from 'assert';
+import * as bodyParser from 'body-parser';
 import {Express, Request, Response} from 'express';
 import * as moment from 'moment';
+import {start} from 'repl';
 import {AppConfig} from '../config/config';
+import {Participant} from '../model/Participant';
 import {GraphAPI} from '../service/GraphAPI';
 import {Meetings} from '../service/Meetings';
 import {MeetingsOps} from '../service/MeetingsOps';
@@ -44,9 +47,15 @@ function checkParam(cond: boolean, message: string, res: Response): boolean {
 }
 // Services
 // TODO: DI kicks in here
+function getCurrentUser(): Participant {
+  // TODO: comes from user context (cookie / jwt)
+  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
+}
 export function registerBookitRest(app: Express,
                                    roomSvc: Rooms = new StubRooms(),
                                    meetingSvc: Meetings = Services.meetings): Express {
+
+  app.use(bodyParser.json());
 
   const meetingsOps = new MeetingsOps(meetingSvc);
 
@@ -103,5 +112,30 @@ export function registerBookitRest(app: Express,
       }
     }
   });
+
+  app.post('/room/:roomEmail/meetings', (req, res) => {
+    console.log('!!!!!!!!', req.body);
+    const event = req.body as MeetingRequest;
+    const startMoment = moment(event.start);
+    const endMoment = moment(event.end);
+    if (checkParam(event.title !== null && event.title.trim().length > 0, 'Title must be provided', res)
+      && checkParam(startMoment.isValid(), 'Start date must be provided', res)
+      && checkParam(endMoment.isValid(), 'End date must be provided', res)
+      && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
+
+      // todo: validation of room availability
+      meetingSvc.createEvent(
+        event.title,
+        startMoment,
+        moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
+        getCurrentUser(), {name: 'room', email: req.params.roomEmail});
+    }
+  });
   return app;
+}
+
+export interface MeetingRequest {
+  readonly title: string;
+  readonly start: string;
+  readonly end: string;
 }

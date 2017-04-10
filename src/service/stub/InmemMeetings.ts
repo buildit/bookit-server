@@ -6,6 +6,12 @@ import * as moment from 'moment';
 
 export class InmemMeetings implements Meetings {
   private store: Map<string, Meeting[]> = new Map();
+  private lastEvent: Meeting;
+
+  get lastAddedMeeting() {
+    return this.lastEvent;
+
+  }
 
   createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve) => {
@@ -24,6 +30,7 @@ export class InmemMeetings implements Meetings {
       };
       meetings.push(meeting);
       this.store.set(room.email, meetings);
+      this.lastEvent = meeting;
       resolve();
     });
   }

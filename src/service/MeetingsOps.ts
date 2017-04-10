@@ -9,6 +9,7 @@ export class MeetingsOps {
   };
 
   getRoomListMeetings(rooms: Room[], start: Moment, end: Moment) {
+    // FIXME: must use queue!!!
     return Promise.all(
       rooms.map(room =>
         this.meetingSvc.getMeetings(room.email, start, end)
@@ -16,4 +17,5 @@ export class MeetingsOps {
             return {room, meetings: m};
           })));
   }
+
 }

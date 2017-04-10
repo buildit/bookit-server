@@ -47,7 +47,6 @@ export default function StatefulSpec(svc: Meetings, description: string) {
     }
   }
 
-
   describe(description, () => {
 
     before(() => {
