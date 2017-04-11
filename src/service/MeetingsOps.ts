@@ -3,6 +3,7 @@ import {Duration, Moment} from 'moment';
 import {Participant} from '../model/Participant';
 import {Room} from '../model/Room';
 import {Meetings} from './Meetings';
+import {Meeting} from '../model/Meeting';
 
 export class MeetingsOps {
 
