@@ -113,8 +113,7 @@ export function registerBookitRest(app: Express,
     }
   });
 
-  app.post('/room/:roomEmail/meetings', (req, res) => {
-    console.log('!!!!!!!!', req.body);
+  app.post('/room/:roomEmail/meeting', (req, res) => {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);
     const endMoment = moment(event.end);
@@ -123,12 +122,16 @@ export function registerBookitRest(app: Express,
       && checkParam(endMoment.isValid(), 'End date must be provided', res)
       && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
 
-      // todo: validation of room availability
-      meetingSvc.createEvent(
+      meetingsOps.createEvent(
         event.title,
         startMoment,
         moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-        getCurrentUser(), {name: 'room', email: req.params.roomEmail});
+        getCurrentUser(), {name: 'room', email: req.params.roomEmail})
+        .then(() => {
+          // FIXME: should return instance of just created event
+          res.send(JSON.stringify('OK'));
+        })
+        .catch(err => sendError(err, res));
     }
   });
   return app;

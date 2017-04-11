@@ -5,7 +5,7 @@ import {Meetings} from '../Meetings';
 import * as moment from 'moment';
 
 export class InmemMeetings implements Meetings {
-  private store: Map<string, Meeting[]> = new Map();
+  private store: Meeting[] = [];
   private lastEvent: Meeting;
 
   get lastAddedMeeting() {
@@ -13,13 +13,12 @@ export class InmemMeetings implements Meetings {
 
   }
 
+  getStore(): Meeting[] {
+    return this.store;
+  }
+
   createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve) => {
-      let meetings = this.store.get(room.email);
-      if (!meetings) {
-        meetings = [];
-        this.store.set(room.email, meetings);
-      }
       const meeting: Meeting = {
         id: `guid-${Math.random().toString()}`,
         owner,
@@ -28,25 +27,26 @@ export class InmemMeetings implements Meetings {
         end: start.clone().add(duration).toDate(),
         participants: [owner, room],
       };
-      meetings.push(meeting);
-      this.store.set(room.email, meetings);
-      this.lastEvent = meeting;
-      resolve();
+      this.store.push(meeting);
+      resolve('OK');
     });
   }
 
   getMeetings(email: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     return new Promise((resolve) => {
-      const meetings = this.store.get(email) || [];
-      resolve(meetings.filter(m => moment(m.start).isBetween(start, end)));
+      const meetings = this.store.filter(m =>
+      m.participants.find(p => p.email === email)
+      && !(moment(m.start).isAfter(end) || moment(m.end).isBefore(start)));
+      resolve(meetings);
     });
   }
 
   deleteEvent(owner: string, id: string): Promise<any> {
     return new Promise((resolve) => {
-      this.store.forEach((meetings, room) => {
-        this.store.set(room, meetings.filter(m => m.owner.email !== owner || m.id !== id));
-      });
+      const idx = this.store.findIndex(m => m.owner.email === owner && m.id === id);
+      if (idx >= 0) {
+        this.store.splice(idx, 1);
+      }
       resolve();
     });
   }

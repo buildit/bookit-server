@@ -10,7 +10,7 @@ import {Meetings} from '../../service/Meetings';
 
 export class MeetingHelper extends CloudBase {
 
-  private constructor(private owner: Participant, private meetingsSvc: Meetings, private queue: TaskQueue<Promise<any>>) {
+  private constructor(public owner: Participant, private meetingsSvc: Meetings, private queue: TaskQueue<Promise<any>>) {
     super(AppConfig.graphApi);
   }
 
@@ -30,11 +30,9 @@ export class MeetingHelper extends CloudBase {
   cleanupMeetings(start: Moment, end: Moment): Promise<any> {
     return this.getMeetings(start, end).then(meetings => {
       return Promise.all(meetings.map(m => this.queue.wrap(() => this.deleteEvent(m.id))()
-        .then(() => {
-          return;
-        })
-        .catch(() => {
-          // todo: should catch 404 only
+        .then(() => {})
+        .catch(err => {
+          console.error('Failed to delete ', err);
           return;
         })));
     });
