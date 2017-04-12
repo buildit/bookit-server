@@ -18,9 +18,11 @@ export class CloudMeetings extends CloudBase implements Meetings {
       .get()
       .then(response => {
         return response.value.map((meeting: any) => this.mapMeeting(meeting));
-      })
-      // todo: fix me please!!!!!!!
-      .catch(err => []) as Promise<Meeting[]>;
+      }, err => {
+        console.error(err);
+        return [];
+      }) as Promise<Meeting[]>;
+
   }
 
   private mapMeeting(meeting: any): Meeting {
@@ -78,7 +80,6 @@ export class CloudMeetings extends CloudBase implements Meetings {
       location: {displayName: 'helper', address: {}},
       attendees,
     };
-    console.log(JSON.stringify(eventData));
     return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
   }
 
