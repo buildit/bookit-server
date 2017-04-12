@@ -46,7 +46,7 @@ function checkParam(cond: boolean, message: string, res: Response): boolean {
 // TODO: DI kicks in here
 export function registerBookitRest(app: Express,
                                    roomSvc: Rooms = new StubRooms(),
-                                   meetingSvc: Meetings = Services.createMeetings()): Express {
+                                   meetingSvc: Meetings = Services.meetings): Express {
 
   const meetingsOps = new MeetingsOps(meetingSvc);
 
