@@ -103,7 +103,6 @@ export default function StatefulSpec(svc: Meetings, description: string) {
       }).test(() => {
 
         return retry(() => svc.getMeetings(existingRoomId, start, end), val => val.length > 0).then(meetings => {
-          console.log('HAH', meetings);
           expect(meetings.length).to.be.eq(1);
           // FIXME: unstable (sometimes it returns user name??!!)
           //expect(meetings[0].title).to.be.eq(subject);

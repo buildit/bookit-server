@@ -27,10 +27,8 @@ export class MeetingsOps {
           if (isAvailable) {
             this.meetingSvc.createEvent(subj, start, duration, owner, room)
               .then((data) => {
-                console.log('ARRRR', data);
                 resolve(data);
               }, err => {
-                console.log('ARRRR', err);
                 reject(err);
               });
           } else {

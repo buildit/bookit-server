@@ -27,6 +27,7 @@ function sendStatus(data: any, statusCode: number, res: Response) {
 }
 
 function sendError(err: any, res: Response) {
+  logger.error(err);
   sendStatus({message: err}, 500, res);
 }
 
