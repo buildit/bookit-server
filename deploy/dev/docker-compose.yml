@@ -2,13 +2,13 @@ version: '2'
 
 services:
   web:
-    image: builditdigital/bookit-web:0.1.0
+    image: builditdigital/bookit-web:latest
     ports:
      - "80:80"
     environment:
-    - API_BASE_URL=/service
+    - API_BASE_URL=http://bookit.riglet.io:8888
   server:
-    image: builditdigital/bookit-server:0.1.0
+    image: builditdigital/bookit-server:latest
     ports:
     - "8888:8888"
     environment:
