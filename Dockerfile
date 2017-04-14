@@ -1,4 +1,4 @@
-FROM node:7
+FROM node:7-alpine
 RUN mkdir -p /usr/src/app
 
 # copy the app
