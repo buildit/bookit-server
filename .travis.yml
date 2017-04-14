@@ -15,7 +15,7 @@ services:
 - docker
 
 after_success:
-- if [ "$TRAVIS_BRANCH" == "docker-prune-dev" ]; then
+- if [ "$TRAVIS_BRANCH" == "master" ]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
     npm prune --production;
     docker build -t builditdigital/bookit-server:$IMG_VERSION .;
