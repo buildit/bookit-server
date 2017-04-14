@@ -16,7 +16,7 @@ services:
 
 script:
 - npm test
-- if [ "$TRAVIS_BRANCH" == "travis_ssh_deploy" ]; then
+- if [ "$TRAVIS_BRANCH" == "master" ]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
     echo "Building $IMG_VERSION";
     npm prune --production;
@@ -32,7 +32,7 @@ deploy:
   skip_cleanup: true
   script: chmod 600 ./deploy/ec2/travis && ./deploy/deploy.sh
   on:
-    branch: travis_ssh_deploy
+    branch: master
 
 # Decrypt deployment key
 before_install:
