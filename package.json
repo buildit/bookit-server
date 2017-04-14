@@ -38,7 +38,10 @@
     "cwait": "^1.0.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
-    "moment": "^2.18.1"
+    "moment": "^2.18.1",
+    "express": "^4.15.2",
+    "log4js": "^1.1.1",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^0.4.1",
@@ -54,12 +57,9 @@
     "@types/supertest": "^2.0.0",
     "chai": "^3.0.0",
     "concurrently": "^3.4.0",
-    "express": "^4.15.2",
-    "log4js": "^1.1.1",
     "mocha": "^3.0.0",
     "nodemon": "^1.11.0",
     "nyc": "^10.0.0",
-    "request": "^2.81.0",
     "rimraf": "^2.0.0",
     "supertest": "^3.0.0",
     "ts-node": "^2.0.0",
