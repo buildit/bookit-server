@@ -13,19 +13,27 @@ notifications:
 sudo: required
 services:
 - docker
+
 script:
 - npm test
-- if [ "$TRAVIS_BRANCH" == "master" ]; then export IMG_VERSION=`node -p -e "require('./package.json').version"`;
-  echo "Building $IMG_VERSION"; npm prune --production; docker build -t builditdigital/bookit-server:$IMG_VERSION
-  .; docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"; docker push builditdigital/bookit-server:$IMG_VERSION;
-  docker tag builditdigital/bookit-server:$IMG_VERSION builditdigital/bookit-server:latest;
-  docker push builditdigital/bookit-server:latest; fi
+- if [ "$TRAVIS_BRANCH" == "master" ]; then
+    export IMG_VERSION=`node -p -e "require('./package.json').version"`;
+    echo "Building $IMG_VERSION";
+    npm prune --production;
+    docker build -t builditdigital/bookit-server:$IMG_VERSION .;
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push builditdigital/bookit-server:$IMG_VERSION;
+    docker tag builditdigital/bookit-server:$IMG_VERSION builditdigital/bookit-server:latest;
+    docker push builditdigital/bookit-server:latest;
+  fi
+
 deploy:
   provider: script
   skip_cleanup: true
   script: chmod 600 ./deploy/ec2/travis && ./deploy/deploy.sh
   on:
     branch: master
+
+# Decrypt deployment key
 before_install:
-- openssl aes-256-cbc -K $encrypted_2d5b9f764c04_key -iv $encrypted_2d5b9f764c04_iv
-  -in ./deploy/ec2/travis.enc -out ./deploy/ec2/travis -d
+- openssl aes-256-cbc -K $encrypted_2d5b9f764c04_key -iv $encrypted_2d5b9f764c04_iv -in ./deploy/ec2/travis.enc -out ./deploy/ec2/travis -d
