@@ -1,5 +1,4 @@
 import {Room} from './Room';
-import {Meetings} from '../service/Meetings';
 
 export interface ConfigRoot {
   useCloud?: boolean;
@@ -23,3 +22,4 @@ export interface Env {
   readonly MICROSOFT_CLIENT_SECRET: string;
   readonly USE_CLOUD: boolean;
 }
+

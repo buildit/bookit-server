@@ -5,7 +5,6 @@ import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 
-
 export class CloudMeetings extends CloudBase implements Meetings {
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
@@ -88,4 +87,3 @@ export class CloudMeetings extends CloudBase implements Meetings {
   }
 
 }
-
