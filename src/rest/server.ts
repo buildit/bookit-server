@@ -13,6 +13,7 @@ import {StubRooms} from '../service/stub/StubRooms';
 import {TokenOperations} from '../service/TokenOperations';
 import {Services} from '../Services';
 import {RootLog as logger} from '../utils/RootLogger';
+import {extractAsMoment} from '../utils/validation';
 
 
 function roomList(req: Request): string {
@@ -52,6 +53,8 @@ function getCurrentUser(): Participant {
   // TODO: comes from user context (cookie / jwt)
   return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
 }
+
+
 export function configureRoutes(app: Express,
                                 roomSvc: Rooms = new StubRooms(),
                                 meetingSvc: Meetings = Services.meetings): Express {
@@ -64,8 +67,8 @@ export function configureRoutes(app: Express,
     console.log(req);
     res.send('done');
   });
-  app.get('/test', (req, res) => {
 
+  app.get('/test', (req, res) => {
     new TokenOperations(AppConfig.graphApi).withToken()
       .then((token) => {
         console.log(`Token is ${token}`);
@@ -86,17 +89,15 @@ export function configureRoutes(app: Express,
   });
 
   app.get('/rooms/:listName/meetings', (req, res) => {
-    const startParam = req.param('start');
-    let start = moment(startParam);
-    const endParam = req.param('end');
-    let end = moment(endParam);
+    const start = extractAsMoment(req, 'start');
+    const end = extractAsMoment(req, 'end');
 
     // range validation!!
     const range = end.diff(start, 'months');
     logger.debug(start.format() as string);
     logger.debug(end.format() as string);
 
-    if (checkParam(startParam || endParam as any, 'At least one of the following must be supplied: start, end', res)
+    if (checkParam(start || end as any, 'At least one of the following must be supplied: start, end', res)
       && checkParam(start.isValid(), 'Start date is not valid', res)
       && checkParam(end.isValid(), 'End date is not valid', res)
       && checkParam(end.isAfter(start), 'End date must be after start date', res)

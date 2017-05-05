@@ -3,7 +3,7 @@ import {CloudMeetings} from './service/cloud/CloudMeetings';
 import {Meetings} from './service/Meetings';
 import {InmemMeetings} from './service/stub/InmemMeetings';
 import * as moment from 'moment';
-import {EventGenerator} from './utils/data/EventGenerator';
+import {generateMeetings} from './utils/data/EventGenerator';
 import {CachedMeetings} from './service/cache/CachedMeetings';
 
 export class Services {
@@ -15,7 +15,7 @@ export class Services {
       return new CachedMeetings(cloudMeetings);
     } else {
       const inmemMeetings = new InmemMeetings();
-      EventGenerator(inmemMeetings, moment().add(-1, 'days'), moment().add(1, 'week'));
+      generateMeetings(inmemMeetings, moment().add(-1, 'days'), moment().add(1, 'week'));
       return new CachedMeetings(inmemMeetings);
     }
   }

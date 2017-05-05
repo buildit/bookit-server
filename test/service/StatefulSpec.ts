@@ -64,7 +64,7 @@ export default function StatefulSpec(svc: Meetings, description: string) {
 
     it('cleanup works',
       setup(() => {
-        return helper.createEvent(subject, start.clone().add(100, 'minute'), moment.duration(1, 'minute'), [{
+        return helper.createMeeting(subject, start.clone().add(100, 'minute'), moment.duration(1, 'minute'), [{
           name: 'Joe',
           email: existingRoomId
         }])
@@ -79,7 +79,7 @@ export default function StatefulSpec(svc: Meetings, description: string) {
 
     it('returns a list of meetings for the room (room auto accepts!)',
       setup(() => {
-        return helper.createEvent(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{
+        return helper.createMeeting(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{
           name: 'Joe',
           email: existingRoomId
         }]);
@@ -96,7 +96,7 @@ export default function StatefulSpec(svc: Meetings, description: string) {
 
     it('returns a list of meetings with meetings which start date is before time interval start!)',
       setup(() => {
-        return helper.createEvent(subject, start.clone().subtract(1, 'minute'), moment.duration(10, 'minute'), [{
+        return helper.createMeeting(subject, start.clone().subtract(1, 'minute'), moment.duration(10, 'minute'), [{
           name: 'Joe',
           email: existingRoomId
         }]);
@@ -126,7 +126,7 @@ export default function StatefulSpec(svc: Meetings, description: string) {
     it('will not allow the creation of a meeting that overlaps with an existing meeting',
       setup(() => {
         return Promise.all([
-          helper.createEvent(subject, start, moment.duration(10, 'minute'), [{
+          helper.createMeeting(subject, start, moment.duration(10, 'minute'), [{
             name: 'Joe',
             email: existingRoomId
           }]),

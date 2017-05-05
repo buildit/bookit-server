@@ -25,29 +25,29 @@ export class CloudMeetings extends CloudBase implements Meetings {
   }
 
   private mapMeeting(meeting: any): Meeting {
+    const mapToParticipant = (attendee: any) => {
+      return {
+        name: attendee.emailAddress.name,
+        email: attendee.emailAddress.address
+      };
+    };
+
     const start = moment.utc(meeting.start.dateTime).toDate();
     const end = moment.utc(meeting.end.dateTime).toDate();
     let participants: Participant[] = [];
     if (meeting.attendees) {
-      participants = meeting.attendees.map((attendee: any) => {
-        return {
-          name: attendee.emailAddress.name,
-          email: attendee.emailAddress.address
-        };
-      });
+      participants = meeting.attendees.map(mapToParticipant);
     }
-    const owner: Participant = {
-      email: meeting.organizer.emailAddress.address,
-      name: meeting.organizer.emailAddress.name
-    };
+
+    // const owner = mapToParticipant(meeting.organizer);
 
     return {
       id: meeting.id as string,
       title: meeting.subject as string,
-      participants,
-      owner,
-      start,
-      end
+      owner: mapToParticipant(meeting.organizer),
+      participants: participants,
+      start: start,
+      end: end
     };
   }
 
