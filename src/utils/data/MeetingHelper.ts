@@ -44,10 +44,10 @@ export class MeetingHelper extends CloudBase {
 
   createEvent(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
     assert(participants.length === 1);
-    return this.meetingsSvc.createEvent(subj, start, duration, this.owner, participants[0]);
+    return this.meetingsSvc.createMeeting(subj, start, duration, this.owner, participants[0]);
   }
 
   deleteEvent(id: string): Promise<any> {
-    return this.meetingsSvc.deleteEvent(this.owner.email, id);
+    return this.meetingsSvc.deleteMeeting(this.owner.email, id);
   }
 }

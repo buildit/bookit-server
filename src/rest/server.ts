@@ -52,9 +52,9 @@ function getCurrentUser(): Participant {
   // TODO: comes from user context (cookie / jwt)
   return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
 }
-export function registerBookitRest(app: Express,
-                                   roomSvc: Rooms = new StubRooms(),
-                                   meetingSvc: Meetings = Services.meetings): Express {
+export function configureRoutes(app: Express,
+                                roomSvc: Rooms = new StubRooms(),
+                                meetingSvc: Meetings = Services.meetings): Express {
 
   app.use(bodyParser.json());
 

@@ -4,7 +4,7 @@ import {Duration, Moment} from 'moment';
 import * as request from 'supertest';
 import {Meeting} from '../../src/model/Meeting';
 import {Participant} from '../../src/model/Participant';
-import {MeetingRequest, registerBookitRest} from '../../src/rest/server';
+import {MeetingRequest, configureRoutes} from '../../src/rest/server';
 import {Meetings} from '../../src/service/Meetings';
 import {StubRooms} from '../../src/service/stub/StubRooms';
 import * as moment from 'moment';
@@ -15,7 +15,7 @@ class MockMeetings implements Meetings {
 
   lastAdded: any;
 
-  createEvent(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
     this.lastAdded = {subj, start, duration, owner, room};
     return new Promise<any>((resolve, reject) => resolve({data: 'new event'}));
   }
@@ -24,14 +24,14 @@ class MockMeetings implements Meetings {
     return new Promise((resolve) => resolve([]));
   }
 
-  deleteEvent(owner: string, id: string): Promise<any> {
+  deleteMeeting(owner: string, id: string): Promise<any> {
     throw 'NOT USED';
   }
 }
 
 const svc = new MockMeetings();
 
-const app = registerBookitRest(express(), stubRooms, svc);
+const app = configureRoutes(express(), stubRooms, svc);
 
 describe('Meeting routes', () => {
   it('Create room actually creates the room', () => {

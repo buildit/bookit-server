@@ -17,7 +17,7 @@ export class InmemMeetings implements Meetings {
     return this.store;
   }
 
-  createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve) => {
       const meeting: Meeting = {
         id: `guid-${Math.random().toString()}`,
@@ -41,7 +41,7 @@ export class InmemMeetings implements Meetings {
     });
   }
 
-  deleteEvent(owner: string, id: string): Promise<any> {
+  deleteMeeting(owner: string, id: string): Promise<any> {
     return new Promise((resolve) => {
       const idx = this.store.findIndex(m => m.owner.email === owner && m.id === id);
       if (idx >= 0) {

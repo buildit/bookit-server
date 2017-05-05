@@ -51,7 +51,7 @@ export class CloudMeetings extends CloudBase implements Meetings {
     };
   }
 
-  createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
 
     const participants = [room];
     const attendees = participants.map(participant => (
@@ -82,7 +82,7 @@ export class CloudMeetings extends CloudBase implements Meetings {
     return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
   }
 
-  deleteEvent(owner: string, id: string): Promise<any> {
+  deleteMeeting(owner: string, id: string): Promise<any> {
     return this.client.api(`/users/${owner}/calendar/events/${id}`).delete() as Promise<any>;
   }
 

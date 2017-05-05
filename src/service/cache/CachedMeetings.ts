@@ -37,12 +37,12 @@ export class CachedMeetings implements Meetings {
     });
   }
 
-  createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
-    return this.delegatedMeetingsService.createEvent(subj, start, duration, owner, room);
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+    return this.delegatedMeetingsService.createMeeting(subj, start, duration, owner, room);
   }
 
-  deleteEvent(owner: string, id: string): Promise<any> {
-    return this.delegatedMeetingsService.deleteEvent(owner, id);
+  deleteMeeting(owner: string, id: string): Promise<any> {
+    return this.delegatedMeetingsService.deleteMeeting(owner, id);
   }
 
   refreshCache(start: Moment, end: Moment) {

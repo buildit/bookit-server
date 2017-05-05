@@ -1,14 +1,14 @@
 import {expect} from 'chai';
 import * as express from 'express';
 import * as request from 'supertest';
-import {registerBookitRest} from '../../src/rest/server';
+import {configureRoutes} from '../../src/rest/server';
 import {StubMeetings} from '../../src/service/stub/StubMeetings';
 import {StubRooms} from '../../src/service/stub/StubRooms';
 
 const stubRooms = new StubRooms(['white', 'black']);
 
 // TODO: DI is a must!
-const app = registerBookitRest(express(), stubRooms, new StubMeetings());
+const app = configureRoutes(express(), stubRooms, new StubMeetings());
 
 it('Room list is available on /rooms/nyc', (done) => {
   request(app)

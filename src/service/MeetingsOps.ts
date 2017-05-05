@@ -25,7 +25,7 @@ export class MeetingsOps {
       this.checkTimeIsAvailable(room, start, duration)
         .then(isAvailable => {
           if (isAvailable) {
-            this.meetingSvc.createEvent(subj, start, duration, owner, room)
+            this.meetingSvc.createMeeting(subj, start, duration, owner, room)
               .then((data) => {
                 resolve(data);
               }, err => {
