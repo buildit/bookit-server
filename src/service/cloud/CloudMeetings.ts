@@ -10,46 +10,19 @@ export class CloudMeetings extends CloudBase implements Meetings {
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
     const endDateTime = end.toISOString();
-    return this.client
-      .api(`/users/${email}/calendar/calendarView`)
-      .query({startDateTime, endDateTime})
-      .top(999) // FIXME: should limit???
-      .get()
-      .then(response => {
-        return response.value.map((meeting: any) => this.mapMeeting(meeting));
-      }, err => {
-        console.error(err);
-        return [];
-      }) as Promise<Meeting[]>;
+    return this.client.api(`/users/${email}/calendar/calendarView`)
+               .query({startDateTime, endDateTime})
+               .top(999) // FIXME: should limit???
+               .get()
+               .then(response => {
+                 return response.value.map((meeting: any) => CloudMeetings.mapMeeting(meeting));
+               }, err => {
+                 console.error(err);
+                 return [];
+               }) as Promise<Meeting[]>;
 
   }
 
-  private mapMeeting(meeting: any): Meeting {
-    const mapToParticipant = (attendee: any) => {
-      return {
-        name: attendee.emailAddress.name,
-        email: attendee.emailAddress.address
-      };
-    };
-
-    const start = moment.utc(meeting.start.dateTime).toDate();
-    const end = moment.utc(meeting.end.dateTime).toDate();
-    let participants: Participant[] = [];
-    if (meeting.attendees) {
-      participants = meeting.attendees.map(mapToParticipant);
-    }
-
-    // const owner = mapToParticipant(meeting.organizer);
-
-    return {
-      id: meeting.id as string,
-      title: meeting.subject as string,
-      owner: mapToParticipant(meeting.organizer),
-      participants: participants,
-      start: start,
-      end: end
-    };
-  }
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
 
@@ -82,8 +55,32 @@ export class CloudMeetings extends CloudBase implements Meetings {
     return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
   }
 
+
   deleteMeeting(owner: string, id: string): Promise<any> {
     return this.client.api(`/users/${owner}/calendar/events/${id}`).delete() as Promise<any>;
   }
 
+
+  private static mapMeeting(meeting: any): Meeting {
+    const mapToParticipant = (attendee: any) => {
+      return {
+        name: attendee.emailAddress.name,
+        email: attendee.emailAddress.address
+      };
+    };
+
+    let participants: Participant[] = [];
+    if (meeting.attendees) {
+      participants = meeting.attendees.map(mapToParticipant);
+    }
+
+    return {
+      id: meeting.id as string,
+      title: meeting.subject as string,
+      owner: mapToParticipant(meeting.organizer),
+      participants: participants,
+      start: moment.utc(meeting.start.dateTime).toDate(),
+      end: moment.utc(meeting.end.dateTime).toDate()
+    };
+  }
 }

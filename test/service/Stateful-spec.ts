@@ -5,12 +5,13 @@ import {expect} from 'chai';
 import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/service/MeetingsOps';
 import {Moment} from 'moment';
+// import * as UUID from 'uuid';
 
 export default function StatefulSpec(svc: Meetings, description: string) {
   description = description || '???';
 
   const ROMAN_ID = 'romans@myews.onmicrosoft.com';
-  const nonExistentRoomId = 'find a library to create unique id';
+  const nonExistentRoomId = 'non-existent';
   const existingRoomId = 'cyan-room@myews.onmicrosoft.com';
   const helper = MeetingHelper.calendarOf(ROMAN_ID, svc);
   const roomHelper = MeetingHelper.calendarOf(existingRoomId, svc);
@@ -35,15 +36,16 @@ export default function StatefulSpec(svc: Meetings, description: string) {
     return new BeforeAfter(action);
   }
 
-  function retry(action: () => Promise<any>, check: (val: any) => boolean): Promise<any> {
+  function retry(action: () => Promise<any>, predicate: (val: any) => boolean): Promise<any> {
     const retryFunc = (val: boolean) => {
-      if (!check(val)) {
-        return retry(action, check);
+      if (!predicate(val)) {
+        return retry(action, predicate);
       } else {
         return val;
       }
     };
-    return action().then(retryFunc, () => retry(action, check));
+
+    return action().then(retryFunc, () => retry(action, predicate));
   }
 
 // todo mocha?
@@ -112,17 +114,21 @@ export default function StatefulSpec(svc: Meetings, description: string) {
         });
       }));
 
+
     it('correctly handles no meetings', () => {
       return svc.getMeetings(ROMAN_ID, start, end).then(meetings => {
         expect(meetings.length).to.be.eq(0);
       });
     });
 
+
     it('returns an empty array for non-existent room', () => {
       return svc.getMeetings(nonExistentRoomId, start, end).then(meetings => {
         expect(meetings.length).to.be.eq(0);
       });
     });
+
+
     it('will not allow the creation of a meeting that overlaps with an existing meeting',
       setup(() => {
         return Promise.all([

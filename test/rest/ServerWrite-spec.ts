@@ -1,37 +1,12 @@
 import {expect} from 'chai';
 import * as express from 'express';
-import {Moment} from 'moment';
 import * as request from 'supertest';
-import {Meeting} from '../../src/model/Meeting';
-import {Participant} from '../../src/model/Participant';
 import {MeetingRequest, configureRoutes} from '../../src/rest/server';
-import {Meetings} from '../../src/service/Meetings';
 import {StubRooms} from '../../src/service/stub/StubRooms';
 import * as moment from 'moment';
+import {MockMeetings} from '../service/MockMeetings';
 
 const stubRooms = new StubRooms(['white', 'black']);
-
-class MockMeetings implements Meetings {
-
-  lastAdded: any;
-
-  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
-    this.lastAdded = {subj, start, duration, owner, room};
-    return new Promise((resolve, reject) => {
-      resolve({data: 'new event'});
-    });
-  }
-
-  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
-    return new Promise((resolve) => {
-      resolve([] as Meeting[]);
-    });
-  }
-
-  deleteMeeting(owner: string, id: string): Promise<any> {
-    throw 'NOT USED';
-  }
-}
 
 const svc = new MockMeetings();
 

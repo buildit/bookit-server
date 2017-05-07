@@ -21,7 +21,7 @@ export class InmemMeetings implements Meetings {
     return new Promise((resolve) => {
       const meeting: Meeting = {
         id: `guid-${Math.random().toString()}`,
-        owner,
+        owner: owner,
         title: subj,
         start: start.toDate(),
         end: start.clone().add(duration).toDate(),

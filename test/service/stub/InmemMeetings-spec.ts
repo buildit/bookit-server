@@ -1,5 +1,5 @@
 import {InmemMeetings} from '../../../src/service/stub/InmemMeetings';
-import StatefulSpec from '../StatefulSpec';
+import StatefulSpec from '../Stateful-spec';
 
 const svc = new InmemMeetings();
 
