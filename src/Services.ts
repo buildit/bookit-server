@@ -1,6 +1,6 @@
 import {AppConfig} from './config/config';
 import {CloudMeetings} from './service/cloud/CloudMeetings';
-import {Meetings} from './service/Meetings';
+import {MeetingsService} from './service/MeetingService';
 import {InmemMeetings} from './service/stub/InmemMeetings';
 import * as moment from 'moment';
 import {generateMeetings} from './utils/data/EventGenerator';
@@ -8,7 +8,7 @@ import {CachedMeetings} from './service/cache/CachedMeetings';
 
 export class Services {
 
-  private static createMeetings(): Meetings {
+  private static createMeetings(): MeetingsService {
     // TODO: replace this wrapper stuff with ES Proxy
     if (AppConfig.useCloud) {
       const cloudMeetings = new CloudMeetings(AppConfig.graphApi);
@@ -22,7 +22,7 @@ export class Services {
 
   private static meetingsInst = Services.createMeetings();
 
-  static get meetings(): Meetings {
+  static get meetings(): MeetingsService {
     return Services.meetingsInst;
   }
 }

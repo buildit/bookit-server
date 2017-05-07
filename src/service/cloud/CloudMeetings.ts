@@ -1,11 +1,11 @@
 import * as moment from 'moment';
 import {Meeting} from '../../model/Meeting';
-import {Meetings} from '../Meetings';
+import {MeetingsService} from '../MeetingService';
 import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 
-export class CloudMeetings extends CloudBase implements Meetings {
+export class CloudMeetings extends CloudBase implements MeetingsService {
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();

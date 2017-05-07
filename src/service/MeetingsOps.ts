@@ -4,13 +4,13 @@ import {Duration, Moment} from 'moment';
 import {RootLog as logger} from '../utils/RootLogger';
 import {Participant} from '../model/Participant';
 import {Room} from '../model/Room';
-import {Meetings} from './Meetings';
+import {MeetingsService} from './MeetingService';
 import {Meeting} from '../model/Meeting';
 import {isMomentBetween} from '../utils/validation';
 
 export class MeetingsOps {
 
-  constructor(private meetingSvc: Meetings) {
+  constructor(private meetingSvc: MeetingsService) {
   };
 
 

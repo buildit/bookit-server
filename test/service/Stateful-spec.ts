@@ -1,4 +1,4 @@
-import {Meetings} from '../../src/service/Meetings';
+import {MeetingsService} from '../../src/service/MeetingService';
 import {MeetingHelper} from '../../src/utils/data/MeetingHelper';
 import * as moment from 'moment';
 import {expect} from 'chai';
@@ -7,7 +7,7 @@ import {MeetingsOps} from '../../src/service/MeetingsOps';
 import {Moment} from 'moment';
 // import * as UUID from 'uuid';
 
-export default function StatefulSpec(svc: Meetings, description: string) {
+export default function StatefulSpec(svc: MeetingsService, description: string) {
   description = description || '???';
 
   const ROMAN_ID = 'romans@myews.onmicrosoft.com';

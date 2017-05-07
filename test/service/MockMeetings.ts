@@ -2,9 +2,9 @@ import {Moment, Duration} from 'moment';
 
 import {Meeting} from '../../src/model/Meeting';
 import {Participant} from '../../src/model/Participant';
-import {Meetings} from '../../src/service/Meetings';
+import {MeetingsService} from '../../src/service/MeetingService';
 
-export class MockMeetings implements Meetings {
+export class MockMeetings implements MeetingsService {
 
   lastAdded: any;
 

@@ -1,5 +1,5 @@
 import {Meeting} from '../../model/Meeting';
-import {Meetings} from '../Meetings';
+import {MeetingsService} from '../MeetingService';
 import {Participant} from '../../model/Participant';
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
@@ -7,13 +7,13 @@ import {LocalRooms} from '../local/LocalRooms';
 import {AppConfig} from '../../config/config';
 import {RootLog as logger} from '../../utils/RootLogger';
 
-export class CachedMeetings implements Meetings {
+export class CachedMeetings implements MeetingsService {
 
   private jobId: NodeJS.Timer;
 
   private calendarsCache: { [email: string]: Meeting[]; } = { };
 
-  constructor(private delegatedMeetingsService: Meetings) {
+  constructor(private delegatedMeetingsService: MeetingsService) {
     const cacheRefreshInterval = 10 * 1000;
     this.jobId = setInterval(() => {
       const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config

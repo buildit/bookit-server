@@ -6,19 +6,19 @@ import {AppConfig} from '../../config/config';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
 import {CloudBase} from '../../service/cloud/CloudBase';
-import {Meetings} from '../../service/Meetings';
+import {MeetingsService} from '../../service/MeetingService';
 
 export class MeetingHelper extends CloudBase {
 
   private constructor(public owner: Participant,
-                      private meetingsSvc: Meetings,
+                      private meetingsSvc: MeetingsService,
                       private queue: TaskQueue<Promise<any>>) {
     super(AppConfig.graphApi);
   }
 
   // TODO: should this allow both types for owner
   static calendarOf(owner: Participant | string,
-                    meetings: Meetings,
+                    meetings: MeetingsService,
                     queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {
     if (typeof owner === 'string') {
       return new MeetingHelper({email: owner, name: owner.split('@')[0]}, meetings, queue);

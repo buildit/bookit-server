@@ -1,7 +1,7 @@
 import {TaskQueue} from 'cwait';
 import {Duration, Moment} from 'moment';
 import {AppConfig} from '../../config/config';
-import {Meetings} from '../../service/Meetings';
+import {MeetingsService} from '../../service/MeetingService';
 import {RootLog as logger} from '../RootLogger';
 import {MeetingHelper} from './MeetingHelper';
 import * as moment from 'moment';
@@ -26,7 +26,7 @@ const DEFAULT_CONFIG: GeneratorConfig = {
 
 const queue = new TaskQueue(Promise, 7);
 
-export function generateMeetings(svc: Meetings,
+export function generateMeetings(svc: MeetingsService,
                                  start: Moment = moment().add(-1, 'day'),
                                  end: Moment = moment().add(1, 'weeks'),
                                  config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
@@ -35,7 +35,7 @@ export function generateMeetings(svc: Meetings,
 }
 
 
-function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetings, conf: GeneratorConfig): Promise<any> {
+function regenerateEvents(email: string, start: Moment, end: Moment, svc: MeetingsService, conf: GeneratorConfig): Promise<any> {
   const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
   const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
 

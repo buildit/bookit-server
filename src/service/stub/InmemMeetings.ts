@@ -1,10 +1,10 @@
 import {Duration, Moment} from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {Meetings} from '../Meetings';
+import {MeetingsService} from '../MeetingService';
 import * as moment from 'moment';
 
-export class InmemMeetings implements Meetings {
+export class InmemMeetings implements MeetingsService {
   private store: Meeting[] = [];
   private lastEvent: Meeting;
 

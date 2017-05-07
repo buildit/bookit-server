@@ -31,16 +31,17 @@
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
-    "@types/body-parser": "^1.16.3",
+    "@types/node-uuid": "0.0.28",
     "body-parser": "^1.17.1",
     "config": "^1.25.1",
     "cors": "^2.8.3",
     "cwait": "^1.0.1",
     "dotenv": "^4.0.0",
-    "moment": "^2.18.1",
     "express": "^4.15.2",
     "log4js": "^1.1.1",
-    "request": "^2.81.0"
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^0.4.1",
@@ -54,6 +55,8 @@
     "@types/node": "^6.0.68",
     "@types/request": "0.0.42",
     "@types/supertest": "^2.0.0",
+    "@types/body-parser": "^1.16.3",
+    "@types/node-uuid": "0.0.28",
     "chai": "^3.0.0",
     "concurrently": "^3.4.0",
     "mocha": "^3.0.0",

@@ -16,8 +16,8 @@
     "src/**/*"
   ],
   "exclude": [
-    "node_modules",
-    "test",
-    "test-int"
+    "node_modules"
+//    "test",
+//    "test-int"
   ]
 }

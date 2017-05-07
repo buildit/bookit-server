@@ -1,10 +1,10 @@
 import * as moment from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {Meetings} from '../Meetings';
+import {MeetingsService} from '../MeetingService';
 import {Moment} from 'moment';
 
-export class StubMeetings implements Meetings {
+export class StubMeetings implements MeetingsService {
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve, reject) => {
       const hours = end.diff(start, 'hours');

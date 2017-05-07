@@ -6,7 +6,7 @@ import {start} from 'repl';
 import {AppConfig} from '../config/config';
 import {Participant} from '../model/Participant';
 import {GraphAPI} from '../service/GraphAPI';
-import {Meetings} from '../service/Meetings';
+import {MeetingsService} from '../service/MeetingService';
 import {MeetingsOps} from '../service/MeetingsOps';
 import {Rooms} from '../service/Rooms';
 import {StubRooms} from '../service/stub/StubRooms';
@@ -57,7 +57,7 @@ function getCurrentUser(): Participant {
 
 export function configureRoutes(app: Express,
                                 roomSvc: Rooms = new StubRooms(),
-                                meetingSvc: Meetings = Services.meetings): Express {
+                                meetingSvc: MeetingsService = Services.meetings): Express {
 
   app.use(bodyParser.json());
 
