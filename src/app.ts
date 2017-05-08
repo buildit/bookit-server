@@ -4,7 +4,6 @@ import {TokenOperations} from './service/TokenOperations';
 
 new TokenOperations(AppConfig.graphApi).withToken()
   .then((token) => {
-    console.log(`Token is ${token}`);
     return new GraphAPI().getUsers(token);
   })
   .then(users => console.log(users))

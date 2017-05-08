@@ -61,14 +61,12 @@ export function registerBookitRest(app: Express,
   const meetingsOps = new MeetingsOps(meetingSvc);
 
   app.get('/', (req, res) => {
-    console.log(req);
     res.send('done');
   });
   app.get('/test', (req, res) => {
 
     new TokenOperations(AppConfig.graphApi).withToken()
       .then((token) => {
-        console.log(`Token is ${token}`);
         return new GraphAPI().getUsers(token);
       })
       .then(users =>

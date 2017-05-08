@@ -51,12 +51,15 @@ function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetin
 
         const eventDate = currentDate.clone();
         events.push(queue.wrap(() => meetingHelper.createEvent(subject, eventDate, duration, [{email}]))()
-          .then(() => logger.debug(`Created event ${subject} as ${eventDate}`))
+          .then(() => {
+            // logger.debug(`Created event ${subject} as ${eventDate}`);
+          })
           .catch(err => logger.error(`Failed to create event for ${email}`, err))
         );
 
         currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
       }
+      logger.debug(`Generated ${events.length} random events for ${email} on ${currentDate.format('MMM DD YYYY')}.`);
       return Promise.all(events);
     });
 
