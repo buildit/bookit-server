@@ -2,15 +2,15 @@ import {ConfigRoot} from '../model/ConfigRoot';
 import {Room} from '../model/Room';
 import AppEnv from './env';
 
-function r(c: string): Room {
-  const email = `${c.toLowerCase()}-room@myews.onmicrosoft.com`;
-  return {name: c, email};
+function makeRoom(color: string): Room {
+  const email = `${color.toLowerCase()}-room@myews.onmicrosoft.com`;
+  return {name: color, email};
 }
 
 const colors = [
   'Red',
   'Green',
-  'Blue',
+//  'Blue',
   'White',
   'Black',
   'Yellow',
@@ -24,7 +24,7 @@ const devConf: ConfigRoot = {
   roomLists: [
     {
       name: 'nyc',
-      rooms: colors.map(color => r(color))
+      rooms: colors.map(makeRoom)
     }
   ]
 };

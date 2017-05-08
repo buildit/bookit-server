@@ -5,7 +5,7 @@ import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 
-export class CloudMeetings extends CloudBase implements MeetingsService {
+export class CloudMeetingService extends CloudBase implements MeetingsService {
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
@@ -15,7 +15,7 @@ export class CloudMeetings extends CloudBase implements MeetingsService {
                .top(999) // FIXME: should limit???
                .get()
                .then(response => {
-                 return response.value.map((meeting: any) => CloudMeetings.mapMeeting(meeting));
+                 return response.value.map((meeting: any) => CloudMeetingService.mapMeeting(meeting));
                }, err => {
                  console.error(err);
                  return [];
@@ -25,7 +25,6 @@ export class CloudMeetings extends CloudBase implements MeetingsService {
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
-
     const participants = [room];
     const attendees = participants.map(participant => (
       {
@@ -52,6 +51,7 @@ export class CloudMeetings extends CloudBase implements MeetingsService {
       location: {displayName: 'helper', address: {}},
       attendees,
     };
+
     return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
   }
 

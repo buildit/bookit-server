@@ -33,38 +33,34 @@ export class MeetingsOps {
   createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve, reject) => {
       this.checkTimeIsAvailable(room, start, duration)
-        .then(isAvailable => {
-          if (isAvailable) {
+          .then(() => {
             this.meetingSvc.createMeeting(subj, start, duration, owner, room)
-              .then((data) => {
-                resolve(data);
-              }, err => {
-                reject(err);
-              });
-          } else {
-            reject('This time slot is not available.');
-          }
-        })
-        .catch(err => reject(err));
+                .then(resolve)
+                .catch(reject);
+          })
+          .catch(reject);
     });
   }
-
 
   private checkTimeIsAvailable(calendarOwner: Participant,
                                start: moment.Moment,
-                               duration: moment.Duration): Promise<boolean> {
+                               duration: moment.Duration): Promise<any> {
     const end = start.clone().add(duration);
-    return this.meetingSvc.getMeetings(calendarOwner.email, start, end).then(meetings => {
-      return this.hasConflicts(meetings, start, end);
-    });
+
+    return this.meetingSvc
+               .getMeetings(calendarOwner.email, start, end)
+               .then(meetings => this.hasConflicts(meetings, start, end));
   }
 
 
-  private hasConflicts(meetings: Meeting[], start: moment.Moment, end: moment.Moment): boolean {
+  private hasConflicts(meetings: Meeting[], start: moment.Moment, end: moment.Moment) {
     const conflict = meetings.find(meeting => {
       return isMomentBetween(moment(meeting.start), moment(meeting.end), start, end);
     });
 
-    return conflict === undefined;
+    if (conflict) {
+      throw 'Found conflict';
+    }
   }
+
 }

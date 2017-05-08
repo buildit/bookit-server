@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import * as express from 'express';
 import * as request from 'supertest';
+
 import {configureRoutes} from '../../src/rest/server';
 import {StubMeetings} from '../../src/service/stub/StubMeetings';
 import {StubRooms} from '../../src/service/stub/StubRooms';
@@ -19,7 +20,7 @@ it('Room list is available on /rooms/nyc', (done) => {
               });
 });
 
-describe('Meeting routes', () => {
+describe('Meeting routes read operations', () => {
   it('Valid response contains a list of rooms', () => {
     const expectedResponse = {
       title: 'meeting 0',

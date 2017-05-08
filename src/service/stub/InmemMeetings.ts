@@ -17,6 +17,7 @@ export class InmemMeetings implements MeetingsService {
     return this.store;
   }
 
+
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve) => {
       const meeting: Meeting = {
@@ -32,6 +33,7 @@ export class InmemMeetings implements MeetingsService {
     });
   }
 
+
   getMeetings(email: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     return new Promise((resolve) => {
       const meetings = this.store.filter(m =>
@@ -40,6 +42,7 @@ export class InmemMeetings implements MeetingsService {
       resolve(meetings);
     });
   }
+
 
   deleteMeeting(owner: string, id: string): Promise<any> {
     return new Promise((resolve) => {

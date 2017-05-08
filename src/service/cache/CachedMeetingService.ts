@@ -7,7 +7,7 @@ import {LocalRooms} from '../local/LocalRooms';
 import {AppConfig} from '../../config/config';
 import {RootLog as logger} from '../../utils/RootLogger';
 
-export class CachedMeetings implements MeetingsService {
+export class CachedMeetingService implements MeetingsService {
 
   private jobId: NodeJS.Timer;
 

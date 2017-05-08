@@ -1,9 +1,11 @@
+import * as moment from 'moment';
 import {expect} from 'chai';
 import * as express from 'express';
 import * as request from 'supertest';
+
+import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingRequest, configureRoutes} from '../../src/rest/server';
 import {StubRooms} from '../../src/service/stub/StubRooms';
-import * as moment from 'moment';
 import {MockMeetings} from '../service/MockMeetings';
 
 const stubRooms = new StubRooms(['white', 'black']);
@@ -12,7 +14,7 @@ const svc = new MockMeetings();
 
 const app = configureRoutes(express(), stubRooms, svc);
 
-describe('Meeting routes', () => {
+describe('Meeting routes write operations', () => {
   it('Create room actually creates the room', () => {
     const meetingReq: MeetingRequest = {
       title: 'meeting 0',
@@ -20,20 +22,27 @@ describe('Meeting routes', () => {
       end: '2013-02-09 09:00',
     };
 
-    return request(app)
-      .post('/room/white-room@designit.com@somewhere/meeting')
-      .set('Content-Type', 'application/json')
-      .send(meetingReq)
-      .expect(200)
-      .then(() => {
-        expect(svc.lastAdded).to.be.deep.eq({
-          subj: 'meeting 0',
-          start: moment(meetingReq.start),
-          duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
-          owner: {email: 'romans@myews.onmicrosoft.com', name: 'Comes from the session!!!'},
-          room: {email: 'white-room@designit.com@somewhere', name: 'room'}
-        });
-      });
+    const expected = {
+      subj: 'meeting 0',
+      start: moment(meetingReq.start),
+      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      owner: {
+        email: 'romans@myews.onmicrosoft.com',
+        name: 'Comes from the session!!!'
+      },
+      room: {
+        email: 'white-room@designit.com@somewhere',
+        name: 'room'
+      }
+    };
+
+    return request(app).post('/room/white-room@designit.com@somewhere/meeting')
+                       .set('Content-Type', 'application/json')
+                       .send(meetingReq)
+                       .expect(200)
+                       .then(() => {
+                         expect(svc.lastAdded).to.be.deep.eq(expected);
+                       });
   });
 
   const validationCases = [

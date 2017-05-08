@@ -3,6 +3,7 @@ import * as bodyParser from 'body-parser';
 import {Express, Request, Response} from 'express';
 import * as moment from 'moment';
 import {start} from 'repl';
+
 import {AppConfig} from '../config/config';
 import {Participant} from '../model/Participant';
 import {GraphAPI} from '../service/GraphAPI';
@@ -124,16 +125,17 @@ export function configureRoutes(app: Express,
       && checkParam(endMoment.isValid(), 'End date must be provided', res)
       && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
 
-      meetingsOps.createEvent(
-        event.title,
-        startMoment,
-        moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-        getCurrentUser(), {name: 'room', email: req.params.roomEmail})
-        .then(() => {
-          // FIXME: should return instance of just created event
-          res.send(JSON.stringify('OK'));
-        })
-        .catch(err => sendError(err, res));
+
+      meetingsOps.createEvent(event.title,
+                              startMoment,
+                              moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
+                              getCurrentUser(),
+                              {name: 'room', email: req.params.roomEmail})
+                 .then(() => {
+                   // FIXME: should return instance of just created event
+                   res.send(JSON.stringify('OK'));
+                 })
+                 .catch(err => sendError(err, res));
     }
   });
   return app;

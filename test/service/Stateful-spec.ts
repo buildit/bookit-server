@@ -1,10 +1,13 @@
+import * as moment from 'moment';
+import {Moment} from 'moment';
+import {expect} from 'chai';
+
 import {MeetingsService} from '../../src/service/MeetingService';
 import {MeetingHelper} from '../../src/utils/data/MeetingHelper';
-import * as moment from 'moment';
-import {expect} from 'chai';
 import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/service/MeetingsOps';
-import {Moment} from 'moment';
+import {RootLog as logger} from '../../src/utils/RootLogger';
+
 // import * as UUID from 'uuid';
 
 export default function StatefulSpec(svc: MeetingsService, description: string) {
@@ -140,13 +143,14 @@ export default function StatefulSpec(svc: MeetingsService, description: string) 
         ]);
       }).test(() => {
         return ops.createEvent('double booking', start.clone().add(5, 'minutes'),
-          moment.duration(10, 'minutes'), {name: 'Roman', email: ROMAN_ID}, {name: 'room', email: existingRoomId})
-          .then(result => {
-              throw new Error('Should not be here!!!');
-            },
-            err => {
-              expect(err).to.be.eq('This time slot is not available.');
-            });
+                               moment.duration(10, 'minutes'), {name: 'Roman', email: ROMAN_ID},
+                               {name: 'room', email: existingRoomId})
+                  .then(result => {
+                    throw new Error('Should not be here!!!');
+                  })
+                  .catch(err => {
+                    expect(err).to.be.eq('Found conflict');
+                  });
       })
     );
 
