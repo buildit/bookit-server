@@ -1,6 +1,6 @@
 # Bookit server
 
-A server for [Bookit](https://github.com/buildit/bookit-react).
+A server for [Bookit](https://github.com/buildit/bookit-web).
 
 ## Quick start
 ```
