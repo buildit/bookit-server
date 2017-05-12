@@ -12,6 +12,25 @@ See room list at [http://localhost:8888/rooms/nyc/](http://localhost:8888/rooms/
 
 See meeting list at [http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12](http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12)
 
+## App config
+It flows like this:
+.env --> node config --> runtime config
+
+env.ts
+  improve user messaging
+
+how node config works
+  `default.ts` is always run.
+  `development.ts` is always run. Maybe we can drop it.
+  Then any file whose name matches `NODE_ENV` also runs. We set `NODE_ENV` in several npm scripts.
+
+There is the bootstrap config and the runtime config:
+bootstrapping config
+  parses `.env`
+
+runtime config
+  figures out which services to use
+
 ## Connecting to MS Exchange
 Create a .env file. Put the following in it:
 ```
