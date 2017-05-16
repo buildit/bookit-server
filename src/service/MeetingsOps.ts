@@ -6,7 +6,7 @@ import {Participant} from '../model/Participant';
 import {Room} from '../model/Room';
 import {MeetingsService} from './MeetingService';
 import {Meeting} from '../model/Meeting';
-import {isMomentBetween} from '../utils/validation';
+import {isMeetingOverlapping} from '../utils/validation';
 
 export class MeetingsOps {
 
@@ -19,18 +19,23 @@ export class MeetingsOps {
     // TODO: figure out why
 
     const mapRoom = (room: Room) => {
-      this.meetingSvc
-          .getMeetings(room.email, start, end)
-          .then(m => {
-            return {room, meetings: m};
-          });
+      return this.meetingSvc
+                 .getMeetings(room.email, start, end)
+                 .then(m => {
+                   return {room, meetings: m};
+                 });
     };
 
     return Promise.all(rooms.map(mapRoom));
   }
 
 
-  createEvent(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
+    return this.meetingSvc.getMeetings(email, start, end);
+  }
+
+
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
     return new Promise((resolve, reject) => {
       this.checkTimeIsAvailable(room, start, duration)
           .then(() => {
@@ -41,6 +46,12 @@ export class MeetingsOps {
           .catch(reject);
     });
   }
+
+
+  deleteMeeting(owner: string, id: string): Promise<any> {
+    return this.meetingSvc.deleteMeeting(owner, id);
+  }
+
 
   private checkTimeIsAvailable(calendarOwner: Participant,
                                start: moment.Moment,
@@ -53,9 +64,9 @@ export class MeetingsOps {
   }
 
 
-  private hasConflicts(meetings: Meeting[], start: moment.Moment, end: moment.Moment) {
+  private hasConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
     const conflict = meetings.find(meeting => {
-      return isMomentBetween(moment(meeting.start), moment(meeting.end), start, end);
+      return isMeetingOverlapping(moment(meeting.start), moment(meeting.end), newMeetingStart, newMeetingEnd);
     });
 
     if (conflict) {

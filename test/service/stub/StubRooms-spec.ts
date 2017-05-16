@@ -1,12 +1,12 @@
 import * as chai from 'chai';
-import {StubRooms} from '../../../src/service/stub/StubRooms';
+import {StubRoomService} from '../../../src/service/stub/StubRoomService';
 import DateTimeFormat = Intl.DateTimeFormat;
 
 const expect = chai.expect;
 
 describe('stub rooms', () => {
   it('should generate one room per name and use list name as a prefix', () => {
-    const rooms = new StubRooms(['a', 'b']);
+    const rooms = new StubRoomService(['a', 'b']);
     expect(rooms.getRooms('test')).to.be.deep.equal({
       found: true,
       rooms: [

@@ -1,4 +1,5 @@
 import {Participant} from './Participant';
+import * as moment from 'moment';
 
 export class Meeting {
   id: string;
@@ -6,6 +7,6 @@ export class Meeting {
   location?: string;
   owner: Participant;
   participants: Participant[];
-  start: Date;
-  end: Date;
+  start: moment.Moment;
+  end: moment.Moment;
 }

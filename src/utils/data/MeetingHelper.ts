@@ -2,18 +2,15 @@ import * as assert from 'assert';
 import {TaskQueue} from 'cwait';
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
-import {AppConfig} from '../../config/config';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {CloudBase} from '../../service/cloud/CloudBase';
 import {MeetingsService} from '../../service/MeetingService';
 
-export class MeetingHelper extends CloudBase {
+export class MeetingHelper {
 
   private constructor(public owner: Participant,
                       private meetingsSvc: MeetingsService,
                       private queue: TaskQueue<Promise<any>>) {
-    super(AppConfig.graphApi);
   }
 
   // TODO: should this allow both types for owner
@@ -50,9 +47,6 @@ export class MeetingHelper extends CloudBase {
                });
   }
 
-  createRawEvent(obj: any): Promise<any> {
-    return this.client.api(`/users/${this.owner.email}/calendar/events`).post(obj) as Promise<any>;
-  }
 
   createMeeting(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
     assert(participants.length === 1);

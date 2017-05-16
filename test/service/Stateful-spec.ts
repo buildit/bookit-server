@@ -1,161 +1,106 @@
 import * as moment from 'moment';
-import {Moment} from 'moment';
-import {expect} from 'chai';
+import * as chai from 'chai';
+import * as chai_as_promised from 'chai-as-promised';
 
+const expect = chai.expect;
+chai.use(chai_as_promised);
+chai.should();
+
+import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/service/MeetingService';
-import {MeetingHelper} from '../../src/utils/data/MeetingHelper';
 import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/service/MeetingsOps';
-import {RootLog as logger} from '../../src/utils/RootLogger';
+import {retryUntil} from '../../src/utils/retry';
 
 // import * as UUID from 'uuid';
 
-export default function StatefulSpec(svc: MeetingsService, description: string) {
-  description = description || '???';
-
+export default function StatefulSpec(meetingService: MeetingsService, description: string) {
   const ROMAN_ID = 'romans@myews.onmicrosoft.com';
-  const nonExistentRoomId = 'non-existent';
-  const existingRoomId = 'cyan-room@myews.onmicrosoft.com';
-  const helper = MeetingHelper.calendarOf(ROMAN_ID, svc);
-  const roomHelper = MeetingHelper.calendarOf(existingRoomId, svc);
-  const ops = new MeetingsOps(svc);
+  const cyanRoomId = 'cyan-room@myews.onmicrosoft.com';
+
+  const romanParticipant = new Participant(ROMAN_ID);
+  const cyanRoomParticipant = new Participant(cyanRoomId);
+
+  /* why do we have these three? */
+  const meetingOps = new MeetingsOps(meetingService);
 
   const start = moment().add(20 + Math.random() * 20, 'days').startOf('day');
   const end = start.clone().add(1, 'day');
   const subject = 'helper made!!';
 
-  function dropEvents(helper: MeetingHelper, start: Moment, end: Moment) {
-    return retry(() =>
-      helper.cleanupMeetings(start.clone().subtract(10, 'minutes'), end)
-        .then(() => svc.getMeetings(helper.owner.email, start, end)), val => {
-      return val.length === 0; });
-  }
 
-  function cleanup(): Promise<any> {
-    return Promise.all([dropEvents(helper, start, end), dropEvents(roomHelper, start, end)]);
-  }
+  describe(description + ' meeting creation test', function testCreateMeeting() {
 
-  function setup(action: any): BeforeAfter {
-    return new BeforeAfter(action);
-  }
-
-  function retry(action: () => Promise<any>, predicate: (val: any) => boolean): Promise<any> {
-    const retryFunc = (val: boolean) => {
-      if (!predicate(val)) {
-        return retry(action, predicate);
-      } else {
-        return val;
-      }
-    };
-
-    return action().then(retryFunc, () => retry(action, predicate));
-  }
-
-// todo mocha?
-  class BeforeAfter {
-    constructor(private setup: any) {
-    }
-
-    test(steps: any): any {
-      return () => this.setup().then(steps);
-    }
-  }
-
-  describe(description, () => {
-
-    beforeEach(() => {
-      return cleanup();
+    it('should create a room booking', function testMeetingReturnedAsExpected() {
+      return meetingOps.createMeeting(subject,
+                                       start.clone().add(1, 'minute'),
+                                       moment.duration(10, 'minute'),
+                                       romanParticipant,
+                                       cyanRoomParticipant)
+                       .then(meeting => {
+                         logger.info('Created the following meeting', meeting);
+                         return meeting;
+                       }).should.eventually.be.not.empty;
     });
 
-    it('cleanup works',
-      setup(() => {
-        return helper.createMeeting(subject, start.clone().add(100, 'minute'), moment.duration(1, 'minute'), [{
-          name: 'Joe',
-          email: existingRoomId
-        }])
-          .then(() => retry(() => svc.getMeetings(existingRoomId, start.clone().add(100, 'minute'), start.clone().add(101, 'minute')), val => val.length > 0))
-          .then(cleanup);
-      }).test(() => {
 
-        return svc.getMeetings(existingRoomId, start, end).then(meetings => {
-          expect(meetings.length).to.be.eq(0);
-        });
-      }));
+    it('will not allow a meeting overlaps before', function testDoubleBookingBefore() {
+      before('wait until the cloud service registers the above initial meeting', function wait() {
+        return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
+      });
 
-    it('returns a list of meetings for the room (room auto accepts!)',
-      setup(() => {
-        return helper.createMeeting(subject, start.clone().add(1, 'minute'), moment.duration(1, 'minute'), [{
-          name: 'Joe',
-          email: existingRoomId
-        }]);
-      }).test(() => {
-        return retry(() => svc.getMeetings(existingRoomId, start, end), val => val.length > 0).then(meetings => {
-          expect(meetings.length).to.be.eq(1);
-          // FIXME: unstable (sometimes it returns user name??!!)
-          //expect(meetings[0].title).to.be.eq(subject);
-          expect(meetings[0].owner.email).to.be.eq(ROMAN_ID);
-          expect(meetings[0].participants.map((p: Participant) => p.email)).to.be
-            .deep.eq([ROMAN_ID, existingRoomId]);
-        });
-      }));
-
-    it('returns a list of meetings with meetings which start date is before time interval start!)',
-      setup(() => {
-        return helper.createMeeting(subject, start.clone().subtract(1, 'minute'), moment.duration(10, 'minute'), [{
-          name: 'Joe',
-          email: existingRoomId
-        }]);
-      }).test(() => {
-
-        return retry(() => svc.getMeetings(existingRoomId, start, end), val => val.length > 0).then(meetings => {
-          expect(meetings.length).to.be.eq(1);
-          // FIXME: unstable (sometimes it returns user name??!!)
-          //expect(meetings[0].title).to.be.eq(subject);
-          expect(meetings[0].owner.email).to.be.eq(ROMAN_ID);
-          expect(meetings[0].participants.map((p: Participant) => p.email)).to.be
-            .deep.eq([ROMAN_ID, existingRoomId]);
-        });
-      }));
-
-
-    it('correctly handles no meetings', () => {
-      return svc.getMeetings(ROMAN_ID, start, end).then(meetings => {
-        expect(meetings.length).to.be.eq(0);
+      it('will actually conflict', function theTest() {
+        return meetingOps.createMeeting('double booking before',
+                                        start.clone().subtract(5, 'minutes'),
+                                        moment.duration(10, 'minutes'),
+                                        romanParticipant,
+                                        cyanRoomParticipant)
+                         .then((thing) => {
+                           logger.debug('what is this?', thing);
+                           throw new Error('Should not be here!!!');
+                         })
+                         .catch(err => {
+                           expect(err).to.be.eq('Found conflict');
+                         });
       });
     });
 
 
-    it('returns an empty array for non-existent room', () => {
-      return svc.getMeetings(nonExistentRoomId, start, end).then(meetings => {
-        expect(meetings.length).to.be.eq(0);
+    it('will not allow a meeting that overlaps after', function testDoubleBookingAfter() {
+      before('wait until the cloud service registers the above initial meeting', function wait() {
+        return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
+      });
+
+      it('will actually conflict', function theTest() {
+        return meetingOps.createMeeting('double booking after',
+                                        start.clone().add(5, 'minutes'),
+                                        moment.duration(10, 'minutes'),
+                                        romanParticipant,
+                                        cyanRoomParticipant)
+                         .then(() => {
+                           throw new Error('Should not be here!!!');
+                         })
+                         .catch(err => {
+                           expect(err).to.be.eq('Found conflict');
+                         });
       });
     });
 
 
-    it('will not allow the creation of a meeting that overlaps with an existing meeting',
-      setup(() => {
-        return Promise.all([
-          helper.createMeeting(subject, start, moment.duration(10, 'minute'), [{
-            name: 'Joe',
-            email: existingRoomId
-          }]),
-          retry(() => svc.getMeetings(existingRoomId, start, start.clone().add(10, 'minutes')), val => val.length > 0)
-        ]);
-      }).test(() => {
-        return ops.createEvent('double booking', start.clone().add(5, 'minutes'),
-                               moment.duration(10, 'minutes'), {name: 'Roman', email: ROMAN_ID},
-                               {name: 'room', email: existingRoomId})
-                  .then(result => {
-                    throw new Error('Should not be here!!!');
-                  })
-                  .catch(err => {
-                    expect(err).to.be.eq('Found conflict');
-                  });
-      })
-    );
+  });
 
-    after(() => {
-      return cleanup();
+
+  describe(description + ' cleanup works', function testCleanupWorks() {
+    it('has empty rooms', function testMeetingsAreEmpty() {
+
+      return meetingOps.getMeetings(cyanRoomId, start, end)
+                        .then(meetings => {
+                          const deletePromises = meetings.map(
+                            meeting => meetingOps.deleteMeeting(meeting.owner.email, meeting.id));
+                          return Promise.all(deletePromises);
+                        })
+                        .then(() => meetingOps.getMeetings(cyanRoomId, start, end)).should.eventually.be.empty;
     });
   });
+
 }

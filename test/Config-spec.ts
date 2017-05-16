@@ -1,10 +1,6 @@
 import {expect} from 'chai';
-import {AppConfig} from '../src/config/config';
+import {Runtime} from '../src/config/runtime/configuration';
 
 it('Config is merged from default and dev', () => {
-  expect(AppConfig.port).to.equal(3000);
-});
-
-it('Development config inherits from default config', () => {
-  expect(AppConfig.roomLists).to.not.be.empty;
+  expect(Runtime.port).to.equal(3000);
 });

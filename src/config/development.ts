@@ -1,32 +1,14 @@
-import {ConfigRoot} from '../model/ConfigRoot';
-import {Room} from '../model/Room';
-import AppEnv from './env';
+import {EnvironmentConfig, TestMode} from '../model/EnvironmentConfig';
 
-function makeRoom(color: string): Room {
-  const email = `${color.toLowerCase()}-room@myews.onmicrosoft.com`;
-  return {name: color, email};
-}
 
-const colors = [
-  'Red',
-  'Green',
-//  'Blue',
-  'White',
-  'Black',
-  'Yellow',
-  'Orange',
-  'Cyan',
-  'Magenta'
-];
-
-const devConf: ConfigRoot = {
-  useCloud: AppEnv.USE_CLOUD!!,
-  roomLists: [
-    {
-      name: 'nyc',
-      rooms: colors.map(makeRoom)
-    }
-  ]
+const configuration: EnvironmentConfig = {
+  port: 8888,
+  testMode: TestMode.NONE
 };
 
-module.exports = devConf;
+
+/*
+ Export unfortunately needs to be done this way since a default export will be named
+ and the full configuration will nest this config under it.
+ */
+module.exports = configuration;

@@ -1,7 +1,6 @@
-import {AppConfig} from '../../../src/config/config';
-import {CloudMeetingService} from '../../../src/service/cloud/CloudMeetingService';
+import {Runtime} from '../../../src/config/runtime/configuration';
 import StatefulSpec from '../../../test/service/Stateful-spec';
 
-const svc = new CloudMeetingService(AppConfig.graphApi);
+const svc = Runtime.meetingService;
 
 StatefulSpec(svc, 'Cloud Meetings service');

@@ -1,10 +1,12 @@
 import {TaskQueue} from 'cwait';
-import {Duration, Moment} from 'moment';
-import {AppConfig} from '../../config/config';
-import {MeetingsService} from '../../service/MeetingService';
-import {RootLog as logger} from '../RootLogger';
-import {MeetingHelper} from './MeetingHelper';
 import * as moment from 'moment';
+import {Duration, Moment} from 'moment';
+
+import {RootLog as logger} from '../RootLogger';
+
+import {MeetingsService} from '../../service/MeetingService';
+import {MeetingHelper} from './MeetingHelper';
+import {RoomService} from '../../service/RoomService';
 
 export interface GeneratorConfig {
   readonly titles: string[];
@@ -26,12 +28,15 @@ const DEFAULT_CONFIG: GeneratorConfig = {
 
 const queue = new TaskQueue(Promise, 7);
 
-export function generateMeetings(svc: MeetingsService,
+export function generateMeetings(roomService: RoomService,
+                                 meetingsService: MeetingsService,
                                  start: Moment = moment().add(-1, 'day'),
                                  end: Moment = moment().add(1, 'weeks'),
                                  config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
   // should config be used instead of AppConfig?
-  return Promise.all(AppConfig.roomLists[0].rooms.map(room => regenerateEvents(room.email, start, end, svc, DEFAULT_CONFIG)));
+  const roomLists = roomService.getRoomLists();
+
+  return Promise.all(roomLists[0].rooms.map(room => regenerateEvents(room.email, start, end, meetingsService, DEFAULT_CONFIG)));
 }
 
 

@@ -1,8 +1,10 @@
 import {generateMeetings} from './EventGenerator';
-import {Services} from '../../Services';
+import {Runtime} from '../../config/runtime/configuration';
 
 // create random events with meaningful topics
 // 2 weeks by default
-generateMeetings(Services.meetings)
-  .then(() => console.log('Done'))
-  .catch(err => console.error('Failed!', err));
+const promisedMeetings = generateMeetings(Runtime.roomService,
+                                          Runtime.meetingService);
+
+promisedMeetings.then(() => console.log('Done'))
+                .catch(err => console.error('Failed!', err));

@@ -1,17 +1,9 @@
-import {ConfigRoot} from '../model/ConfigRoot';
+import {EnvironmentConfig, TestMode} from '../model/EnvironmentConfig';
 
-const devConf: ConfigRoot = {
-  useCloud: true,
+
+const integrationTestConfig: EnvironmentConfig = {
   port: 3000,
-  roomLists: [
-    {
-      name: 'nyc',
-      rooms: [
-        {name: 'red', email: 'red-room@myews.onmicrosoft.com'},
-        {name: 'black', email: 'black-room@myews.onmicrosoft.com'},
-      ]
-    }
-  ]
+  testMode: TestMode.INTEGRATION
 };
 
-module.exports = devConf;
+module.exports = integrationTestConfig;

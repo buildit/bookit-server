@@ -1,21 +1,15 @@
+import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
+
+import {RootLog as logger} from '../../utils/RootLogger';
+
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
 import {MeetingsService} from '../MeetingService';
-import * as moment from 'moment';
+import {isMeetingOverlapping, isMomentWithinRange} from '../../utils/validation';
 
-export class InmemMeetings implements MeetingsService {
+export class InmemMeetingService implements MeetingsService {
   private store: Meeting[] = [];
-  private lastEvent: Meeting;
-
-  get lastAddedMeeting() {
-    return this.lastEvent;
-
-  }
-
-  getStore(): Meeting[] {
-    return this.store;
-  }
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
@@ -24,21 +18,26 @@ export class InmemMeetings implements MeetingsService {
         id: `guid-${Math.random().toString()}`,
         owner: owner,
         title: subj,
-        start: start.toDate(),
-        end: start.clone().add(duration).toDate(),
+        start: start,
+        end: start.clone().add(duration),
         participants: [owner, room],
       };
       this.store.push(meeting);
-      resolve('OK');
+      resolve(meeting);
     });
   }
 
 
-  getMeetings(email: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+  getMeetings(email: string, searchStart: moment.Moment, searchEnd: moment.Moment): Promise<Meeting[]> {
     return new Promise((resolve) => {
-      const meetings = this.store.filter(m =>
-      m.participants.find(p => p.email === email)
-      && !(moment(m.start).isAfter(end) || moment(m.end).isBefore(start)));
+      const meetingFilter = (meeting: Meeting) => {
+        const participantFound = () => meeting.participants.find(p => p.email === email);
+        const meetingBounds = () => isMeetingOverlapping(meeting.start, meeting.end, searchStart, searchEnd);
+
+        return participantFound() && meetingBounds();
+      };
+
+      const meetings = this.store.filter(meetingFilter);
       resolve(meetings);
     });
   }

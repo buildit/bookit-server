@@ -4,7 +4,7 @@ import {Participant} from '../../model/Participant';
 import {MeetingsService} from '../MeetingService';
 import {Moment} from 'moment';
 
-export class StubMeetings implements MeetingsService {
+export class StubMeetingService implements MeetingsService {
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve, reject) => {
       const hours = end.diff(start, 'hours');
@@ -17,8 +17,8 @@ export class StubMeetings implements MeetingsService {
 
         res.push({
           id: `uuid-${idx}`,
-          start: start.clone().add(i, 'hours').toDate(),
-          end: start.clone().add(i + 1, 'hours').toDate(),
+          start: start.clone().add(i, 'hours'),
+          end: start.clone().add(i + 1, 'hours'),
           title: `meeting ${idx}`,
           location: `location ${idx}`,
           participants: [{name: `part ${idx}`, email: `part-${idx}@designit.com`} as Participant],

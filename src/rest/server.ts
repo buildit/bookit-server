@@ -4,15 +4,11 @@ import {Express, Request, Response} from 'express';
 import * as moment from 'moment';
 import {start} from 'repl';
 
-import {AppConfig} from '../config/config';
 import {Participant} from '../model/Participant';
-import {GraphAPI} from '../service/GraphAPI';
+
 import {MeetingsService} from '../service/MeetingService';
 import {MeetingsOps} from '../service/MeetingsOps';
-import {Rooms} from '../service/Rooms';
-import {StubRooms} from '../service/stub/StubRooms';
-import {TokenOperations} from '../service/TokenOperations';
-import {Services} from '../Services';
+import {RoomService} from '../service/RoomService';
 import {RootLog as logger} from '../utils/RootLogger';
 import {extractAsMoment} from '../utils/validation';
 
@@ -48,6 +44,8 @@ function checkParam(cond: boolean, message: string, res: Response): boolean {
   }
   return true;
 }
+
+
 // Services
 // TODO: DI kicks in here
 function getCurrentUser(): Participant {
@@ -57,8 +55,8 @@ function getCurrentUser(): Participant {
 
 
 export function configureRoutes(app: Express,
-                                roomSvc: Rooms = new StubRooms(),
-                                meetingSvc: MeetingsService = Services.meetings): Express {
+                                roomSvc: RoomService,
+                                meetingSvc: MeetingsService): Express {
 
   app.use(bodyParser.json());
 
@@ -69,18 +67,6 @@ export function configureRoutes(app: Express,
     res.send('done');
   });
 
-  app.get('/test', (req, res) => {
-    new TokenOperations(AppConfig.graphApi).withToken()
-      .then((token) => {
-        console.log(`Token is ${token}`);
-        return new GraphAPI().getUsers(token);
-      })
-      .then(users =>
-        res.send(JSON.stringify(users)))
-      .catch((err) => {
-        sendError(err, res);
-      });
-  });
 
   app.get('/rooms/:listName', (req, res) => {
     const listName = roomList(req);
@@ -89,10 +75,13 @@ export function configureRoutes(app: Express,
     res.json(rooms);
   });
 
+
   app.get('/rooms/:listName/meetings', (req, res) => {
+    const listName = req.param('listName');
     const start = extractAsMoment(req, 'start');
     const end = extractAsMoment(req, 'end');
 
+    logger.info(`Getting meetings for ${listName}`);
     // range validation!!
     const range = end.diff(start, 'months');
     logger.debug(start.format() as string);
@@ -126,15 +115,12 @@ export function configureRoutes(app: Express,
       && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
 
 
-      meetingsOps.createEvent(event.title,
+      meetingsOps.createMeeting(event.title,
                               startMoment,
                               moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
                               getCurrentUser(),
                               {name: 'room', email: req.params.roomEmail})
-                 .then(() => {
-                   // FIXME: should return instance of just created event
-                   res.send(JSON.stringify('OK'));
-                 })
+                 .then(res.json)
                  .catch(err => sendError(err, res));
     }
   });

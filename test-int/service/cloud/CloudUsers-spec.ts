@@ -1,7 +1,6 @@
 import {expect} from 'chai';
-import {CloudUsers} from '../../../src/service/cloud/CloudUserService';
-import {AppConfig} from '../../../src/config/config';
-const svc = new CloudUsers(AppConfig.graphApi);
+import {Runtime} from '../../../src/config/runtime/configuration';
+const svc = Runtime.userService;
 
 describe('Cloud User service', () => {
   it('returns a list of users', () => {

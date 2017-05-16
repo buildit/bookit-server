@@ -5,22 +5,32 @@ import * as request from 'supertest';
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingRequest, configureRoutes} from '../../src/rest/server';
-import {StubRooms} from '../../src/service/stub/StubRooms';
 import {MockMeetings} from '../service/MockMeetings';
+import {StubRoomService} from '../../src/service/stub/StubRoomService';
 
-const stubRooms = new StubRooms(['white', 'black']);
+const roomService = new StubRoomService(['white', 'black']);
+const meetingService = new MockMeetings();
 
-const svc = new MockMeetings();
+import {Runtime} from '../../src/config/runtime/configuration';
 
-const app = configureRoutes(express(), stubRooms, svc);
+// const roomService = Runtime.roomService;
+// const meetingService = Runtime.meetingService;
+
+const app = configureRoutes(express(), roomService, meetingService);
 
 describe('Meeting routes write operations', () => {
   it('Create room actually creates the room', () => {
+    const meetingStart = '2013-02-08 09:00';
+    const meetingEnd = '2013-02-09 09:00';
+
     const meetingReq: MeetingRequest = {
       title: 'meeting 0',
-      start: '2013-02-08 09:00',
-      end: '2013-02-09 09:00',
+      start: meetingStart,
+      end: meetingEnd,
     };
+
+    const searchStart = moment(meetingStart).subtract(5, 'minutes');
+    const searchEnd = moment(meetingEnd).add(5, 'minutes');
 
     const expected = {
       subj: 'meeting 0',
@@ -40,8 +50,13 @@ describe('Meeting routes write operations', () => {
                        .set('Content-Type', 'application/json')
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => {
-                         expect(svc.lastAdded).to.be.deep.eq(expected);
+                       .then(() => meetingService.getMeetings('romans@myews.onmicrosoft.com', searchStart, searchEnd))
+                       .then((meetings) => {
+                         expect(meetings).to.be.length(1, 'Expected to find one created meeting');
+                         expect(meetings[0]).to.be.deep.eq(expected);
+                       })
+                       .catch(exception => {
+                         logger.error('Error in test', exception);
                        });
   });
 

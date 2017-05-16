@@ -3,19 +3,19 @@ import * as express from 'express';
 import * as request from 'supertest';
 
 import {configureRoutes} from '../../src/rest/server';
-import {StubMeetings} from '../../src/service/stub/StubMeetings';
-import {StubRooms} from '../../src/service/stub/StubRooms';
 
-const stubRooms = new StubRooms(['white', 'black']);
+import {Runtime} from '../../src/config/runtime/configuration';
+import {MockMeetings} from '../service/MockMeetings';
 
-// TODO: DI is a must!
-const app = configureRoutes(express(), stubRooms, new StubMeetings());
+const roomService = Runtime.roomService;
+const meetingService = new MockMeetings();
+const app = configureRoutes(express(), roomService, meetingService);
 
 it('Room list is available on /rooms/nyc', (done) => {
   request(app).get('/rooms/nyc')
               .expect(200)
               .then((res) => {
-                expect(res.body).to.deep.equal(stubRooms.getRooms('nyc'));
+                expect(res.body).to.deep.equal(roomService.getRooms('nyc'));
                 done();
               });
 });

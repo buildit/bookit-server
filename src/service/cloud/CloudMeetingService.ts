@@ -1,16 +1,21 @@
 import * as moment from 'moment';
+
+import {RootLog as logger} from '../../utils/RootLogger';
 import {Meeting} from '../../model/Meeting';
 import {MeetingsService} from '../MeetingService';
 import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
+import {maybeApply} from '../../utils/collections';
 
 export class CloudMeetingService extends CloudBase implements MeetingsService {
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
     const endDateTime = end.toISOString();
-    return this.client.api(`/users/${email}/calendar/calendarView`)
+    return this.client
+               .api(`/users/${email}/calendar/calendarView`)
+               .select('id,subject,organizer,attendees,start,end')
                .query({startDateTime, endDateTime})
                .top(999) // FIXME: should limit???
                .get()
@@ -69,18 +74,15 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
       };
     };
 
-    let participants: Participant[] = [];
-    if (meeting.attendees) {
-      participants = meeting.attendees.map(mapToParticipant);
-    }
+    const participants = maybeApply(meeting.attendees, mapToParticipant);
 
     return {
       id: meeting.id as string,
       title: meeting.subject as string,
       owner: mapToParticipant(meeting.organizer),
       participants: participants,
-      start: moment.utc(meeting.start.dateTime).toDate(),
-      end: moment.utc(meeting.end.dateTime).toDate()
+      start: moment.utc(meeting.start.dateTime),
+      end: moment.utc(meeting.end.dateTime)
     };
   }
 }
