@@ -124,7 +124,7 @@ export function configureRoutes(app: Express,
                               moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
                               getCurrentUser(),
                               {name: 'room', email: req.params.roomEmail})
-                 .then(res.json)
+                 .then(meeting => res.json(meeting))
                  .catch(err => sendError(err, res));
     }
   });
