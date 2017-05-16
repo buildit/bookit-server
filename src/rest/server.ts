@@ -63,7 +63,6 @@ export function configureRoutes(app: Express,
   const meetingsOps = new MeetingsOps(meetingSvc);
 
   app.get('/', (req, res) => {
-    console.log(req);
     res.send('done');
   });
 
