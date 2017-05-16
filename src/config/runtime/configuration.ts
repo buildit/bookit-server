@@ -1,4 +1,5 @@
 import * as nodeConfig from 'config';
+import * as moment from 'moment';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
@@ -19,6 +20,8 @@ import {StubTokenOperations} from '../../service/stub/StubTokenOperations';
 import {StubMeetingService} from '../../service/stub/StubMeetingService';
 import {StubUserService} from '../../service/stub/StubUserService';
 import {StubRoomService} from '../../service/stub/StubRoomService';
+
+import {generateMeetings} from '../../utils/data/EventGenerator';
 
 const environment = nodeConfig as EnvironmentConfig;
 
@@ -71,6 +74,8 @@ if (environment.testMode === TestMode.NONE) {
                                () => new LocalUserService(),
                                () => new LocalRooms(generateRoomLists()),
                                () => new InmemMeetingService());
+
+    generateMeetings(config.roomService, config.meetingService, moment().add(-1, 'days'), moment().add(1, 'week'));
   }
 
 } else if (environment.testMode === TestMode.UNIT) {
