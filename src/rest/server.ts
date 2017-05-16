@@ -80,6 +80,11 @@ export function configureRoutes(app: Express,
     const start = extractAsMoment(req, 'start');
     const end = extractAsMoment(req, 'end');
 
+    // TODO: Pull param validation out.
+    if (!start.isValid() || !end.isValid()) {
+      res.status(400).send();
+    }
+
     logger.info(`Getting meetings for ${listName}`);
     // range validation!!
     const range = end.diff(start, 'months');
