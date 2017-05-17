@@ -28,8 +28,11 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
   const end = start.clone().add(1, 'day');
   const subject = 'helper made!!';
 
+  /* integration tests may take more time */
+  const defaultTimeoutMillis = 15000;
 
   describe(description + ' meeting creation test', function testCreateMeeting() {
+    this.timeout(defaultTimeoutMillis);
 
     it('should create a room booking', function testMeetingReturnedAsExpected() {
       return meetingOps.createMeeting(subject,
@@ -44,12 +47,14 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
     });
 
 
-    it('will not allow a meeting overlaps before', function testDoubleBookingBefore() {
+    describe('will not allow meeting overlaps', function testDoubleBookingBefore() {
       before('wait until the cloud service registers the above initial meeting', function wait() {
+        logger.debug('waiting on meeting');
         return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
       });
 
-      it('will actually conflict', function theTest() {
+      it('will conflict on before', function theTest() {
+        logger.debug('about to create duplicate');
         return meetingOps.createMeeting('double booking before',
                                         start.clone().subtract(5, 'minutes'),
                                         moment.duration(10, 'minutes'),
@@ -63,15 +68,8 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
                            expect(err).to.be.eq('Found conflict');
                          });
       });
-    });
 
-
-    it('will not allow a meeting that overlaps after', function testDoubleBookingAfter() {
-      before('wait until the cloud service registers the above initial meeting', function wait() {
-        return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
-      });
-
-      it('will actually conflict', function theTest() {
+      it('will conflict on after', function theTest() {
         return meetingOps.createMeeting('double booking after',
                                         start.clone().add(5, 'minutes'),
                                         moment.duration(10, 'minutes'),
@@ -90,17 +88,56 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
   });
 
 
-  describe(description + ' cleanup works', function testCleanupWorks() {
-    it('has empty rooms', function testMeetingsAreEmpty() {
+  describe(description + ' meeting querying works', function testQuerying() {
+    this.timeout(defaultTimeoutMillis);
+
+    before('wait until the cloud service registers the above initial meeting', function wait() {
+      return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
+    });
+
+    it('`findMeeting` works', function testMeetingsAreEmpty() {
 
       return meetingOps.getMeetings(cyanRoomId, start, end)
+                       .then(meetings => {
+                         const meeting = meetings[0];
+                         return meetingOps.findMeeting(cyanRoomId, meeting.id, start, end);
+                       })
+                       .should.eventually.be.not.empty;
+    });
+
+    it('`findMeeting` throws on non-existent', function testMeetingsAreEmpty() {
+      return meetingOps.findMeeting(cyanRoomId, 'bogus', start, end).should.be.rejected;
+    });
+
+  });
+
+
+  describe(description + ' cleanup works', function testCleanupWorks() {
+    this.timeout(defaultTimeoutMillis);
+
+    it('fails to delete non-existent room', function testDeleteOfNonexistent() {
+      meetingOps.deleteMeeting(cyanRoomId, 'bogus').should.eventually.be.rejected;
+    });
+
+    it('has deletes all meetings', function testMeetingsAreEmpty() {
+
+      /*
+      This looks a bit off.  Need to ensure that the owner is a user an not a room.
+       */
+      return meetingOps.getMeetings(cyanRoomId, start, end)
                         .then(meetings => {
-                          const deletePromises = meetings.map(
-                            meeting => meetingOps.deleteMeeting(meeting.owner.email, meeting.id));
+                          const deletePromises = meetings.map(meeting => meetingOps.deleteMeeting(cyanRoomId, meeting.id));
                           return Promise.all(deletePromises);
                         })
                         .then(() => meetingOps.getMeetings(cyanRoomId, start, end)).should.eventually.be.empty;
     });
+
+    it('verifies no meetings', function testMeetingsEmpty() {
+
+      return meetingOps.getMeetings(cyanRoomId, start, end)
+                       .should.eventually.be.empty;
+    });
+
   });
 
 }

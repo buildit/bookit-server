@@ -29,8 +29,12 @@ export class StubMeetingService implements MeetingsService {
     });
   }
 
-  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<Meeting> {
     throw new Error('Not implemented for stub');
+  }
+
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    throw new Error('Method not implemented.');
   }
 
   deleteMeeting(owner: string, id: string): Promise<any> {
