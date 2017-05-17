@@ -1,21 +1,8 @@
-import {ConfigRoot} from '../model/ConfigRoot';
+import {EnvironmentConfig, TestMode} from '../model/EnvironmentConfig';
 
-const devConf: ConfigRoot = {
+const unitTestConfig: EnvironmentConfig = {
   port: 3000,
-  roomLists: [
-    {
-      name: 'nyc',
-      rooms: [
-        {name: 'red', email: 'red@test.com'},
-        {name: 'black', email: 'black@test.com'},
-      ]
-    }
-  ],
-  graphApi: {
-    clientSecret: 'no',
-    clientId: 'no usage',
-    tokenEndpoint: 'no url'
-  }
+  testMode: TestMode.UNIT
 };
 
-module.exports = devConf;
+module.exports = unitTestConfig;

@@ -1,60 +1,63 @@
+import * as moment from 'moment';
 import {expect} from 'chai';
 import * as express from 'express';
-import {Duration, Moment} from 'moment';
 import * as request from 'supertest';
-import {Meeting} from '../../src/model/Meeting';
-import {Participant} from '../../src/model/Participant';
-import {MeetingRequest, registerBookitRest} from '../../src/rest/server';
-import {Meetings} from '../../src/service/Meetings';
-import {StubRooms} from '../../src/service/stub/StubRooms';
-import * as moment from 'moment';
 
-const stubRooms = new StubRooms(['white', 'black']);
+import {RootLog as logger} from '../../src/utils/RootLogger';
+import {MeetingRequest, configureRoutes} from '../../src/rest/server';
+import {MockMeetings} from '../service/MockMeetings';
+import {StubRoomService} from '../../src/service/stub/StubRoomService';
 
-class MockMeetings implements Meetings {
+const roomService = new StubRoomService(['white', 'black']);
+const meetingService = new MockMeetings();
 
-  lastAdded: any;
+import {Runtime} from '../../src/config/runtime/configuration';
 
-  createEvent(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
-    this.lastAdded = {subj, start, duration, owner, room};
-    return new Promise<any>((resolve, reject) => resolve({data: 'new event'}));
-  }
+// const roomService = Runtime.roomService;
+// const meetingService = Runtime.meetingService;
 
-  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
-    return new Promise((resolve) => resolve([]));
-  }
+const app = configureRoutes(express(), roomService, meetingService);
 
-  deleteEvent(owner: string, id: string): Promise<any> {
-    throw 'NOT USED';
-  }
-}
-
-const svc = new MockMeetings();
-
-const app = registerBookitRest(express(), stubRooms, svc);
-
-describe('Meeting routes', () => {
+describe('Meeting routes write operations', () => {
   it('Create room actually creates the room', () => {
+    const meetingStart = '2013-02-08 09:00';
+    const meetingEnd = '2013-02-09 09:00';
+
     const meetingReq: MeetingRequest = {
       title: 'meeting 0',
-      start: '2013-02-08 09:00',
-      end: '2013-02-09 09:00',
+      start: meetingStart,
+      end: meetingEnd,
     };
 
-    return request(app)
-      .post('/room/white-room@designit.com@somewhere/meeting')
-      .set('Content-Type', 'application/json')
-      .send(meetingReq)
-      .expect(200)
-      .then(() => {
-        expect(svc.lastAdded).to.be.deep.eq({
-          subj: 'meeting 0',
-          start: moment(meetingReq.start),
-          duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
-          owner: {email: 'romans@myews.onmicrosoft.com', name: 'Comes from the session!!!'},
-          room: {email: 'white-room@designit.com@somewhere', name: 'room'}
-        });
-      });
+    const searchStart = moment(meetingStart).subtract(5, 'minutes');
+    const searchEnd = moment(meetingEnd).add(5, 'minutes');
+
+    const expected = {
+      subj: 'meeting 0',
+      start: moment(meetingReq.start),
+      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      owner: {
+        email: 'romans@myews.onmicrosoft.com',
+        name: 'Comes from the session!!!'
+      },
+      room: {
+        email: 'white-room@designit.com@somewhere',
+        name: 'room'
+      }
+    };
+
+    return request(app).post('/room/white-room@designit.com@somewhere/meeting')
+                       .set('Content-Type', 'application/json')
+                       .send(meetingReq)
+                       .expect(200)
+                       .then(() => meetingService.getMeetings('romans@myews.onmicrosoft.com', searchStart, searchEnd))
+                       .then((meetings) => {
+                         expect(meetings).to.be.length(1, 'Expected to find one created meeting');
+                         expect(meetings[0]).to.be.deep.eq(expected);
+                       })
+                       .catch(exception => {
+                         logger.error('Error in test', exception);
+                       });
   });
 
   const validationCases = [

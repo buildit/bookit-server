@@ -1,13 +1,14 @@
 import * as express from 'express';
-import {AppConfig} from '../config/config';
-import {LocalRooms} from '../service/local/LocalRooms';
-import {registerBookitRest} from './server';
 import * as cors from 'cors';
+
+import {Runtime} from '../config/runtime/configuration';
+import {configureRoutes} from './server';
 
 const app = express();
 app.use(cors());
 
-registerBookitRest(app, new LocalRooms(AppConfig.roomLists))
-  .listen(AppConfig.port, () => {
-    console.log('Ready');
-  });
+const promisedRoutes = configureRoutes(app, Runtime.roomService, Runtime.meetingService);
+
+promisedRoutes.listen(Runtime.port, () => {
+  console.log('Ready');
+});

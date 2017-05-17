@@ -1,10 +1,10 @@
 import * as moment from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {Meetings} from '../Meetings';
+import {MeetingsService} from '../MeetingService';
 import {Moment} from 'moment';
 
-export class StubMeetings implements Meetings {
+export class StubMeetingService implements MeetingsService {
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve, reject) => {
       const hours = end.diff(start, 'hours');
@@ -17,8 +17,8 @@ export class StubMeetings implements Meetings {
 
         res.push({
           id: `uuid-${idx}`,
-          start: start.clone().add(i, 'hours').toDate(),
-          end: start.clone().add(i + 1, 'hours').toDate(),
+          start: start.clone().add(i, 'hours'),
+          end: start.clone().add(i + 1, 'hours'),
           title: `meeting ${idx}`,
           location: `location ${idx}`,
           participants: [{name: `part ${idx}`, email: `part-${idx}@designit.com`} as Participant],
@@ -29,11 +29,11 @@ export class StubMeetings implements Meetings {
     });
   }
 
-  createEvent(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<any> {
     throw new Error('Not implemented for stub');
   }
 
-  deleteEvent(owner: string, id: string): Promise<any> {
+  deleteMeeting(owner: string, id: string): Promise<any> {
     throw new Error('Method not implemented.');
   }
 }

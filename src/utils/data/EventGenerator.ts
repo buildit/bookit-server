@@ -1,10 +1,12 @@
 import {TaskQueue} from 'cwait';
-import {Duration, Moment} from 'moment';
-import {AppConfig} from '../../config/config';
-import {Meetings} from '../../service/Meetings';
-import {RootLog as logger} from '../RootLogger';
-import {MeetingHelper} from './MeetingHelper';
 import * as moment from 'moment';
+import {Duration, Moment} from 'moment';
+
+import {RootLog as logger} from '../RootLogger';
+
+import {MeetingsService} from '../../service/MeetingService';
+import {MeetingHelper} from './MeetingHelper';
+import {RoomService} from '../../service/RoomService';
 
 export interface GeneratorConfig {
   readonly titles: string[];
@@ -26,43 +28,43 @@ const DEFAULT_CONFIG: GeneratorConfig = {
 
 const queue = new TaskQueue(Promise, 7);
 
-export function EventGenerator(svc: Meetings,
-                               start: Moment = moment().add(-1, 'day'),
-                               end: Moment = moment().add(1, 'weeks'),
-                               config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
-  return Promise.all(AppConfig.roomLists[0].rooms
-    .map(room => regenerateEvents(room.email, start, end, svc, DEFAULT_CONFIG)));
+export function generateMeetings(roomService: RoomService,
+                                 meetingsService: MeetingsService,
+                                 start: Moment = moment().add(-1, 'day'),
+                                 end: Moment = moment().add(1, 'weeks'),
+                                 config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
+  // should config be used instead of AppConfig?
+  const roomLists = roomService.getRoomLists();
+
+  return Promise.all(roomLists[0].rooms.map(room => regenerateEvents(room.email, start, end, meetingsService, DEFAULT_CONFIG)));
 }
 
-function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetings, conf: GeneratorConfig): Promise<any> {
+
+function regenerateEvents(email: string, start: Moment, end: Moment, svc: MeetingsService, conf: GeneratorConfig): Promise<any> {
   const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
   const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
 
-  return Promise.all(
-    [roomMeetingHelper.cleanupMeetings(start, end), meetingHelper.cleanupMeetings(start, end)])
-    .then(() => {
-      const currentDate = moment(start).set('minutes', 0).set('seconds', 0).set('milliseconds', 0);
-      const events: Promise<any>[] = [];
+  return Promise.all([roomMeetingHelper.cleanupMeetings(start, end),
+                       meetingHelper.cleanupMeetings(start, end)])
+                .then(() => {
+                  const currentDate = moment(start).set('minutes', 0).set('seconds', 0).set('milliseconds', 0);
+                  const events: Promise<any>[] = [];
 
-      while (currentDate.isBefore(end)) {
+                  while (currentDate.isBefore(end)) {
+                    const duration = random15MinDelay(conf.maxDuration);
+                    const subject = createSubject(conf);
 
-        const duration = random15MinDelay(conf.maxDuration);
-        const subject = createSubject(conf);
+                    const eventDate = currentDate.clone();
+                    events.push(queue.wrap(() => meetingHelper.createMeeting(subject, eventDate, duration, [{email}]))()
+                                     .catch(err => logger.error(`Failed to create event for ${email}`, err))
+                    );
 
-        const eventDate = currentDate.clone();
-        events.push(queue.wrap(() => meetingHelper.createEvent(subject, eventDate, duration, [{email}]))()
-          .then(() => {
-            // logger.debug(`Created event ${subject} as ${eventDate}`);
-          })
-          .catch(err => logger.error(`Failed to create event for ${email}`, err))
-        );
+                    currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
+                  }
 
-        currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
-      }
-      logger.debug(`Generated ${events.length} random events for ${email} on ${currentDate.format('MMM DD YYYY')}.`);
-      return Promise.all(events);
-    });
-
+                  logger.debug(`Generated ${events.length} random events for ${email} on ${currentDate.format('MMM DD YYYY')}.`);
+                  return Promise.all(events);
+                });
 }
 
 function createSubject(conf: GeneratorConfig) {

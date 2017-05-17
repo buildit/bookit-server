@@ -2,20 +2,20 @@ import * as assert from 'assert';
 import {TaskQueue} from 'cwait';
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
-import {AppConfig} from '../../config/config';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {CloudBase} from '../../service/cloud/CloudBase';
-import {Meetings} from '../../service/Meetings';
+import {MeetingsService} from '../../service/MeetingService';
 
-export class MeetingHelper extends CloudBase {
+export class MeetingHelper {
 
-  private constructor(public owner: Participant, private meetingsSvc: Meetings, private queue: TaskQueue<Promise<any>>) {
-    super(AppConfig.graphApi);
+  private constructor(public owner: Participant,
+                      private meetingsSvc: MeetingsService,
+                      private queue: TaskQueue<Promise<any>>) {
   }
 
+  // TODO: should this allow both types for owner
   static calendarOf(owner: Participant | string,
-                    meetings: Meetings,
+                    meetings: MeetingsService,
                     queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {
     if (typeof owner === 'string') {
       return new MeetingHelper({email: owner, name: owner.split('@')[0]}, meetings, queue);
@@ -23,31 +23,37 @@ export class MeetingHelper extends CloudBase {
     return new MeetingHelper(owner, meetings, queue);
   }
 
+
   getMeetings(start: Moment, end: Moment): Promise<Meeting[]> {
     return this.meetingsSvc.getMeetings(this.owner.email, start, end);
   }
 
+
   cleanupMeetings(start: Moment, end: Moment): Promise<any> {
-    return this.getMeetings(start, end).then(meetings => {
-      return Promise.all(meetings.map(m => this.queue.wrap(() => this.deleteEvent(m.id))()
-        .then(() => {})
-        .catch(err => {
-          console.error('Failed to delete ', err);
-          return;
-        })));
-    });
+    const wrapDelete = (m: Meeting) => {
+      return this.queue.wrap(() => this.deleteMeeting(m.id))();
+    };
+
+    /* I'm not sure what this is really accomplishing */
+    return this.getMeetings(start, end)
+               .then(meetings => {
+                 const meetPromises = meetings.map(m => wrapDelete(m).then(() => {})
+                                                                     .catch(err => {
+                                                                       console.error('Failed to delete ', err);
+                                                                       return;
+                                                                     }));
+
+                 return Promise.all(meetPromises);
+               });
   }
 
-  createRawEvent(obj: any): Promise<any> {
-    return this.client.api(`/users/${this.owner.email}/calendar/events`).post(obj) as Promise<any>;
-  }
 
-  createEvent(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
+  createMeeting(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
     assert(participants.length === 1);
-    return this.meetingsSvc.createEvent(subj, start, duration, this.owner, participants[0]);
+    return this.meetingsSvc.createMeeting(subj, start, duration, this.owner, participants[0]);
   }
 
-  deleteEvent(id: string): Promise<any> {
-    return this.meetingsSvc.deleteEvent(this.owner.email, id);
+  deleteMeeting(id: string): Promise<any> {
+    return this.meetingsSvc.deleteMeeting(this.owner.email, id);
   }
 }
