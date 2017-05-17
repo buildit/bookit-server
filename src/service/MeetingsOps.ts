@@ -41,7 +41,7 @@ export class MeetingsOps {
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
     return new Promise((resolve, reject) => {
       this.checkTimeIsAvailable(room, start, duration)
           .then(() => {

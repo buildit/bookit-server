@@ -37,7 +37,7 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
     return this.delegatedMeetingsService
                .createMeeting(subj, start, duration, owner, room)
                .then(meeting => {

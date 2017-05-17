@@ -20,7 +20,7 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
                .top(999) // FIXME: should limit???
                .get()
                .then(response => {
-                 logger.debug('Found meetings for ', email, start, end, response);
+                 // logger.debug('Found meetings for ', email, start, end, response);
                  return response.value.map((meeting: any) => CloudMeetingService.mapMeeting(meeting));
                }, err => {
                  console.error(err);
@@ -30,7 +30,7 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
     const participants = [room];
     const attendees = participants.map(participant => (
       {

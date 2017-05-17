@@ -12,7 +12,7 @@ export class InmemMeetingService implements MeetingsService {
   private store: Meeting[] = [];
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
     return new Promise((resolve) => {
       const meeting: Meeting = {
         id: `guid-${Math.random().toString()}`,
@@ -46,7 +46,7 @@ export class InmemMeetingService implements MeetingsService {
         return participantFound() && meetingBounds();
       };
 
-      logger.debug('get store', this.store);
+      logger.trace('get store', this.store);
       const meetings = this.store.filter(meetingFilter);
       resolve(meetings);
     });

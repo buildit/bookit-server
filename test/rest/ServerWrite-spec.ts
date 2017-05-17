@@ -15,6 +15,7 @@ import {StubRoomService} from '../../src/service/stub/StubRoomService';
 
 import {Participant} from '../../src/model/Participant';
 import {InmemMeetingService} from '../../src/service/stub/InmemMeetingService';
+import {Meeting} from '../../lib/model/Meeting';
 
 // const roomService = Runtime.roomService;
 // const meetingService = Runtime.meetingService;
@@ -66,7 +67,7 @@ describe('Meeting routes write operations', () => {
                        });
   });
 
-  it('it deletes the room', function() {
+  it('it deletes the meeting', function() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-08 09:30';
 
@@ -78,12 +79,18 @@ describe('Meeting routes write operations', () => {
     const searchEnd = momentEnd.clone().add(5, 'minutes');
 
     return meetingService.createMeeting('test delete', momentStart, meetingDuration, owner, room)
-                         .then(meeting => {
-                           const meetingRoom = meeting.room;
+                         .then((meeting: Meeting) => {
+                           const meetingRoom = room.email;
                            const meetingId = meeting.id;
-                           return request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`);
+
+                           return new Promise<Meeting>((resolve) => {
+                             request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
+                                         .then(() => resolve(meeting));
+                           });
                          })
-                         .then(() => meetingService.getMeetings(room.email, searchStart, searchEnd)).should.eventually.be.empty;
+                         .then((meeting) => {
+                           return meetingService.findMeeting(room.email, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                         });
   });
 
 
