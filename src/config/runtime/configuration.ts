@@ -64,7 +64,16 @@ if (environment.testMode === TestMode.NONE) {
 
   const graphAPIParameters = environment.graphAPIParameters;
   if (graphAPIParameters) {
-    config = constructCloudRuntime(graphAPIParameters);
+    const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+
+    config = new RuntimeConfig(environment.port,
+                               tokenOperations,
+                               () => new CloudUserService(tokenOperations),
+                               () => new LocalRooms(generateRoomLists()),
+                               (runtime) => {
+                                 const cloudMeetingService = new CloudMeetingService(tokenOperations);
+                                 return new CachedMeetingService(cloudMeetingService, runtime.roomService);
+                               });
   } else {
     config = new RuntimeConfig(environment.port,
                                new StubTokenOperations(),
@@ -84,8 +93,15 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.INTEGRATION) {
 
   const graphAPIParameters = environment.graphAPIParameters;
-  config = constructCloudRuntime(graphAPIParameters, generateIntegrationRoomLists);
+  const tokenOperations = new CloudTokenOperations(graphAPIParameters);
 
+  config = new RuntimeConfig(environment.port,
+                             tokenOperations,
+                             () => new CloudUserService(tokenOperations),
+                             () => new LocalRooms(generateIntegrationRoomLists()),
+                             () => {
+                               return new CloudMeetingService(tokenOperations);
+                             });
 }
 
 

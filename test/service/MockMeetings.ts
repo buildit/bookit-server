@@ -7,10 +7,7 @@ import {MeetingsService} from '../../src/service/MeetingService';
 
 export class MockMeetings implements MeetingsService {
 
-  lastAdded: any;
-
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
-    this.lastAdded = {subj, start, duration, owner, room};
     return new Promise((resolve, reject) => {
       resolve({data: 'new event'});
     });
@@ -20,6 +17,10 @@ export class MockMeetings implements MeetingsService {
     return new Promise((resolve) => {
       resolve([] as Meeting[]);
     });
+  }
+
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return undefined;
   }
 
   deleteMeeting(owner: string, id: string): Promise<any> {

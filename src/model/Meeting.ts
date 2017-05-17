@@ -10,3 +10,8 @@ export class Meeting {
   start: moment.Moment;
   end: moment.Moment;
 }
+
+
+export function findById(meetings: Meeting[], id: string) {
+  return meetings.find(meeting => meeting.id === id);
+}

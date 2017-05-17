@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
 
-import {Meeting} from '../../model/Meeting';
+import {findById, Meeting} from '../../model/Meeting';
 import {MeetingsService} from '../MeetingService';
 import {Participant} from '../../model/Participant';
 import {RootLog as logger} from '../../utils/RootLogger';
@@ -9,7 +9,6 @@ import {isMeetingWithinRange} from '../../utils/validation';
 import {RoomService} from '../RoomService';
 
 export class CachedMeetingService implements MeetingsService {
-
   private jobId: NodeJS.Timer;
 
   private calendarsCache: { [email: string]: Meeting[]; } = { };
@@ -28,16 +27,48 @@ export class CachedMeetingService implements MeetingsService {
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve) => {
-      const meetings: Meeting[] = this.calendarsCache[email] ? this.calendarsCache[email]
-        .filter(meeting => isMeetingWithinRange(meeting, start, end)) : [];
+      // logger.info('keys', Object.keys(this.calendarsCache));
+      const meetings = this.calendarsCache[email] || [];
+      // logger.info('Unfiltered', meetings);
+      const filtered: Meeting[] =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
 
-      resolve(meetings);
+      resolve(filtered);
     });
   }
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<any> {
-    return this.delegatedMeetingsService.createMeeting(subj, start, duration, owner, room);
+    return this.delegatedMeetingsService
+               .createMeeting(subj, start, duration, owner, room)
+               .then(meeting => {
+                 const email = owner.email;
+                 let meetings = this.calendarsCache[email];
+                 if (!meetings || meetings.length <= 0) {
+                   meetings = [];
+                   this.calendarsCache[email] = meetings;
+                 }
+
+                 meetings.push(meeting);
+
+                 return meeting;
+               });
+  }
+
+
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return new Promise((resolve, reject) => {
+      const meeting = Object.keys(this.calendarsCache)
+                            .reduce((acc: Meeting, email: string): Meeting => {
+                              if (acc) {
+                                return acc;
+                              }
+
+                              const meetings = this.calendarsCache[email];
+                              return findById(meetings, meetingId);
+                            }, undefined);
+
+      meeting ? resolve(meeting) : reject('Unable to find meeting ' + meetingId);
+    });
   }
 
 
@@ -46,28 +77,25 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  refreshCache(start: Moment, end: Moment) {
+  private cacheMeeting(meeting: Meeting) {
+
+  }
+
+  private refreshCache(start: Moment, end: Moment) {
     const meetingSvc = this.delegatedMeetingsService;
     const roomResponse = this.delegatedRoomService.getRooms('nyc');
 
-    return new Promise((resolve, reject) => {
-      if (!roomResponse.found) {
-        reject('No roomResponse!');
-      } else {
-        Promise.all(roomResponse.rooms.map(room => {
-          return meetingSvc.getMeetings(room.email, start, end)
-            .then(meetings => {
-              this.calendarsCache[room.email] = meetings;
-              return 'Cached meetings for ' + room.name;
-            })
-            .catch(error => ('Failed to cache meetings for:' + room.name));
-        }))
-          .then(result => result)
-          .catch(error => {
-            logger.error(error);
-            return error;
-          });
-      }
+    if (!roomResponse.found) {
+      return;
+    }
+
+    roomResponse.rooms.forEach(room => {
+      meetingSvc.getMeetings(room.email, start, end)
+                .then(meetings => {
+                  this.calendarsCache[room.email] = meetings;
+                  return 'Cached meetings for ' + room.name;
+                })
+                .catch(error => ('Failed to cache meetings for:' + room.name));
     });
   }
 }

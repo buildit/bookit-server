@@ -29,6 +29,13 @@ function sendError(err: any, res: Response) {
   sendStatus({message: err}, 500, res);
 }
 
+
+function sendGatewayError(err: any, res: Response) {
+  logger.error(err);
+  sendStatus({message: err}, 502, res);
+}
+
+
 function sendValidation(err: any, res: Response) {
   sendStatus({message: err}, 400, res);
 }
@@ -120,14 +127,27 @@ export function configureRoutes(app: Express,
 
 
       meetingsOps.createMeeting(event.title,
-                              startMoment,
-                              moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                              getCurrentUser(),
-                              {name: 'room', email: req.params.roomEmail})
-                 .then(res.json)
+                                startMoment,
+                                moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
+                                getCurrentUser(),
+                                {name: 'room', email: req.params.roomEmail})
+                 .then(meeting => res.json(meeting))
                  .catch(err => sendError(err, res));
     }
   });
+
+
+  app.delete('/room/:roomEmail/meeting/:meetingId', (req, res) => {
+    const roomEmail = req.param('roomEmail');
+    const meetingId = req.param('meetingId');
+
+    meetingsOps.deleteMeeting(roomEmail, meetingId)
+               .then(() => res.json())
+               .catch(error => {
+                 sendGatewayError(error, res);
+               });
+  });
+
   return app;
 }
 

@@ -10,7 +10,7 @@ import {isMeetingOverlapping} from '../utils/validation';
 
 export class MeetingsOps {
 
-  constructor(private meetingSvc: MeetingsService) {
+  constructor(private meetingsService: MeetingsService) {
   };
 
 
@@ -19,7 +19,7 @@ export class MeetingsOps {
     // TODO: figure out why
 
     const mapRoom = (room: Room) => {
-      return this.meetingSvc
+      return this.meetingsService
                  .getMeetings(room.email, start, end)
                  .then(m => {
                    return {room, meetings: m};
@@ -31,7 +31,13 @@ export class MeetingsOps {
 
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
-    return this.meetingSvc.getMeetings(email, start, end);
+    // logger.debug('Getting meetings', this.meetingsService);
+    return this.meetingsService.getMeetings(email, start, end);
+  }
+
+
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return this.meetingsService.findMeeting(email, meetingId, start, end);
   }
 
 
@@ -39,7 +45,7 @@ export class MeetingsOps {
     return new Promise((resolve, reject) => {
       this.checkTimeIsAvailable(room, start, duration)
           .then(() => {
-            this.meetingSvc.createMeeting(subj, start, duration, owner, room)
+            this.meetingsService.createMeeting(subj, start, duration, owner, room)
                 .then(resolve)
                 .catch(reject);
           })
@@ -49,7 +55,7 @@ export class MeetingsOps {
 
 
   deleteMeeting(owner: string, id: string): Promise<any> {
-    return this.meetingSvc.deleteMeeting(owner, id);
+    return this.meetingsService.deleteMeeting(owner, id);
   }
 
 
@@ -58,7 +64,7 @@ export class MeetingsOps {
                                duration: moment.Duration): Promise<any> {
     const end = start.clone().add(duration);
 
-    return this.meetingSvc
+    return this.meetingsService
                .getMeetings(calendarOwner.email, start, end)
                .then(meetings => this.hasConflicts(meetings, start, end));
   }

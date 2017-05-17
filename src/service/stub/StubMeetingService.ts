@@ -33,6 +33,10 @@ export class StubMeetingService implements MeetingsService {
     throw new Error('Not implemented for stub');
   }
 
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    throw new Error('Method not implemented.');
+  }
+
   deleteMeeting(owner: string, id: string): Promise<any> {
     throw new Error('Method not implemented.');
   }

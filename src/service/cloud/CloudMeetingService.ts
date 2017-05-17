@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 
 import {RootLog as logger} from '../../utils/RootLogger';
-import {Meeting} from '../../model/Meeting';
+import {findById, Meeting} from '../../model/Meeting';
 import {MeetingsService} from '../MeetingService';
 import {CloudBase} from './CloudBase';
 import {Participant} from '../../model/Participant';
@@ -20,6 +20,7 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
                .top(999) // FIXME: should limit???
                .get()
                .then(response => {
+                 logger.debug('Found meetings for ', email, start, end, response);
                  return response.value.map((meeting: any) => CloudMeetingService.mapMeeting(meeting));
                }, err => {
                  console.error(err);
@@ -58,6 +59,19 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
     };
 
     return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
+  }
+
+
+  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return this.getMeetings(email, start, end)
+               .then(meetings => {
+                 const meeting = findById(meetings, meetingId);
+                 if (!meeting) {
+                   throw new Error('meeting not found');
+                 }
+
+                 return meeting;
+               });
   }
 
 
