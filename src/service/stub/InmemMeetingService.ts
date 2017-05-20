@@ -23,7 +23,7 @@ export class InmemMeetingService implements MeetingsService {
         participants: [owner, room],
       };
       this.store.push(meeting);
-      logger.debug('store', this.store);
+      // logger.debug('store', this.store);
       resolve(meeting);
     });
   }
@@ -46,7 +46,7 @@ export class InmemMeetingService implements MeetingsService {
         return participantFound() && meetingBounds();
       };
 
-      logger.trace('get store', this.store);
+      // logger.trace('get store', this.store);
       const meetings = this.store.filter(meetingFilter);
       resolve(meetings);
     });

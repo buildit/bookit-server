@@ -26,4 +26,6 @@ if (AppEnv.USE_CLOUD) {
   };
 }
 
+configuration.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET;
+
 module.exports = configuration;

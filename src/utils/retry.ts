@@ -9,7 +9,6 @@ export function retryUntil(action: () => Promise<any>,
     }
   };
 
-  return action()
-    .then(innerRetry)
-    .catch(() => retryUntil(action, isValidResult));
+  return action().then(innerRetry)
+                 .catch(() => retryUntil(action, isValidResult));
 }

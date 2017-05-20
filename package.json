@@ -32,6 +32,8 @@
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
     "@microsoft/microsoft-graph-types": "^0.4.1",
+    "@types/jsonwebtoken": "^7.2.0",
+    "@types/morgan": "^1.7.32",
     "@types/node-uuid": "0.0.28",
     "body-parser": "^1.17.1",
     "config": "^1.25.1",
@@ -39,8 +41,10 @@
     "cwait": "^1.0.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "jsonwebtoken": "^7.4.1",
     "log4js": "^1.1.1",
     "moment": "^2.18.1",
+    "morgan": "^1.8.1",
     "request": "^2.81.0",
     "uuid": "^3.0.1"
   },

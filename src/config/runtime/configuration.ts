@@ -22,6 +22,7 @@ import {StubUserService} from '../../service/stub/StubUserService';
 import {StubRoomService} from '../../service/stub/StubRoomService';
 
 import {generateMeetings} from '../../utils/data/EventGenerator';
+import {StubPasswordStore} from '../../service/stub/StubPasswordStore';
 
 const environment = nodeConfig as EnvironmentConfig;
 
@@ -41,10 +42,13 @@ const environment = nodeConfig as EnvironmentConfig;
  * @param graphAPIParameters - credentials for connect to microsoft graph
  * @param roomGenerator - the function to invoke to generate the room list
  */
-function constructCloudRuntime(graphAPIParameters: GraphAPIParameters, roomGenerator = generateRoomLists) {
-  const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+function constructCloudRuntime(graphAPIParameters: GraphAPIParameters,
+                               jwtSecret: string,
+                               roomGenerator = generateRoomLists) {
+  const tokenOperations = new CloudTokenOperations(graphAPIParameters, jwtSecret);
 
   return new RuntimeConfig(environment.port,
+                           new StubPasswordStore(),
                            tokenOperations,
                            () => new CloudUserService(tokenOperations),
                            () => new LocalRooms(roomGenerator()),
@@ -67,9 +71,10 @@ if (environment.testMode === TestMode.NONE) {
 
   const graphAPIParameters = environment.graphAPIParameters;
   if (graphAPIParameters) {
-    const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+    const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
 
     config = new RuntimeConfig(environment.port,
+                               new StubPasswordStore(),
                                tokenOperations,
                                () => new CloudUserService(tokenOperations),
                                () => new LocalRooms(generateRoomLists()),
@@ -79,6 +84,7 @@ if (environment.testMode === TestMode.NONE) {
                                });
   } else {
     config = new RuntimeConfig(environment.port,
+                               new StubPasswordStore(),
                                new StubTokenOperations(),
                                () => new LocalUserService(),
                                () => new LocalRooms(generateRoomLists()),
@@ -90,6 +96,7 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.UNIT) {
 
   config = new RuntimeConfig(environment.port,
+                             new StubPasswordStore(),
                              new StubTokenOperations(),
                              () => new StubUserService(),
                              () => new StubRoomService(),
@@ -98,9 +105,10 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.INTEGRATION) {
 
   const graphAPIParameters = environment.graphAPIParameters;
-  const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+  const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
 
   config = new RuntimeConfig(environment.port,
+                             new StubPasswordStore(),
                              tokenOperations,
                              () => new CloudUserService(tokenOperations),
                              () => new LocalRooms(generateIntegrationRoomLists()),
