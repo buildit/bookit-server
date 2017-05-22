@@ -10,21 +10,27 @@ import * as express from 'express';
 import * as request from 'supertest';
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
-import {MeetingRequest, configureRoutes} from '../../src/rest/server';
+import {configureRoutes} from '../../src/rest/server';
 import {StubRoomService} from '../../src/service/stub/StubRoomService';
 
 import {Participant} from '../../src/model/Participant';
 import {InmemMeetingService} from '../../src/service/stub/InmemMeetingService';
-import {Meeting} from '../../lib/model/Meeting';
+import {MeetingRequest} from '../../src/rest/meeting_routes';
+import {Meeting} from '../../src/model/Meeting';
 
-// const roomService = Runtime.roomService;
-// const meetingService = Runtime.meetingService;
+import {Runtime} from '../../src/config/runtime/configuration';
+import {StubPasswordStore} from '../../src/service/stub/StubPasswordStore';
+import {TokenInfo, UserDetail} from '../../src/rest/auth_routes';
 
+const tokenOperations = Runtime.tokenOperations;
+
+
+const passwordStore = new StubPasswordStore();
 const roomService = new StubRoomService(['white', 'black']);
 const meetingService = new InmemMeetingService();
 
 
-const app = configureRoutes(express(), roomService, meetingService);
+const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, meetingService);
 
 const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
 const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
@@ -139,3 +145,83 @@ describe('Meeting routes write operations', () => {
 
 });
 
+describe('tests authentication', () => {
+
+  it('validates an unknown user is rejected', function testUnknownUser() {
+    const unknownUser = {
+      user: 'Doppleganger',
+      password: ''
+    };
+
+    return request(app).post(`/authenticate`)
+                       .set('Content-Type', 'application/json')
+                       .send(unknownUser)
+                       .expect(403)
+                       .then(res => {
+                         expect(JSON.parse(res.text).message).to.be.equal('Unrecognized user');
+                       });
+
+  });
+
+
+  it('validates an incorrect password is rejected', function testIncorrectPassword() {
+    const userWithIncorrectPassword = {
+      user: 'bruce@myews.onmicrosoft.com',
+      password: 'i think this is what it was'
+    };
+
+    return request(app).post(`/authenticate`)
+                       .set('Content-Type', 'application/json')
+                       .send(userWithIncorrectPassword)
+                       .expect(403)
+                       .then(res => {
+                         expect(JSON.parse(res.text).message).to.be.equal('Incorrect user/password combination');
+                       });
+
+  });
+
+
+  it('validates a token operations', function testValidCredentials() {
+    const totallyBruce = {
+      user: 'bruce@myews.onmicrosoft.com',
+      password: 'who\'s da boss?'
+    };
+
+    return request(app).post(`/authenticate`)
+                       .set('Content-Type', 'application/json')
+                       .send(totallyBruce)
+                       .expect(200)
+                       .then(res => {
+                         const details = JSON.parse(res.text) as UserDetail;
+
+                         expect(details.token.length > 0).to.be.true;
+                         expect(details.id).to.be.equal(1);
+                         expect(details.name).to.be.equal('bruce');
+                         expect(details.user).to.be.equal('bruce@myews.onmicrosoft.com');
+
+                         console.info('authenticated with token:', details.token);
+                         return details.token;
+                       })
+                       .then(token => {
+                         return request(app).get('/backdoor')
+                                            .set('x-access-token', token)
+                                            .expect(200)
+                                            .then(res => {
+                                              expect(res.text).to.be.equal(
+                                                'You had a token and you are bruce@myews.onmicrosoft.com');
+                                              return token;
+                                            });
+                       })
+                       .then(token => {
+                         return request(app).get('/backdoor')
+                                            .set('x-access-token', token + 'invalid')
+                                            .expect(403)
+                                            .then(res => {
+                                              const message = JSON.parse(res.text).message;
+                                              expect(message).to.be.equal('Unauthorized');
+                                            });
+                       });
+
+  });
+
+});

@@ -25,6 +25,36 @@ The server defaults to "in-mem" mode, which is useful for developing locally. Se
 
 When the app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so you will see somewhat different results with every run.
 
+## Authentication
+The server has an endpoint for retrieving a token for using in some subsequent requests.  Send a json object that conforms to the below interface.
+
+```
+POST /authenticate
+
+export interface Credentials {
+  user: string;
+  password: string;
+}
+```
+You will get back an object that has a member called 'token.'  The token is hardcoded to last 60 minutes at the moment.
+
+```
+export interface TokenInfo {
+  user: string;
+  password: string;
+  iat: number;
+  exp: number;
+}
+```
+
+This token should be placed in the header for authentication.
+
+                         return request(app).get('/backdoor')
+                                            .set('x-access-token', token)
+                                            .expect(200)
+
+
+
 ## Useful links
 
 [Office Portal](https://portal.office.com/) (resource management)

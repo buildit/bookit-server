@@ -7,7 +7,11 @@ import {configureRoutes} from './server';
 const app = express();
 app.use(cors());
 
-const promisedRoutes = configureRoutes(app, Runtime.roomService, Runtime.meetingService);
+const promisedRoutes = configureRoutes(app,
+                                       Runtime.passwordStore,
+                                       Runtime.tokenOperations,
+                                       Runtime.roomService,
+                                       Runtime.meetingService);
 
 promisedRoutes.listen(Runtime.port, () => {
   console.log('Ready');

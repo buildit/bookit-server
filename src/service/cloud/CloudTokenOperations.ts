@@ -1,17 +1,20 @@
 import * as request from 'request';
 
+
 import {RootLog as logger} from '../../utils/RootLogger';
 import {GraphAPIParameters} from '../../model/EnvironmentConfig';
-import {TokenOperations} from '../TokenOperations';
+import {Credentials} from '../../model/Credentials';
+import {TokenInfo} from '../../rest/auth_routes';
+import {StubTokenOperations} from '../stub/StubTokenOperations';
 
 /*
 TODO: modify this to return the same token if it's still valid
  */
-export class CloudTokenOperations implements TokenOperations {
+export class CloudTokenOperations extends StubTokenOperations {
   private token: string;
 
-
-  constructor(private conf: GraphAPIParameters) {
+  constructor(private conf: GraphAPIParameters, jwtSecret: string) {
+    super(jwtSecret);
   }
 
 
@@ -39,7 +42,6 @@ export class CloudTokenOperations implements TokenOperations {
 
       request.post(tokenRequest, (err, response, body) => {
         const data = JSON.parse(body);
-        // logger.debug('TOKEN', data);
 
         if (err) {
           reject(err);
@@ -51,4 +53,6 @@ export class CloudTokenOperations implements TokenOperations {
       });
     });
   }
+
+
 }

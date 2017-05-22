@@ -7,6 +7,7 @@ export interface Env {
   readonly MICROSOFT_APP_ID: string;
   readonly MICROSOFT_CLIENT_SECRET: string;
   readonly USE_CLOUD: boolean;
+  readonly JWT_TOKEN_SECRET: string;
 }
 
 
@@ -24,6 +25,7 @@ export interface EnvironmentConfig {
   port?: number;
   graphAPIParameters?: GraphAPIParameters;
   testMode?: TestMode;
+  jwtTokenSecret?: string;
 }
 
 

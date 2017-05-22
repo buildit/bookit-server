@@ -30,7 +30,7 @@ export class CloudBase {
     };
 
     return Client.init({
-      debugLogging: true,
+      debugLogging: false,
       authProvider: authProviderCallback
     });
   }

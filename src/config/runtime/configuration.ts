@@ -16,12 +16,13 @@ import {CachedMeetingService} from '../../service/cache/CachedMeetingService';
 import {LocalUserService} from '../../service/local/LocalUserService';
 import {InmemMeetingService} from '../../service/stub/InmemMeetingService';
 import {CloudTokenOperations} from '../../service/cloud/CloudTokenOperations';
-import {StubTokenOperations} from '../../service/stub/StubTokenOperations';
+// import {StubTokenOperations} from '../../service/stub/StubTokenOperations';
 import {StubMeetingService} from '../../service/stub/StubMeetingService';
 import {StubUserService} from '../../service/stub/StubUserService';
 import {StubRoomService} from '../../service/stub/StubRoomService';
 
 import {generateMeetings} from '../../utils/data/EventGenerator';
+import {StubPasswordStore} from '../../service/stub/StubPasswordStore';
 
 const environment = nodeConfig as EnvironmentConfig;
 
@@ -35,25 +36,6 @@ const environment = nodeConfig as EnvironmentConfig;
   constructed cached meeting service will be returned
  */
 
-/**
- * This constructs a cloud runtime configuration.
- *
- * @param graphAPIParameters - credentials for connect to microsoft graph
- * @param roomGenerator - the function to invoke to generate the room list
- */
-function constructCloudRuntime(graphAPIParameters: GraphAPIParameters, roomGenerator = generateRoomLists) {
-  const tokenOperations = new CloudTokenOperations(graphAPIParameters);
-
-  return new RuntimeConfig(environment.port,
-                           tokenOperations,
-                           () => new CloudUserService(tokenOperations),
-                           () => new LocalRooms(roomGenerator()),
-                           (runtime) => {
-                             const cloudMeetingService = new CloudMeetingService(tokenOperations);
-                             return new CachedMeetingService(cloudMeetingService, runtime.roomService);
-                           });
-
-}
 
 
 /*
@@ -63,13 +45,15 @@ let config: RuntimeConfig;
 
 logger.debug('environment', environment);
 
+const graphAPIParameters = environment.graphAPIParameters;
+
 if (environment.testMode === TestMode.NONE) {
 
-  const graphAPIParameters = environment.graphAPIParameters;
   if (graphAPIParameters) {
-    const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+    const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
 
     config = new RuntimeConfig(environment.port,
+                               new StubPasswordStore(),
                                tokenOperations,
                                () => new CloudUserService(tokenOperations),
                                () => new LocalRooms(generateRoomLists()),
@@ -79,7 +63,8 @@ if (environment.testMode === TestMode.NONE) {
                                });
   } else {
     config = new RuntimeConfig(environment.port,
-                               new StubTokenOperations(),
+                               new StubPasswordStore(),
+                               new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret),
                                () => new LocalUserService(),
                                () => new LocalRooms(generateRoomLists()),
                                () => new InmemMeetingService());
@@ -90,7 +75,8 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.UNIT) {
 
   config = new RuntimeConfig(environment.port,
-                             new StubTokenOperations(),
+                             new StubPasswordStore(),
+                             new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret),
                              () => new StubUserService(),
                              () => new StubRoomService(),
                              () => new StubMeetingService());
@@ -98,9 +84,10 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.INTEGRATION) {
 
   const graphAPIParameters = environment.graphAPIParameters;
-  const tokenOperations = new CloudTokenOperations(graphAPIParameters);
+  const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
 
   config = new RuntimeConfig(environment.port,
+                             new StubPasswordStore(),
                              tokenOperations,
                              () => new CloudUserService(tokenOperations),
                              () => new LocalRooms(generateIntegrationRoomLists()),

@@ -3,6 +3,7 @@ import {RoomService} from '../service/RoomService';
 import {MeetingsService} from '../service/MeetingService';
 import {TokenOperations} from '../service/TokenOperations';
 import {invokeIfUnset} from '../utils/validation';
+import {PasswordStore} from '../service/PasswordStore';
 
 
 export type UserServiceFactory = (config: RuntimeConfig) => UserService;
@@ -23,6 +24,7 @@ export class RuntimeConfig {
    */
 
   constructor(port: number,
+              private _passwordStore: PasswordStore,
               private _tokenOperations: TokenOperations,
               private _userServiceFactory: UserServiceFactory,
               private _roomServiceFactory: RoomServiceFactory,
@@ -35,6 +37,10 @@ export class RuntimeConfig {
     return this._port;
   }
 
+
+  get passwordStore() {
+    return this._passwordStore;
+  }
 
   get tokenOperations() {
     return this._tokenOperations;
