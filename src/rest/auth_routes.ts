@@ -17,6 +17,14 @@ export interface TokenInfo {
 }
 
 
+export interface UserDetail {
+  token: string;
+  user: string;
+  name: string;
+  id: number;
+}
+
+
 export function configureAuthenticationRoutes(app: Express,
                                               passwordStore: PasswordStore,
                                               tokenOperations: TokenOperations) {
@@ -37,7 +45,12 @@ export function configureAuthenticationRoutes(app: Express,
 
     const token = tokenOperations.provideToken(credentials);
     logger.info('Successfully authenticated: ', username);
-    res.json({success: true, token: token});
+    res.json({
+               token: token,
+               user: username,
+               name: username.split('@')[0],
+               id: passwordStore.getUserId(username)
+    });
   });
 
 

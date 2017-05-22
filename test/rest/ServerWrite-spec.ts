@@ -20,6 +20,7 @@ import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {StubPasswordStore} from '../../src/service/stub/StubPasswordStore';
+import {TokenInfo, UserDetail} from '../../src/rest/auth_routes';
 
 const tokenOperations = Runtime.tokenOperations;
 
@@ -191,11 +192,15 @@ describe('tests authentication', () => {
                        .send(totallyBruce)
                        .expect(200)
                        .then(res => {
-                         const token = JSON.parse(res.text).token;
-                         expect(token.length > 0).to.be.true;
+                         const details = JSON.parse(res.text) as UserDetail;
 
-                         console.info('authenticated with token:', token);
-                         return token;
+                         expect(details.token.length > 0).to.be.true;
+                         expect(details.id).to.be.equal(1);
+                         expect(details.name).to.be.equal('bruce');
+                         expect(details.user).to.be.equal('bruce@myews.onmicrosoft.com');
+
+                         console.info('authenticated with token:', details.token);
+                         return details.token;
                        })
                        .then(token => {
                          return request(app).get('/backdoor')

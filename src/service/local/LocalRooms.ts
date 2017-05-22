@@ -13,7 +13,7 @@ export class LocalRooms implements RoomService {
 
 
   getRooms(list: string): RoomResponse {
-    logger.info('LocalRooms getting rooms');
+    // logger.info('LocalRooms getting rooms');
     const rl = this.roomLists.find(rl => rl.name === list);
     if (rl) {
       return {
