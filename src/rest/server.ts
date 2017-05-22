@@ -3,15 +3,16 @@ import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 
 import {Participant} from '../model/Participant';
+import {TokenOperations} from '../service/TokenOperations';
+import {PasswordStore} from '../service/PasswordStore';
 
 import {MeetingsService} from '../service/MeetingService';
 import {RoomService} from '../service/RoomService';
+
 import {configureTestRoutes} from './test_routes';
 import {configureMeetingRoutes} from './meeting_routes';
 import {configureAuthenticationRoutes} from './auth_routes';
-import {TokenOperations} from '../service/TokenOperations';
 import {initializeTokenFilter} from './filters';
-import {PasswordStore} from '../service/PasswordStore';
 
 
 // Services

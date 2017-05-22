@@ -1,19 +1,20 @@
 import * as request from 'request';
-import * as jwt from 'jsonwebtoken';
 
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {GraphAPIParameters} from '../../model/EnvironmentConfig';
-import {TokenOperations} from '../TokenOperations';
 import {Credentials} from '../../model/Credentials';
+import {TokenInfo} from '../../rest/auth_routes';
+import {StubTokenOperations} from '../stub/StubTokenOperations';
 
 /*
 TODO: modify this to return the same token if it's still valid
  */
-export class CloudTokenOperations implements TokenOperations {
+export class CloudTokenOperations extends StubTokenOperations {
   private token: string;
 
-  constructor(private conf: GraphAPIParameters, private jwtSecret: string) {
+  constructor(private conf: GraphAPIParameters, jwtSecret: string) {
+    super(jwtSecret);
   }
 
 
@@ -54,21 +55,4 @@ export class CloudTokenOperations implements TokenOperations {
   }
 
 
-  provideToken(credentials: Credentials): string {
-    return jwt.sign(credentials, this.jwtSecret, { expiresIn: '60m' });
-  }
-
-
-  verify(token: string): Promise<Credentials> {
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve(decoded);
-      });
-    });
-
-  }
 }

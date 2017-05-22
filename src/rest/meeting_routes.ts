@@ -12,6 +12,7 @@ import {RootLog as logger} from '../utils/RootLogger';
 import {extractAsMoment} from '../utils/validation';
 
 import {checkParam, sendError, sendGatewayError, sendNotFound} from './rest_support';
+import {protectEndpoint} from './filters';
 
 
 function roomList(req: Request): string {
@@ -22,9 +23,9 @@ function roomList(req: Request): string {
 
 // Services
 // TODO: DI kicks in here
-function getCurrentUser(): Participant {
+export function getCurrentUser(): Participant {
   // TODO: comes from user context (cookie / jwt)
-  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
+  return {name: 'Comes from the session!!!', email: 'bruce@myews.onmicrosoft.com'};
 }
 
 
@@ -48,6 +49,7 @@ export function configureMeetingRoutes(app: Express,
     const end = extractAsMoment(req, 'end');
 
     // TODO: Pull param validation out.
+    logger.info(req.param('start'), req.param('end'), start.isValid(), end.isValid());
     if (!start.isValid() || !end.isValid()) {
       res.status(400).send();
     }
@@ -77,6 +79,7 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
+  // protectEndpoint(app, '/room/:roomEmail/meeting');
   app.post('/room/:roomEmail/meeting', (req, res) => {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);

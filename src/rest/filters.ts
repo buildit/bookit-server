@@ -1,4 +1,4 @@
-import {Express, Request, Response, Router} from 'express';
+import {Express, Request, Router} from 'express';
 
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
@@ -26,7 +26,6 @@ function innerInitializeFilter(tokenOperations: TokenOperations) {
   logger.debug('Initializing token filter');
   tokenFilter.use((req: Request, res, next) => {
     const token = req.body.token || req.query.token || req.headers['x-access-token'];
-
     if (!token) {
       return res.status(403).send({message: 'Access to this endpoint requires a token'});
     }

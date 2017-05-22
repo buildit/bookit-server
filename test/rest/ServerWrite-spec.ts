@@ -17,21 +17,14 @@ import {Participant} from '../../src/model/Participant';
 import {InmemMeetingService} from '../../src/service/stub/InmemMeetingService';
 import {MeetingRequest} from '../../src/rest/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
-import {CloudTokenOperations} from '../../src/service/cloud/CloudTokenOperations';
+
+import {Runtime} from '../../src/config/runtime/configuration';
 import {StubPasswordStore} from '../../src/service/stub/StubPasswordStore';
 
-// const roomService = Runtime.roomService;
-// const meetingService = Runtime.meetingService;
+const tokenOperations = Runtime.tokenOperations;
 
-const graphAPIParameters = {
-  tenantId: 'fake',
-  clientId: 'fake',
-  clientSecret: 'fake',
-  tokenEndpoint: 'fake'
-};
 
 const passwordStore = new StubPasswordStore();
-const tokenOperations = new CloudTokenOperations(graphAPIParameters, 'testing secret');
 const roomService = new StubRoomService(['white', 'black']);
 const meetingService = new InmemMeetingService();
 
@@ -201,6 +194,7 @@ describe('tests authentication', () => {
                          const token = JSON.parse(res.text).token;
                          expect(token.length > 0).to.be.true;
 
+                         console.info('authenticated with token:', token);
                          return token;
                        })
                        .then(token => {

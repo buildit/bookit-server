@@ -1,7 +1,7 @@
 import {Express, Request, Response, Router} from 'express';
 
 import {RootLog as logger} from '../utils/RootLogger';
-import {sendError, sendUnauthorized} from './rest_support';
+import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
 import {TokenOperations} from '../service/TokenOperations';
 import {protectEndpoint} from './filters';
@@ -9,7 +9,7 @@ import {PasswordStore} from '../service/PasswordStore';
 
 
 
-interface TokenInfo {
+export interface TokenInfo {
   user: string;
   password: string;
   iat: number;
@@ -36,6 +36,7 @@ export function configureAuthenticationRoutes(app: Express,
     }
 
     const token = tokenOperations.provideToken(credentials);
+    logger.info('Successfully authenticated: ', username);
     res.json({success: true, token: token});
   });
 
