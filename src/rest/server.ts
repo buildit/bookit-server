@@ -15,13 +15,6 @@ import {configureAuthenticationRoutes} from './auth_routes';
 import {initializeTokenFilter} from './filters';
 
 
-// Services
-// TODO: DI kicks in here
-function getCurrentUser(): Participant {
-  // TODO: comes from user context (cookie / jwt)
-  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
-}
-
 
 function configureExpress(app: Express) {
   app.use(bodyParser.json());

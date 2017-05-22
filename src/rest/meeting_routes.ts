@@ -25,7 +25,8 @@ function roomList(req: Request): string {
 // TODO: DI kicks in here
 export function getCurrentUser(): Participant {
   // TODO: comes from user context (cookie / jwt)
-  return {name: 'Comes from the session!!!', email: 'bruce@myews.onmicrosoft.com'};
+  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
+  // return {name: 'Comes from the session!!!', email: 'bruce@myews.onmicrosoft.com'};
 }
 
 

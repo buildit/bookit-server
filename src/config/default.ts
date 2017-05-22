@@ -26,6 +26,6 @@ if (AppEnv.USE_CLOUD) {
   };
 }
 
-configuration.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET;
+configuration.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';
 
 module.exports = configuration;
