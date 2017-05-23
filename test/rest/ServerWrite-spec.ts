@@ -197,7 +197,7 @@ describe('tests authentication', () => {
                          expect(details.token.length > 0).to.be.true;
                          expect(details.id).to.be.equal(1);
                          expect(details.name).to.be.equal('bruce');
-                         expect(details.user).to.be.equal('bruce@myews.onmicrosoft.com');
+                         expect(details.email).to.be.equal('bruce@myews.onmicrosoft.com');
 
                          console.info('authenticated with token:', details.token);
                          return details.token;
