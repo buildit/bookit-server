@@ -6,7 +6,7 @@ interface UserDetail {
 }
 
 const userPasswords = new Map<string, UserDetail>();
-userPasswords.set('bruce@myews.onmicrosoft.com', {password: 'who\'s da boss?', id: 1});
+userPasswords.set('bruce@myews.onmicrosoft.com', {password: 'whos da boss?', id: 1});
 userPasswords.set('babs@myews.onmicrosoft.com', {password: 'call me barbra', id: 2});
 userPasswords.set('romans@myews.onmicrosoft.com', {password: 'enterprise: engage', id: 3});
 

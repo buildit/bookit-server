@@ -102,6 +102,26 @@ export function configureMeetingRoutes(app: Express,
     }
   });
 
+  app.get('/alexa', (req, res) => {
+    // This only works for Bruce!
+    logger.info('Received request from Alexa to create meeting for Bruce.');
+
+    const meeting = {
+      title: 'Bosstime',
+      start: moment().add(5, 'minutes'),
+      owner: new Participant('bruce@myews.onmicrosoft.com'),
+      duration: moment.duration(30, 'minutes'),
+      room: {name: 'room', email: 'red-room@myews.onmicrosoft.com'}
+    };
+
+    meetingsOps.createMeeting(meeting.title,
+                              meeting.start,
+                              meeting.duration,
+                              meeting.owner,
+                              meeting.room)
+               .then(meeting => res.json(meeting))
+               .catch(err => sendError(err, res));
+  });
 
   protectEndpoint(app, '/room/:roomEmail/meeting_protected');
   app.post('/room/:roomEmail/meeting_protected', (req, res) => {

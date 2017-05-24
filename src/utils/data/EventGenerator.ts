@@ -35,6 +35,10 @@ export function generateMeetings(roomService: RoomService,
                                  config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
   // should config be used instead of AppConfig?
   const roomLists = roomService.getRoomLists();
+    // .filter(room => room.name != 'Red'); // Filtering to provide a clean slate for Alexa demo
+
+  // roomLists.forEach(location => location.forEach())
+
 
   return Promise.all(roomLists[0].rooms.map(room => regenerateEvents(room.email, start, end, meetingsService, DEFAULT_CONFIG)));
 }
@@ -43,7 +47,6 @@ export function generateMeetings(roomService: RoomService,
 function regenerateEvents(email: string, start: Moment, end: Moment, svc: MeetingsService, conf: GeneratorConfig): Promise<any> {
   const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
   const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
-
   return Promise.all([roomMeetingHelper.cleanupMeetings(start, end),
                        meetingHelper.cleanupMeetings(start, end)])
                 .then(() => {
@@ -55,9 +58,13 @@ function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetin
                     const subject = createSubject(conf);
 
                     const eventDate = currentDate.clone();
-                    events.push(queue.wrap(() => meetingHelper.createMeeting(subject, eventDate, duration, [{email}]))()
-                                     .catch(err => logger.error(`Failed to create event for ${email}`, err))
+
+                    // Leaving red room empty for the Alexa demo
+                    if (email !== 'red-room@myews.onmicrosoft.com') {
+                      events.push(queue.wrap(() => meetingHelper.createMeeting(subject, eventDate, duration, [{email}]))()
+                      .catch(err => logger.error(`Failed to create event for ${email}`, err))
                     );
+                    }
 
                     currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
                   }

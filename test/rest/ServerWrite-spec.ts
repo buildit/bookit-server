@@ -184,7 +184,7 @@ describe('tests authentication', () => {
   it('validates a token operations', function testValidCredentials() {
     const totallyBruce = {
       user: 'bruce@myews.onmicrosoft.com',
-      password: 'who\'s da boss?'
+      password: 'whos da boss?'
     };
 
     return request(app).post(`/authenticate`)
