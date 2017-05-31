@@ -12,10 +12,11 @@ import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
 import {StubMeetingService} from '../../src/services/meetings/StubMeetingService';
 
 const roomService = Runtime.roomService;
+const userService = Runtime.userService;
 const passwordStore = new StubPasswordStore();
 const tokenOperations = Runtime.tokenOperations;
 const meetingService = new StubMeetingService();
-const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, meetingService);
+const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, userService, meetingService);
 
 
 describe('Meeting routes read operations', function meetingReadSuite() {

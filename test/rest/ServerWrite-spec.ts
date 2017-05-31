@@ -21,16 +21,17 @@ import {Meeting} from '../../src/model/Meeting';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
 import {TokenInfo, UserDetail} from '../../src/rest/auth_routes';
+import {StubUserService} from '../../src/services/stub/StubUserService';
 
 const tokenOperations = Runtime.tokenOperations;
 
-
+const userService = new StubUserService();
 const passwordStore = new StubPasswordStore();
 const roomService = new StubRoomService(['white', 'black']);
 const meetingService = new InmemMeetingService();
 
 
-const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, meetingService);
+const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, userService, meetingService);
 
 const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
 const room = new Participant('white-room@myews.onmicrosoft.com', 'room');

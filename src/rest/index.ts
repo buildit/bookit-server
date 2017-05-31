@@ -12,6 +12,7 @@ const promisedRoutes = configureRoutes(app,
                                        Runtime.passwordStore,
                                        Runtime.tokenOperations,
                                        Runtime.roomService,
+                                       Runtime.userService,
                                        Runtime.meetingService);
 
 promisedRoutes.listen(Runtime.port, () => {
