@@ -1,31 +1,37 @@
 import * as assert from 'assert';
+import {roman, contoso, test} from './credentials';
 import {EnvironmentConfig} from '../model/EnvironmentConfig';
 import AppEnv from './env';
 
 
-const configuration: EnvironmentConfig = {};
+const environment: EnvironmentConfig = {};
 
+function assignEnvironment(env: string) {
+  switch (env) {
+    case 'roman': {
+      return roman;
+    }
+    case 'contoso': {
+      return contoso;
+    }
+    case 'test': {
+      return test;
+    }
+    default: {
+      throw new Error('Unknown environment found is CLOUD_CONFIG');
+    }
+  }
+
+}
 
 if (AppEnv.USE_CLOUD) {
   /*
    These are the credentials/identifiers for accessing the MS Graph API.
    */
-  const clientSecret = AppEnv.MICROSOFT_CLIENT_SECRET;
-  const tenantId = '92261769-1013-420f-8d22-32da90a97f5b';
-  const clientId = '3140930b-1a27-4e28-8139-d350e3c30843';
-
-  assert(clientSecret, 'Please set MICROSOFT_CLIENT_SECRET in your env');
-
-  const tokenEndpoint = 'https://login.windows.net/' + tenantId + '/oauth2/token';
-
-  configuration.graphAPIParameters = {
-    tenantId,
-    clientId,
-    clientSecret,
-    tokenEndpoint
-  };
+  const configName = AppEnv.CLOUD_CONFIG.toLowerCase();
+  environment.graphAPIParameters = assignEnvironment(configName);
 }
 
-configuration.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';
+environment.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';
 
-module.exports = configuration;
+module.exports = environment;

@@ -12,9 +12,12 @@ TODO: modify this to return the same token if it's still valid
  */
 export class CloudTokenOperations extends StubTokenOperations {
   private token: string;
+  private tokenEndpoint: string;
 
   constructor(private conf: GraphAPIParameters, jwtSecret: string) {
     super(jwtSecret);
+
+    this.tokenEndpoint = 'https://login.windows.net/' + conf.tenantId + '/oauth2/token';
   }
 
 
@@ -38,7 +41,7 @@ export class CloudTokenOperations extends StubTokenOperations {
         resource: 'https://graph.microsoft.com',
       };
 
-      const tokenRequest = {url: this.conf.tokenEndpoint, form: params};
+      const tokenRequest = {url: this.tokenEndpoint, form: params};
 
       request.post(tokenRequest, (err, response, body) => {
         const data = JSON.parse(body);

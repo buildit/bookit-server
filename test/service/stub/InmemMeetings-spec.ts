@@ -1,6 +1,6 @@
-import {InmemMeetingService} from '../../../src/service/stub/InmemMeetingService';
+import {InmemMeetingService} from '../../../src/services/stub/InmemMeetingService';
 import StatefulSpec from '../Stateful-spec';
 
 const svc = new InmemMeetingService();
 
-StatefulSpec(svc, 'In-memory meetings service');
+StatefulSpec(svc, 'In-memory meetings services');

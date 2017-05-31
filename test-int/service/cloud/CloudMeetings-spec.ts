@@ -3,4 +3,4 @@ import StatefulSpec from '../../../test/service/Stateful-spec';
 
 const svc = Runtime.meetingService;
 
-StatefulSpec(svc, 'Cloud Meetings service');
+StatefulSpec(svc, 'Cloud Meetings services');

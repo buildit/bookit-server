@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import * as moment from 'moment';
 import {Meeting} from '../../../src/model/Meeting';
-import {StubMeetingService} from '../../../src/service/stub/StubMeetingService';
+import {StubMeetingService} from '../../../src/services/stub/StubMeetingService';
 import DateTimeFormat = Intl.DateTimeFormat;
 
 describe('stub meetings', () => {

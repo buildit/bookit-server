@@ -11,15 +11,15 @@ import * as request from 'supertest';
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
-import {StubRoomService} from '../../src/service/stub/StubRoomService';
+import {StubRoomService} from '../../src/services/stub/StubRoomService';
 
 import {Participant} from '../../src/model/Participant';
-import {InmemMeetingService} from '../../src/service/stub/InmemMeetingService';
+import {InmemMeetingService} from '../../src/services/stub/InmemMeetingService';
 import {MeetingRequest} from '../../src/rest/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
-import {StubPasswordStore} from '../../src/service/stub/StubPasswordStore';
+import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
 import {TokenInfo, UserDetail} from '../../src/rest/auth_routes';
 
 const tokenOperations = Runtime.tokenOperations;

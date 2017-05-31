@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {Runtime} from '../../../src/config/runtime/configuration';
 const svc = Runtime.userService;
 
-describe('Cloud User service', () => {
+describe('Cloud User services', () => {
   it('returns a list of users', () => {
     return svc.getUsers().then(users => {
       console.log(JSON.stringify(users));

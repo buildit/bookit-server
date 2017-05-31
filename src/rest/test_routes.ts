@@ -1,4 +1,4 @@
-import {Express, Request, Response, Router} from 'express';
+import {Express, Request, Response} from 'express';
 
 
 export function configureTestRoutes(app: Express) {

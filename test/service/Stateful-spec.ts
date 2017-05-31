@@ -7,9 +7,9 @@ chai.use(chai_as_promised);
 chai.should();
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
-import {MeetingsService} from '../../src/service/MeetingService';
+import {MeetingsService} from '../../src/services/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {MeetingsOps} from '../../src/service/MeetingsOps';
+import {MeetingsOps} from '../../src/services/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 
 // import * as UUID from 'uuid';
@@ -48,7 +48,7 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
 
 
     describe('will not allow meeting overlaps', function testDoubleBookingBefore() {
-      before('wait until the cloud service registers the above initial meeting', function wait() {
+      before('wait until the cloud services registers the above initial meeting', function wait() {
         logger.debug('waiting on meeting');
         return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
       });
@@ -91,7 +91,7 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
   describe(description + ' meeting querying works', function testQuerying() {
     this.timeout(defaultTimeoutMillis);
 
-    before('wait until the cloud service registers the above initial meeting', function wait() {
+    before('wait until the cloud services registers the above initial meeting', function wait() {
       return retryUntil(() => meetingOps.getMeetings(cyanRoomId, start, end), meetings => meetings.length > 0);
     });
 

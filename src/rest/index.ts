@@ -7,6 +7,7 @@ import {configureRoutes} from './server';
 const app = express();
 app.use(cors());
 
+console.log('Starting up server');
 const promisedRoutes = configureRoutes(app,
                                        Runtime.passwordStore,
                                        Runtime.tokenOperations,

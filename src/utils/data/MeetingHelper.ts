@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {MeetingsService} from '../../service/MeetingService';
+import {MeetingsService} from '../../services/MeetingService';
 
 export class MeetingHelper {
 

@@ -1,9 +1,9 @@
-import {UserService} from '../service/UserService';
-import {RoomService} from '../service/RoomService';
-import {MeetingsService} from '../service/MeetingService';
-import {TokenOperations} from '../service/TokenOperations';
+import {UserService} from '../services/UserService';
+import {RoomService} from '../services/RoomService';
+import {MeetingsService} from '../services/MeetingService';
+import {TokenOperations} from '../services/TokenOperations';
 import {invokeIfUnset} from '../utils/validation';
-import {PasswordStore} from '../service/PasswordStore';
+import {PasswordStore} from '../services/PasswordStore';
 
 
 export type UserServiceFactory = (config: RuntimeConfig) => UserService;

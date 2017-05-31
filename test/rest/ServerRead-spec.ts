@@ -8,8 +8,8 @@ import {configureRoutes} from '../../src/rest/server';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {MockMeetings} from '../service/MockMeetings';
-import {StubPasswordStore} from '../../src/service/stub/StubPasswordStore';
-import {StubMeetingService} from '../../src/service/stub/StubMeetingService';
+import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
+import {StubMeetingService} from '../../src/services/stub/StubMeetingService';
 
 const roomService = Runtime.roomService;
 const passwordStore = new StubPasswordStore();

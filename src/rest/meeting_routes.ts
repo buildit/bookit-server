@@ -5,9 +5,9 @@ import {start} from 'repl';
 
 import {Participant} from '../model/Participant';
 
-import {MeetingsService} from '../service/MeetingService';
-import {MeetingsOps} from '../service/MeetingsOps';
-import {RoomService} from '../service/RoomService';
+import {MeetingsService} from '../services/MeetingService';
+import {MeetingsOps} from '../services/MeetingsOps';
+import {RoomService} from '../services/RoomService';
 import {RootLog as logger} from '../utils/RootLogger';
 import {extractAsMoment} from '../utils/validation';
 

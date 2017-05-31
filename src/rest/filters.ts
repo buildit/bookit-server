@@ -2,7 +2,7 @@ import {Express, Request, Router} from 'express';
 
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
-import {TokenOperations} from '../service/TokenOperations';
+import {TokenOperations} from '../services/TokenOperations';
 
 
 const tokenFilter = Router();

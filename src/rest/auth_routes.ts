@@ -3,9 +3,9 @@ import {Express, Request, Response, Router} from 'express';
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
-import {TokenOperations} from '../service/TokenOperations';
+import {TokenOperations} from '../services/TokenOperations';
 import {protectEndpoint} from './filters';
-import {PasswordStore} from '../service/PasswordStore';
+import {PasswordStore} from '../services/PasswordStore';
 
 
 

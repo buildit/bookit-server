@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import {expect} from 'chai';
 import {Participant} from '../../src/model/Participant';
-import {MeetingsOps} from '../../src/service/MeetingsOps';
+import {MeetingsOps} from '../../src/services/MeetingsOps';
 import {Moment} from 'moment';
 
 describe('Meeting ops validation', () => {

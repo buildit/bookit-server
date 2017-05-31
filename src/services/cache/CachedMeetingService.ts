@@ -15,7 +15,7 @@ export class CachedMeetingService implements MeetingsService {
 
   constructor(private delegatedMeetingsService: MeetingsService,
               private delegatedRoomService: RoomService) {
-    logger.info('Constructing cached service');
+    logger.info('Constructing cached services');
     const cacheRefreshInterval = 10 * 1000;
     this.jobId = setInterval(() => {
       const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
