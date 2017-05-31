@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import {StubRoomService} from '../../../src/services/stub/StubRoomService';
+import {StubRoomService} from '../../../src/services/rooms/StubRoomService';
 import DateTimeFormat = Intl.DateTimeFormat;
 
 const expect = chai.expect;

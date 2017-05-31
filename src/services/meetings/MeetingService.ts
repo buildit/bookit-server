@@ -1,6 +1,6 @@
-import {Meeting} from '../model/Meeting';
+import {Meeting} from '../../model/Meeting';
 import {Duration, Moment} from 'moment';
-import {Participant} from '../model/Participant';
+import {Participant} from '../../model/Participant';
 
 export interface MeetingsService {
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]>;

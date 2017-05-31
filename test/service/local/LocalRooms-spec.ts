@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {LocalRooms} from '../../../src/services/local/LocalRooms';
+import {LocalRooms} from '../../../src/services/rooms/LocalRooms';
 
 const svc = new LocalRooms([
   {name: 'room list', rooms: [{name: 'room1', email: 'test@test'}]}

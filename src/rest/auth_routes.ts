@@ -3,7 +3,7 @@ import {Express, Request, Response, Router} from 'express';
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
-import {TokenOperations} from '../services/TokenOperations';
+import {TokenOperations} from '../services/tokens/TokenOperations';
 import {protectEndpoint} from './filters';
 import {PasswordStore} from '../services/PasswordStore';
 

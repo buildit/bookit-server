@@ -1,7 +1,7 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {RoomList} from '../../model/Room';
-import {RoomResponse, RoomService} from '../RoomService';
+import {RoomResponse, RoomService} from './RoomService';
 
 export class LocalRooms implements RoomService {
   constructor(private roomLists: RoomList[]) {

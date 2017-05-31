@@ -1,7 +1,7 @@
-import {UserService} from '../services/UserService';
-import {RoomService} from '../services/RoomService';
-import {MeetingsService} from '../services/MeetingService';
-import {TokenOperations} from '../services/TokenOperations';
+import {UserService} from '../services/users/UserService';
+import {RoomService} from '../services/rooms/RoomService';
+import {MeetingsService} from '../services/meetings/MeetingService';
+import {TokenOperations} from '../services/tokens/TokenOperations';
 import {invokeIfUnset} from '../utils/validation';
 import {PasswordStore} from '../services/PasswordStore';
 

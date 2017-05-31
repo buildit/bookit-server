@@ -1,4 +1,4 @@
-import {UserService} from '../UserService';
+import {UserService} from '../users/UserService';
 
 
 export class StubUserService implements UserService {

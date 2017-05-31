@@ -1,5 +1,5 @@
-import {CloudBase} from './CloudBase';
-import {UserService} from '../UserService';
+import {CloudBase} from '../cloud/CloudBase';
+import {UserService} from './UserService';
 
 export class CloudUserService extends CloudBase implements UserService {
   getUsers(): Promise<any> {

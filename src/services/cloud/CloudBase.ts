@@ -1,6 +1,6 @@
 import {Client} from '@microsoft/microsoft-graph-client';
 
-import {CloudTokenOperations} from './CloudTokenOperations';
+import {CloudTokenOperations} from '../tokens/CloudTokenOperations';
 
 /**
  * A base class for encapsulating required

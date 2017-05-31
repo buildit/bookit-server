@@ -4,7 +4,7 @@ import {Duration, Moment} from 'moment';
 import {RootLog as logger} from '../utils/RootLogger';
 import {Participant} from '../model/Participant';
 import {Room} from '../model/Room';
-import {MeetingsService} from './MeetingService';
+import {MeetingsService} from './meetings/MeetingService';
 import {Meeting} from '../model/Meeting';
 import {isMeetingOverlapping} from '../utils/validation';
 

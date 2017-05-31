@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {MeetingsService} from '../MeetingService';
+import {MeetingsService} from './MeetingService';
 import {Moment} from 'moment';
 
 export class StubMeetingService implements MeetingsService {

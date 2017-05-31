@@ -5,7 +5,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {MeetingsService} from '../MeetingService';
+import {MeetingsService} from './MeetingService';
 import {isMeetingOverlapping} from '../../utils/validation';
 
 export class InmemMeetingService implements MeetingsService {

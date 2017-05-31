@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 
-import {TokenOperations} from '../TokenOperations';
+import {TokenOperations} from './TokenOperations';
 import {Credentials} from '../../model/Credentials';
 
 import {RootLog as logger} from '../../utils/RootLogger';

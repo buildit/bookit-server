@@ -11,10 +11,10 @@ import * as request from 'supertest';
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
-import {StubRoomService} from '../../src/services/stub/StubRoomService';
+import {StubRoomService} from '../../src/services/rooms/StubRoomService';
 
 import {Participant} from '../../src/model/Participant';
-import {InmemMeetingService} from '../../src/services/stub/InmemMeetingService';
+import {InmemMeetingService} from '../../src/services/meetings/InmemMeetingService';
 import {MeetingRequest} from '../../src/rest/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
 

@@ -7,7 +7,7 @@ chai.use(chai_as_promised);
 chai.should();
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
-import {MeetingsService} from '../../src/services/MeetingService';
+import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/services/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';

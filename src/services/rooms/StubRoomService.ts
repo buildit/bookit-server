@@ -1,7 +1,7 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {Room, RoomList} from '../../model/Room';
-import {RoomResponse, RoomService} from '../RoomService';
+import {RoomResponse, RoomService} from './RoomService';
 
 
 const COLORS: string[] = ['black', 'green', 'yellow'];

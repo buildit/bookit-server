@@ -2,11 +2,11 @@ import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
 
 import {findById, Meeting} from '../../model/Meeting';
-import {MeetingsService} from '../MeetingService';
+import {MeetingsService} from './MeetingService';
 import {Participant} from '../../model/Participant';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {isMeetingWithinRange} from '../../utils/validation';
-import {RoomService} from '../RoomService';
+import {RoomService} from '../rooms/RoomService';
 
 export class CachedMeetingService implements MeetingsService {
   private jobId: NodeJS.Timer;

@@ -8,18 +8,18 @@ import {generateIntegrationRoomLists, generateRoomLists} from '../bootstrap/room
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 import {EnvironmentConfig, GraphAPIParameters, TestMode} from '../../model/EnvironmentConfig';
 
-import {LocalRooms} from '../../services/local/LocalRooms';
+import {LocalRooms} from '../../services/rooms/LocalRooms';
 
-import {CloudUserService} from '../../services/cloud/CloudUserService';
-import {CloudMeetingService} from '../../services/cloud/CloudMeetingService';
-import {CachedMeetingService} from '../../services/cache/CachedMeetingService';
-import {LocalUserService} from '../../services/local/LocalUserService';
-import {InmemMeetingService} from '../../services/stub/InmemMeetingService';
-import {CloudTokenOperations} from '../../services/cloud/CloudTokenOperations';
+import {CloudUserService} from '../../services/users/CloudUserService';
+import {CloudMeetingService} from '../../services/meetings/CloudMeetingService';
+import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
+import {LocalUserService} from '../../services/users/LocalUserService';
+import {InmemMeetingService} from '../../services/meetings/InmemMeetingService';
+import {CloudTokenOperations} from '../../services/tokens/CloudTokenOperations';
 // import {StubTokenOperations} from '../../services/stub/StubTokenOperations';
-import {StubMeetingService} from '../../services/stub/StubMeetingService';
+import {StubMeetingService} from '../../services/meetings/StubMeetingService';
 import {StubUserService} from '../../services/stub/StubUserService';
-import {StubRoomService} from '../../services/stub/StubRoomService';
+import {StubRoomService} from '../../services/rooms/StubRoomService';
 
 import {generateMeetings} from '../../utils/data/EventGenerator';
 import {StubPasswordStore} from '../../services/stub/StubPasswordStore';

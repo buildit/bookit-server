@@ -2,8 +2,8 @@ import * as moment from 'moment';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {findById, Meeting} from '../../model/Meeting';
-import {MeetingsService} from '../MeetingService';
-import {CloudBase} from './CloudBase';
+import {MeetingsService} from './MeetingService';
+import {CloudBase} from '../cloud/CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 import {maybeApply} from '../../utils/collections';

@@ -24,7 +24,7 @@
     "watch": "npm run build -- --watch",
     "watch:unit": "npm run test:unit -- --watch",
     "watch:int": "npm run test:int -- --watch",
-    "watch:start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config nodemon --delay 5.0 --watch lib lib/rest/index.js",
+    "watch:start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config nodemon --delay 2.5 --watch lib lib/rest/index.js",
     "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/rest/index.js",
     "dev": "concurrently --kill-others 'npm run watch' 'npm run watch:start'",
     "dev2": "npm run watch:start",

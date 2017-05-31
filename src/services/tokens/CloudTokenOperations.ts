@@ -5,7 +5,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {GraphAPIParameters} from '../../model/EnvironmentConfig';
 import {Credentials} from '../../model/Credentials';
 import {TokenInfo} from '../../rest/auth_routes';
-import {StubTokenOperations} from '../stub/StubTokenOperations';
+import {StubTokenOperations} from './StubTokenOperations';
 
 /*
 TODO: modify this to return the same token if it's still valid

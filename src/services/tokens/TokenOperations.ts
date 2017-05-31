@@ -1,4 +1,4 @@
-import {Credentials} from '../model/Credentials';
+import {Credentials} from '../../model/Credentials';
 /**
  * General interface for token operations.  A token needs to be obtained from the oauth2 endpoint
  * prior to using any of the Microsoft Graph endpoints.
