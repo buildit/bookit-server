@@ -17,7 +17,7 @@
     "clean": "rimraf lib",
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
     "build": "npm run clean && npm run lint && tsc --version && tsc --pretty",
-    "test:unit": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --compilers ts:ts-node/register --recursive 'test/**/*-spec.ts'",
+    "test:unit": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --compilers ts:ts-node/register --recursive 'test/**/*spec.ts'",
     "test:int": "npm run build && ROOT=`pwd` && NODE_ENV=integration-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --timeout=60000 --compilers ts:ts-node/register --recursive 'test-int/**/*-spec.ts'",
     "test": "npm run test:unit && npm run test:int",
     "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",

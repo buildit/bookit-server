@@ -58,7 +58,9 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
       attendees,
     };
 
-    return this.client.api(`/users/${owner.email}/calendar/events`).post(eventData) as Promise<any>;
+    return this.client.api(`/users/${owner.email}/calendar/events`)
+               .post(eventData)
+               .then(meeting => CloudMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
   }
 
 

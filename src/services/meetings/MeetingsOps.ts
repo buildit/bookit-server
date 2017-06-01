@@ -31,29 +31,6 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
 }
 
 
-export function filterOutMeetingById(meetings: Meeting[], toFilter: Meeting) {
-  return filterMeetingsBy(meetings, toFilter, matchMeetingById);
-}
-
-
-export function filterOutMeetingByOwner(meetings: Meeting[], toFilter: Meeting) {
-  return filterMeetingsBy(meetings, toFilter, matchMeetingByOwner);
-}
-
-
-function filterMeetingsBy(meetings: Meeting[], filter: Meeting, matcher: (some: Meeting, other: Meeting) => boolean) {
-  return meetings.filter(meeting => matcher(meeting, filter));
-}
-
-
-function matchMeetingById(some: Meeting, other: Meeting) {
-  return some.id === other.id;
-}
-
-
-function matchMeetingByOwner(some: Meeting, other: Meeting) {
-  return some.owner.email === other.owner.email;
-}
 
 
 export class MeetingsOps {

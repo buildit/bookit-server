@@ -1,6 +1,5 @@
 import {Moment, Duration} from 'moment';
 
-import {RootLog as logger} from '../../../src/utils/RootLogger';
 import {Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import {MeetingsService} from '../../../src/services/meetings/MeetingService';

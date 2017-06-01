@@ -1,7 +1,5 @@
-export interface CachingStrategy<T> {
-  put(cache: Map<string, any>, item: T): void;
 
-  get(cache: Map<string, any>, item: T): void;
-
-  computeKey(item: T): string;
+export interface CachingStrategy<Type, Store> {
+  put(cache: Map<string, Store>, item: Type): Store;
+  get(cache: Map<string, Store>, key: string): Store;
 }
