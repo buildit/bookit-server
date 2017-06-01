@@ -21,11 +21,7 @@ export const isMeetingOverlapping = (existingMeetingStart: moment.Moment, existi
   const isEndBetween = () => isMomentBetween(newMeetingEnd, existingMeetingStart, existingMeetingEnd);
   const isSurroundedBy = () => isMomentWithinRange(existingMeetingStart, existingMeetingEnd, newMeetingStart, newMeetingEnd);
 
-  return [isStartBetween, isEndBetween, isSurroundedBy].some(func => {
-    const result = func();
-
-    return result;
-  });
+  return [isStartBetween, isEndBetween, isSurroundedBy].some(func => { return func(); });
 };
 
 

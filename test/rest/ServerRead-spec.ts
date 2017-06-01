@@ -7,7 +7,7 @@ import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
 
 import {Runtime} from '../../src/config/runtime/configuration';
-import {MockMeetings} from '../service/MockMeetings';
+import {MockMeetings} from '../services/meetings/MockMeetings';
 import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
 import {StubMeetingService} from '../../src/services/meetings/StubMeetingService';
 

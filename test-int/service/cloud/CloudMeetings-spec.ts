@@ -1,5 +1,5 @@
 import {Runtime} from '../../../src/config/runtime/configuration';
-import StatefulSpec from '../../../test/service/Stateful-spec';
+import StatefulSpec from '../../../test/services/Stateful-spec';
 
 const svc = Runtime.meetingService;
 

@@ -1,4 +1,3 @@
-import * as assert from 'assert';
 import {roman, contoso, test} from './credentials';
 import {EnvironmentConfig} from '../model/EnvironmentConfig';
 import AppEnv from './env';
@@ -28,8 +27,13 @@ if (AppEnv.USE_CLOUD) {
   /*
    These are the credentials/identifiers for accessing the MS Graph API.
    */
-  const configName = AppEnv.CLOUD_CONFIG.toLowerCase();
-  environment.graphAPIParameters = assignEnvironment(configName);
+  const configName = AppEnv.CLOUD_CONFIG;
+  if (!configName) {
+    throw new Error('When using cloud expected \'.env\'');
+  }
+
+  const configLC = configName.toLowerCase();
+  environment.graphAPIParameters = assignEnvironment(configLC);
 }
 
 environment.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';

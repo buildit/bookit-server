@@ -9,7 +9,7 @@ chai.should();
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {MeetingsOps} from '../../src/services/MeetingsOps';
+import {MeetingsOps} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 
 // import * as UUID from 'uuid';
