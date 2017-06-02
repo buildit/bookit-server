@@ -2,7 +2,7 @@ import {CachingStrategy} from './CachingStrategy';
 import {Meeting} from '../../model/Meeting';
 
 
-export class IdCachingStrategy implements CachingStrategy<Meeting> {
+export class IdCachingStrategy implements CachingStrategy<Meeting, Meeting> {
 
   put(cache: Map<string, Meeting>, item: Meeting): Meeting {
     const key = item.id;

@@ -8,14 +8,14 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {isMeetingWithinRange} from '../../utils/validation';
 import {RoomService} from '../rooms/RoomService';
 import {IdCachingStrategy} from '../cache/IdCachingStrategy';
-import {ParticipantCachingStrategy} from '../cache/ParticipantCachingStrategy';
+// import {ParticipantCachingStrategy} from '../cache/ParticipantCachingStrategy';
 import {OwnerCachingStrategy} from '../cache/OwnerCachingStrategy';
 
 
 const DEFAULT_REFRESH = 10 * 1000;
 
 const ID_CACHE_STRATEGY = new IdCachingStrategy();
-const PARTICIPANT_CACHE_STRATEGY = new ParticipantCachingStrategy();
+// const PARTICIPANT_CACHE_STRATEGY = new ParticipantCachingStrategy();
 const OWNER_CACHE_STRATEGY = new OwnerCachingStrategy();
 
 
@@ -107,8 +107,8 @@ export class CachedMeetingService implements MeetingsService {
     console.log('2Cached meeting for ' + meeting.id);
     OWNER_CACHE_STRATEGY.put(this.ownerCache, meeting);
     console.log('3Cached meeting for ' + meeting.id);
-    PARTICIPANT_CACHE_STRATEGY.put(this.participantCache, meeting);
-    console.log('4Cached meeting for ' + meeting.id);
+    // PARTICIPANT_CACHE_STRATEGY.put(this.participantCache, meeting);
+    // console.log('4Cached meeting for ' + meeting.id);
     return meeting;
   }
 }
