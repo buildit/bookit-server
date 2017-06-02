@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
 
-import {findById, Meeting} from '../../model/Meeting';
+import {Meeting} from '../../model/Meeting';
 import {MeetingsService} from './MeetingService';
 import {Participant} from '../../model/Participant';
 import {RootLog as logger} from '../../utils/RootLogger';
@@ -38,9 +38,11 @@ export class CachedMeetingService implements MeetingsService {
               private delegatedRoomService: RoomService) {
 
     const _internalRefresh = () => {
-      console.log('Refreshing now...');
-      const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
-      const end = moment().add(1, 'week');
+      logger.info('Refreshing meetings now...');
+      const start = moment(); // TODO: Set the cache range in config
+      const end = moment().add(1, 'day');
+      // const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
+      // const end = moment().add(1, 'week');
       this.refreshCache(start, end);
     };
 
@@ -53,7 +55,7 @@ export class CachedMeetingService implements MeetingsService {
 
   getMeetings(owner: string, start: Moment, end: Moment): Promise<Meeting[]> {
     return new Promise((resolve) => {
-      const meetings = OWNER_CACHE_STRATEGY.get(this.ownerCache, owner) || [];
+      const meetings = PARTICIPANTS_CACHE_STRATEGY.get(this.participantCache, owner) || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
 
       resolve(filtered);
@@ -96,7 +98,9 @@ export class CachedMeetingService implements MeetingsService {
     roomResponse.rooms.forEach(room => {
       meetingSvc.getMeetings(room.email, start, end)
                 .then(meetings => meetings.forEach(this.cacheMeeting.bind(this)))
-                .catch(error => ('Failed to cache meetings for:' + room.name));
+                .catch(error => {
+                  logger.error('Failed to cache meetings for:' + room.name);
+                });
     });
   }
 
@@ -105,7 +109,6 @@ export class CachedMeetingService implements MeetingsService {
     ID_CACHE_STRATEGY.put(this.idCache, meeting);
     OWNER_CACHE_STRATEGY.put(this.ownerCache, meeting);
     PARTICIPANTS_CACHE_STRATEGY.put(this.participantCache, meeting);
-    // console.log('Cached', meeting.id);
     return meeting;
   }
 }

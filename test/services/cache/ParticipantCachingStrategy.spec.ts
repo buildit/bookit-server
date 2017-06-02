@@ -1,9 +1,7 @@
 import {expect} from 'chai';
-import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
+import {Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {IdCachingStrategy} from '../../../src/services/cache/IdCachingStrategy';
-import {OwnerCachingStrategy} from '../../../src/services/cache/OwnerCachingStrategy';
 import {ParticipantsCachingStrategy} from '../../../src/services/cache/ParticipantsCachingStrategy';
 
 
@@ -56,12 +54,6 @@ const fifth: Meeting = {
   start: moment(),
   end: moment(),
 };
-
-/*
-kotlin spring boot
-azure
-book-it
- */
 
 
 describe('owner caching suite', function filterSuite() {

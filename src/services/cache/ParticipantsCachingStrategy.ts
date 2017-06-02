@@ -6,10 +6,11 @@ import {MultiListCachingStrategy} from './MultiListCachingStrategy';
 export class ParticipantsCachingStrategy extends MultiListCachingStrategy<Meeting> {
 
   getKeys(item: Meeting): string[] {
-    const participantKeys = item.participants.map(participant => participant.email);
-    participantKeys.push(item.owner.email);
+    const mailSet = new Set<string>();
+    item.participants.forEach(participant => mailSet.add(participant.email));
+    mailSet.add(item.owner.email);
 
-    return participantKeys;
+    return Array.from(mailSet);
   }
 
   getIdentityMapper(item: Meeting): string {
