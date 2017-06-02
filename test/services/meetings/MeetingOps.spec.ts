@@ -1,8 +1,7 @@
 import {expect} from 'chai';
-import {Meeting} from '../../../src/model/Meeting';
+import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {filterOutMeetingById, filterOutMeetingByOwner} from '../../../src/services/meetings/MeetingsOps';
 
 /*
  export class Meeting {
