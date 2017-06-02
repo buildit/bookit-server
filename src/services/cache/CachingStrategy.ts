@@ -1,5 +1,5 @@
 
-export interface CachingStrategy<Type, Store> {
-  put(cache: Map<string, Store>, item: Type): Store;
-  get(cache: Map<string, Store>, key: string): Store;
+export interface CachingStrategy<Type, Store, Return> {
+  put(cache: Map<string, Store>, item: Type): Return;
+  get(cache: Map<string, Store>, key: string): Return;
 }

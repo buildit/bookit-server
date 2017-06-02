@@ -1,17 +1,9 @@
-import {CachingStrategy} from './CachingStrategy';
 import {Meeting} from '../../model/Meeting';
+import {IdentityCachingStrategy} from './IdentityCachingStrategy';
 
 
-export class IdCachingStrategy implements CachingStrategy<Meeting, Meeting> {
-
-  put(cache: Map<string, Meeting>, item: Meeting): Meeting {
-    const key = item.id;
-    cache.set(key, item);
-    return item;
+export class IdCachingStrategy extends IdentityCachingStrategy<Meeting> {
+  getKey(item: Meeting): string {
+    return item.id;
   }
-
-  get(cache: Map<string, Meeting>, key: string): Meeting {
-    return cache.get(key);
-  }
-
 }

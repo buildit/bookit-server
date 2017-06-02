@@ -1,4 +1,4 @@
-import {addMeetingById, Meeting} from '../../model/Meeting';
+import {Meeting} from '../../model/Meeting';
 
 import {ListCachingStrategy} from './ListCachingStrategy';
 

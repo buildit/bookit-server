@@ -1,7 +1,7 @@
 
 import {CachingStrategy} from './CachingStrategy';
 
-export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type, Type[]> {
+export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type, Type[], Type[]> {
 
   put(cache: Map<string, Type[]>, item: Type): Type[] {
     const key = this.getKey(item);

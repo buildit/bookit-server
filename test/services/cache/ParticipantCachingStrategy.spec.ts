@@ -1,0 +1,110 @@
+import {expect} from 'chai';
+import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
+import {Participant} from '../../../src/model/Participant';
+import * as moment from 'moment';
+import {IdCachingStrategy} from '../../../src/services/cache/IdCachingStrategy';
+import {OwnerCachingStrategy} from '../../../src/services/cache/OwnerCachingStrategy';
+import {ParticipantsCachingStrategy} from '../../../src/services/cache/ParticipantsCachingStrategy';
+
+
+const andrew = new Participant('andrew@wipro.com');
+const paul = new Participant('paul@wipro.com');
+const alex = new Participant('alex@wipro.com');
+const zac = new Participant('zac@wipro.com');
+
+const first: Meeting = {
+  id: '1',
+  title: 'My first meeting',
+  owner: andrew,
+  participants: [paul],
+  start: moment(),
+  end: moment(),
+};
+
+const second: Meeting = {
+  id: '2',
+  title: 'My second meeting',
+  owner: alex,
+  participants: [andrew],
+  start: moment(),
+  end: moment(),
+};
+
+const third: Meeting = {
+  id: '3',
+  title: 'My third meeting',
+  owner: paul,
+  participants: [alex],
+  start: moment(),
+  end: moment(),
+};
+
+const fourth: Meeting = {
+  id: '4',
+  title: 'My fourth meeting',
+  owner: alex,
+  participants: [andrew, paul],
+  start: moment(),
+  end: moment(),
+};
+
+const fifth: Meeting = {
+  id: '5',
+  title: 'Owner as participant',
+  owner: zac,
+  participants: [andrew],
+  start: moment(),
+  end: moment(),
+};
+
+/*
+kotlin spring boot
+azure
+book-it
+ */
+
+
+describe('owner caching suite', function filterSuite() {
+  const cache = new Map<string, Meeting[]>();
+  const participantCacher = new ParticipantsCachingStrategy();
+
+  [first, second, third, fourth, fifth].forEach(meeting => participantCacher.put(cache, meeting));
+
+  it('caches by owner', function testFilterById() {
+  const andrewList = participantCacher.get(cache, 'andrew@wipro.com');
+    expect(andrewList.length).to.be.equal(4);
+    const set = new Set(andrewList.map(m => m.id));
+    expect(set.has('1')).to.be.true;
+    expect(set.has('2')).to.be.true;
+    expect(set.has('4')).to.be.true;
+    expect(set.has('5')).to.be.true;
+  });
+
+
+  it('tests alex', function() {
+    const alexList = participantCacher.get(cache, 'alex@wipro.com');
+    expect(alexList.length).to.be.equal(3);
+    const set = new Set(alexList.map(m => m.id));
+    expect(set.has('2')).to.be.true;
+    expect(set.has('3')).to.be.true;
+    expect(set.has('4')).to.be.true;
+  });
+
+
+  it('tests paul', function() {
+    const paulList = participantCacher.get(cache, 'paul@wipro.com');
+    expect(paulList.length).to.be.equal(3);
+    const set = new Set(paulList.map(m => m.id));
+    expect(set.has('1')).to.be.true;
+    expect(set.has('3')).to.be.true;
+    expect(set.has('4')).to.be.true;
+  });
+
+
+  it('tests zac', function() {
+    const zacList = participantCacher.get(cache, 'zac@wipro.com');
+    expect(zacList.length).to.be.equal(1);
+    expect(zacList[0].id).to.be.equal('5');
+  });
+
+});
