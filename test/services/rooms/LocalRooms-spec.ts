@@ -1,7 +1,7 @@
 import {expect} from 'chai';
-import {LocalRooms} from '../../../src/services/rooms/LocalRooms';
+import {MockRoomService} from '../../../src/services/rooms/MockRoomService';
 
-const svc = new LocalRooms([
+const svc = new MockRoomService([
   {name: 'room list', rooms: [{name: 'room1', email: 'test@test'}]}
 ]);
 

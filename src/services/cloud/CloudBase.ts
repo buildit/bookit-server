@@ -1,6 +1,6 @@
 import {Client} from '@microsoft/microsoft-graph-client';
 
-import {CloudTokenOperations} from '../tokens/CloudTokenOperations';
+import {CloudTokenProvider} from '../tokens/CloudTokenProvider';
 
 /**
  * A base class for encapsulating required
@@ -14,7 +14,7 @@ export class CloudBase {
    The type should stay cloud based as it's unlikely that part of cloud base we'd want to use anything other than
    a cloud token provider
    */
-  constructor(private tokenOperations: CloudTokenOperations) {
+  constructor(private tokenOperations: CloudTokenProvider) {
   }
 
 

@@ -5,7 +5,14 @@ export class RoomResponse {
   readonly rooms: Room[];
 }
 
+
 export interface RoomService {
   getRoomLists(): RoomList[];
   getRooms(list: string): RoomResponse;
+}
+
+
+export interface MutableRoomService {
+  addRoomList(name: string): void;
+  addRoomToList(room: Room): void;
 }

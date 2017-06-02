@@ -8,15 +8,17 @@ import {configureRoutes} from '../../src/rest/server';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {MockMeetings} from '../services/meetings/MockMeetings';
-import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
+import {MockPasswordStore} from '../../src/services/authorization/MockPasswordStore';
 import {StubMeetingService} from '../../src/services/meetings/StubMeetingService';
 
 const roomService = Runtime.roomService;
 const userService = Runtime.userService;
-const passwordStore = new StubPasswordStore();
-const tokenOperations = Runtime.tokenOperations;
+const passwordStore = new MockPasswordStore();
+const jwtTokenProvider = Runtime.jwtTokenProvider;
 const meetingService = new StubMeetingService();
-const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, userService, meetingService);
+
+
+const app = configureRoutes(express(), passwordStore, jwtTokenProvider, roomService, userService, meetingService);
 
 
 describe('Meeting routes read operations', function meetingReadSuite() {

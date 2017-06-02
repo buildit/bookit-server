@@ -3,26 +3,25 @@ import * as moment from 'moment';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {generateIntegrationRoomLists, generateRoomLists} from '../bootstrap/rooms';
+import {generateIntegrationRoomLists, generateRoomLists, generateUnitRoomLists} from '../bootstrap/rooms';
 
 import {RuntimeConfig} from '../../model/RuntimeConfig';
-import {EnvironmentConfig, GraphAPIParameters, TestMode} from '../../model/EnvironmentConfig';
+import {EnvironmentConfig, TestMode} from '../../model/EnvironmentConfig';
 
-import {LocalRooms} from '../../services/rooms/LocalRooms';
+import {MockRoomService} from '../../services/rooms/MockRoomService';
 
 import {CloudUserService} from '../../services/users/CloudUserService';
 import {CloudMeetingService} from '../../services/meetings/CloudMeetingService';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
-import {LocalUserService} from '../../services/users/LocalUserService';
+import {MockUserService} from '../../services/users/MockUserService';
 import {InmemMeetingService} from '../../services/meetings/InmemMeetingService';
-import {CloudTokenOperations} from '../../services/tokens/CloudTokenOperations';
-// import {StubTokenOperations} from '../../services/stub/StubTokenOperations';
+import {CloudTokenProvider} from '../../services/tokens/CloudTokenProvider';
+// import {MockTokenOperations} from '../../services/stub/MockTokenOperations';
 import {StubMeetingService} from '../../services/meetings/StubMeetingService';
-import {StubUserService} from '../../services/stub/StubUserService';
-import {StubRoomService} from '../../services/rooms/StubRoomService';
 
 import {generateMeetings} from '../../utils/data/EventGenerator';
-import {StubPasswordStore} from '../../services/stub/StubPasswordStore';
+import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
+import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 
 const environment = nodeConfig as EnvironmentConfig;
 
@@ -47,26 +46,31 @@ logger.debug('environment', environment);
 
 const graphAPIParameters = environment.graphAPIParameters;
 
+const jwtTokens = new MockJWTTokenProvider(environment.jwtTokenSecret);
+
 if (environment.testMode === TestMode.NONE) {
 
+
   if (graphAPIParameters) {
-    const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
+    const tokenOperations = new CloudTokenProvider(graphAPIParameters);
 
     config = new RuntimeConfig(environment.port,
-                               new StubPasswordStore(),
+                               new MockPasswordStore(),
                                tokenOperations,
+                               jwtTokens,
                                () => new CloudUserService(tokenOperations),
-                               () => new LocalRooms(generateRoomLists()),
+                               () => new MockRoomService(generateRoomLists()),
                                (runtime) => {
                                  const cloudMeetingService = new CloudMeetingService(tokenOperations);
                                  return new CachedMeetingService(cloudMeetingService, runtime.roomService);
                                });
   } else {
     config = new RuntimeConfig(environment.port,
-                               new StubPasswordStore(),
-                               new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret),
-                               () => new LocalUserService(),
-                               () => new LocalRooms(generateRoomLists()),
+                               new MockPasswordStore(),
+                               new CloudTokenProvider(graphAPIParameters),
+                               jwtTokens,
+                               () => new MockUserService(),
+                               () => new MockRoomService(generateRoomLists()),
                                () => new InmemMeetingService());
 
     generateMeetings(config.roomService, config.meetingService, moment().add(-1, 'days'), moment().add(1, 'week'));
@@ -75,22 +79,24 @@ if (environment.testMode === TestMode.NONE) {
 } else if (environment.testMode === TestMode.UNIT) {
 
   config = new RuntimeConfig(environment.port,
-                             new StubPasswordStore(),
-                             new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret),
-                             () => new StubUserService(),
-                             () => new StubRoomService(),
+                             new MockPasswordStore(),
+                             new CloudTokenProvider(graphAPIParameters),
+                             jwtTokens,
+                             () => new MockUserService(),
+                             () => new MockRoomService(generateUnitRoomLists()),
                              () => new StubMeetingService());
 
 } else if (environment.testMode === TestMode.INTEGRATION) {
 
   const graphAPIParameters = environment.graphAPIParameters;
-  const tokenOperations = new CloudTokenOperations(graphAPIParameters, environment.jwtTokenSecret);
+  const tokenOperations = new CloudTokenProvider(graphAPIParameters);
 
   config = new RuntimeConfig(environment.port,
-                             new StubPasswordStore(),
+                             new MockPasswordStore(),
                              tokenOperations,
+                             jwtTokens,
                              () => new CloudUserService(tokenOperations),
-                             () => new LocalRooms(generateIntegrationRoomLists()),
+                             () => new MockRoomService(generateIntegrationRoomLists()),
                              () => {
                                return new CloudMeetingService(tokenOperations);
                              });

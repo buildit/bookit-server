@@ -1,10 +1,16 @@
-import {RootLog as logger} from '../../utils/RootLogger';
+import {Room, RoomList} from '../../model/Room';
+import {MutableRoomService, RoomResponse, RoomService} from './RoomService';
 
-import {RoomList} from '../../model/Room';
-import {RoomResponse, RoomService} from './RoomService';
 
-export class LocalRooms implements RoomService {
+export class MockRoomService implements RoomService, MutableRoomService {
+
   constructor(private roomLists: RoomList[]) {
+  }
+
+  addRoomList(name: string): void {
+  }
+
+  addRoomToList(room: Room): void {
   }
 
   getRoomLists(): RoomList[] {
@@ -13,7 +19,7 @@ export class LocalRooms implements RoomService {
 
 
   getRooms(list: string): RoomResponse {
-    // logger.info('LocalRooms getting rooms');
+    // logger.info('MockRoomService getting rooms');
     const rl = this.roomLists.find(rl => rl.name === list);
     if (rl) {
       return {

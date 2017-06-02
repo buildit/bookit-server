@@ -1,13 +1,13 @@
 import * as jwt from 'jsonwebtoken';
 
-import {TokenOperations} from './TokenOperations';
+import {JWTTokenProvider} from './TokenProviders';
 import {Credentials} from '../../model/Credentials';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {TokenInfo} from '../../rest/auth_routes';
 
 
-export class StubTokenOperations implements TokenOperations {
+export class MockJWTTokenProvider implements JWTTokenProvider {
 
 
   constructor(private jwtSecret: string) {
@@ -35,15 +35,4 @@ export class StubTokenOperations implements TokenOperations {
 
   }
 
-  hasToken(): boolean {
-    return false;
-  }
-
-  getCurrentToken(): string {
-    return undefined;
-  }
-
-  withToken(): Promise<string> {
-    return undefined;
-  }
 }

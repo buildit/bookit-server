@@ -11,34 +11,26 @@ import * as request from 'supertest';
 
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
-import {StubRoomService} from '../../src/services/rooms/StubRoomService';
 
 import {Participant} from '../../src/model/Participant';
-import {InmemMeetingService} from '../../src/services/meetings/InmemMeetingService';
 import {MeetingRequest} from '../../src/rest/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
-import {StubPasswordStore} from '../../src/services/stub/StubPasswordStore';
-import {TokenInfo, UserDetail} from '../../src/rest/auth_routes';
-import {StubUserService} from '../../src/services/stub/StubUserService';
-
-const tokenOperations = Runtime.tokenOperations;
-
-const userService = new StubUserService();
-const passwordStore = new StubPasswordStore();
-const roomService = new StubRoomService(['white', 'black']);
-const meetingService = new InmemMeetingService();
+import {UserDetail} from '../../src/rest/auth_routes';
 
 
-const app = configureRoutes(express(), passwordStore, tokenOperations, roomService, userService, meetingService);
+const meetingService = Runtime.meetingService;
+
+
+const app = configureRoutes(express(), Runtime.passwordStore, Runtime.jwtTokenProvider, Runtime.roomService, Runtime.userService, meetingService);
 
 const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
 const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
 
 
 describe('Meeting routes write operations', () => {
-  it('it creates the room', function() {
+  it.skip('it creates the meeting', function() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-09 09:00';
 
@@ -74,7 +66,7 @@ describe('Meeting routes write operations', () => {
                        });
   });
 
-  it('it deletes the meeting', function() {
+  it.skip('it deletes the meeting', function() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-08 09:30';
 
@@ -145,6 +137,7 @@ describe('Meeting routes write operations', () => {
   });
 
 });
+
 
 describe('tests authentication', () => {
 

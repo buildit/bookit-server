@@ -1,22 +1,17 @@
 import * as request from 'request';
 
 
-import {RootLog as logger} from '../../utils/RootLogger';
 import {GraphAPIParameters} from '../../model/EnvironmentConfig';
-import {Credentials} from '../../model/Credentials';
-import {TokenInfo} from '../../rest/auth_routes';
-import {StubTokenOperations} from './StubTokenOperations';
+import {GraphTokenProvider} from './TokenProviders';
 
 /*
 TODO: modify this to return the same token if it's still valid
  */
-export class CloudTokenOperations extends StubTokenOperations {
+export class CloudTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
 
-  constructor(private conf: GraphAPIParameters, jwtSecret: string) {
-    super(jwtSecret);
-
+  constructor(private conf: GraphAPIParameters) {
     this.tokenEndpoint = 'https://login.windows.net/' + conf.tenantId + '/oauth2/token';
   }
 

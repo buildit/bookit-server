@@ -10,7 +10,7 @@ app.use(cors());
 console.log('Starting up server');
 const promisedRoutes = configureRoutes(app,
                                        Runtime.passwordStore,
-                                       Runtime.tokenOperations,
+                                       Runtime.jwtTokenProvider,
                                        Runtime.roomService,
                                        Runtime.userService,
                                        Runtime.meetingService);

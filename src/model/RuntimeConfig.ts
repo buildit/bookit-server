@@ -1,7 +1,7 @@
 import {UserService} from '../services/users/UserService';
 import {RoomService} from '../services/rooms/RoomService';
 import {MeetingsService} from '../services/meetings/MeetingService';
-import {TokenOperations} from '../services/tokens/TokenOperations';
+import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {invokeIfUnset} from '../utils/validation';
 import {PasswordStore} from '../services/PasswordStore';
 
@@ -25,7 +25,8 @@ export class RuntimeConfig {
 
   constructor(port: number,
               private _passwordStore: PasswordStore,
-              private _tokenOperations: TokenOperations,
+              private _graphTokenProvider: GraphTokenProvider,
+              private _jwtTokenProvider: JWTTokenProvider,
               private _userServiceFactory: UserServiceFactory,
               private _roomServiceFactory: RoomServiceFactory,
               private _meetingServiceFactory: MeetingServiceFactory) {
@@ -42,8 +43,14 @@ export class RuntimeConfig {
     return this._passwordStore;
   }
 
-  get tokenOperations() {
-    return this._tokenOperations;
+
+  get graphTokenProvider() {
+    return this._graphTokenProvider;
+  }
+
+
+  get jwtTokenProvider() {
+    return this._jwtTokenProvider;
   }
 
 

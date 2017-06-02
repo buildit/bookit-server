@@ -12,7 +12,7 @@ userPasswords.set('romans@myews.onmicrosoft.com', {password: 'enterprise: engage
 
 
 
-export class StubPasswordStore implements PasswordStore {
+export class MockPasswordStore implements PasswordStore {
   getUserId(user: string): number {
     const details = userPasswords.get(user);
     return details.id;
