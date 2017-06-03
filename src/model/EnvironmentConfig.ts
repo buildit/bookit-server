@@ -25,6 +25,7 @@ export enum TestMode {
 
 export interface EnvironmentConfig {
   port?: number;
+  graphAPIIdentity?: string;
   graphAPIParameters?: GraphAPIParameters;
   testMode?: TestMode;
   jwtTokenSecret?: string;

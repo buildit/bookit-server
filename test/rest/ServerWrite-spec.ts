@@ -65,7 +65,7 @@ describe('Meeting routes write operations', () => {
                        });
   });
 
-  it.skip('it deletes the meeting', function testDeletingAMeeting() {
+  it('it deletes the meeting', function testDeletingAMeeting() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-08 09:30';
 

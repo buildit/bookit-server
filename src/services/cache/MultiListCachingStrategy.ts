@@ -1,31 +1,13 @@
 
-import {CachingStrategy} from './CachingStrategy';
+import {ListCachingStrategy} from './ListCachingStrategy';
 
-export abstract class MultiListCachingStrategy<Type> implements CachingStrategy<Type, Type[], Type[]> {
+
+export abstract class MultiListCachingStrategy<Type> extends ListCachingStrategy<Type> {
 
 
   put(cache: Map<string, Type[]>, item: Type): Type[] {
     const cacheKeys = (keys: string[], cache: Map<string, Type[]>, item: Type) => {
-      keys.forEach(key => {
-        const existing = cache.get(key);
-        if (!existing) {
-          const list = [item];
-          cache.set(key, list);
-          return;
-        }
-
-        if (existing.length) {
-          const found = existing.some(meeting => {
-            return this.getIdentityMapper(meeting) === this.getIdentityMapper(item);
-          });
-
-          if (found) {
-            return;
-          }
-        }
-
-        existing.push(item);
-      });
+      keys.forEach(key => super.putKey(cache, key, item));
     };
 
     const toParticipantsList = (keys: string[], cache: Map<string, Type[]>) => {
@@ -56,6 +38,18 @@ export abstract class MultiListCachingStrategy<Type> implements CachingStrategy<
     return cache.get(key) || [];
   }
 
+
+  remove(cache: Map<string, Type[]>, toRemove: Type): boolean {
+    this.getKeys(toRemove)
+        .forEach(key => super.removeKey(cache, key, toRemove));
+
+    return true;
+  }
+
+
+  getKey(item: Type): string {
+    throw new Error('getKey() is not supported for multi list caching');
+  }
 
   abstract getKeys(item: Type): string[];
 

@@ -27,5 +27,6 @@ function providerRuntime(): RuntimeConfig {
   }
 }
 
-
-export const Runtime = providerRuntime();
+const __runtime = providerRuntime();
+logger.info('Initialized with runtime', __runtime);
+export const Runtime = __runtime;

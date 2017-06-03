@@ -56,7 +56,7 @@ const fifth: Meeting = {
 };
 
 
-describe('owner caching suite', function filterSuite() {
+describe('participant caching suite', function filterSuite() {
   const cache = new Map<string, Meeting[]>();
   const participantCacher = new ParticipantsCachingStrategy();
 

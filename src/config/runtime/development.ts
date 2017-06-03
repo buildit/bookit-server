@@ -46,5 +46,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      (config) => new CachedMeetingService(config.roomService));
 
     generateMeetings(config.roomService, config.meetingService, moment().add(-1, 'days'), moment().add(1, 'week'));
+
+    return config;
   }
 }

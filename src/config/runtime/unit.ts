@@ -10,6 +10,7 @@ import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
+import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
@@ -18,7 +19,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
 
   return new RuntimeConfig(environment.port,
                            new MockPasswordStore(),
-                           new MSGraphTokenProvider(graphAPIParameters),
+                           new MockGraphTokenProvider(),
                            jwtTokenProvider,
                            () => new MockUserService(),
                            () => new MockRoomService(generateUnitRoomLists()),

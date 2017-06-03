@@ -13,5 +13,11 @@ export abstract class IdentityCachingStrategy<Type> implements CachingStrategy<T
     return cache.get(key);
   }
 
+
+  remove(cache: Map<string, Type>, item: Type): boolean {
+    return cache.delete(this.getKey(item));
+  }
+
+
   abstract getKey(item: Type): string;
 }

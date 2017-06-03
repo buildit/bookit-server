@@ -113,7 +113,11 @@ export class CachedMeetingService implements MeetingsService {
 
 
   deleteMeeting(owner: string, id: string): Promise<any> {
-    return this.delegatedMeetingsService.deleteMeeting(owner, id);
+    return this.delegatedMeetingsService
+               .deleteMeeting(owner, id)
+               .then(() => {
+                 this.uncacheMeeting(id);
+               });
   }
 
 
@@ -139,6 +143,16 @@ export class CachedMeetingService implements MeetingsService {
     ID_CACHE_STRATEGY.put(this.idCache, meeting);
     OWNER_CACHE_STRATEGY.put(this.ownerCache, meeting);
     PARTICIPANTS_CACHE_STRATEGY.put(this.participantCache, meeting);
+    return meeting;
+  }
+
+
+  private uncacheMeeting(id: string) {
+    const meeting = ID_CACHE_STRATEGY.get(this.idCache, id);
+    ID_CACHE_STRATEGY.remove(this.idCache, meeting);
+    OWNER_CACHE_STRATEGY.remove(this.ownerCache, meeting);
+    PARTICIPANTS_CACHE_STRATEGY.remove(this.participantCache, meeting);
+
     return meeting;
   }
 }

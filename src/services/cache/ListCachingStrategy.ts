@@ -3,37 +3,69 @@ import {CachingStrategy} from './CachingStrategy';
 
 export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type, Type[], Type[]> {
 
-  put(cache: Map<string, Type[]>, item: Type): Type[] {
-    const key = this.getKey(item);
 
-    const existing = cache.get(key);
-    if (!existing) {
-      const list = [item];
-      cache.set(key, list);
-      return list;
-    }
+  abstract getKey(item: Type): string;
 
-    if (existing.length) {
-      const found = existing.some(meeting => {
-        return this.getIdentityMapper(meeting) === this.getIdentityMapper(item);
-      });
 
-      if (found) {
-        return;
-      }
-    }
+  abstract getIdentityMapper(item: Type): string;
 
-    existing.push(item);
 
-    return existing;
+  put(cache: Map<string, Type[]>, toCache: Type): Type[] {
+    const key = this.getKey(toCache);
+    return this.putKey(cache, key, toCache);
   }
 
   get(cache: Map<string, Type[]>, key: string): Type[] {
     return cache.get(key);
   }
 
-  abstract getKey(item: Type): string;
+
+  remove(cache: Map<string, Type[]>, item: Type): boolean {
+    const key = this.getKey(item);
+    return this.removeKey(cache, key, item);
+  }
 
 
-  abstract getIdentityMapper(item: Type): string;
+  putKey(cache: Map<string, Type[]>, key: string, toCache: Type): Type[] {
+    const existing = cache.get(key);
+    if (!existing) {
+      const list = [toCache];
+      cache.set(key, list);
+      return list;
+    }
+
+    if (existing.length) {
+      const found = existing.some(item => { return this.areIdentical(item, toCache); });
+      if (found) {
+        return;
+      }
+    }
+
+    existing.push(toCache);
+
+    return existing;
+  }
+
+
+  removeKey(cache: Map<string, Type[]>, key: string, item: Type): boolean {
+    const existing = cache.get(key);
+    if (!existing) {
+      return false;
+    }
+
+    const filtered = existing.filter(meeting => { return this.areIdentical(meeting, item); });
+    if (filtered.length) {
+      cache.set(key, filtered);
+      return true;
+    }
+
+    cache.delete(key);
+    return true;
+  }
+
+
+
+  areIdentical(some: Type, other: Type) {
+    return this.getIdentityMapper(some) === this.getIdentityMapper(other);
+  }
 }
