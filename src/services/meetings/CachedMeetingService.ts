@@ -19,6 +19,36 @@ const PARTICIPANTS_CACHE_STRATEGY = new ParticipantsCachingStrategy();
 const OWNER_CACHE_STRATEGY = new OwnerCachingStrategy();
 
 
+
+class PassThroughMeetingService implements MeetingsService {
+  getMeetings(email: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    return Promise.resolve(new Array<Meeting>());
+  }
+
+  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Participant): Promise<Meeting> {
+    return new Promise((resolve) => {
+      const meeting: Meeting = {
+        id: `guid-${Math.random().toString()}`,
+        owner: owner,
+        title: subj,
+        start: start,
+        end: start.clone().add(duration),
+        participants: [owner, room],
+      };
+
+      resolve(meeting);
+    });
+  }
+
+  deleteMeeting(owner: string, id: string): Promise<any> {
+    return Promise.resolve();
+  }
+
+  findMeeting(email: string, meetingId: string, start: moment.Moment, end: moment.Moment): Promise<Meeting> {
+    return Promise.reject('No actual underlying meetings');
+  }
+}
+
 export class CachedMeetingService implements MeetingsService {
 
 
@@ -34,8 +64,8 @@ export class CachedMeetingService implements MeetingsService {
   private participantCache = new Map<string, Meeting[]>();
 
 
-  constructor(private delegatedMeetingsService: MeetingsService,
-              private delegatedRoomService: RoomService) {
+  constructor(private delegatedRoomService: RoomService,
+              private delegatedMeetingsService: MeetingsService = new PassThroughMeetingService()) {
 
     const _internalRefresh = () => {
       logger.info('Refreshing meetings now...');

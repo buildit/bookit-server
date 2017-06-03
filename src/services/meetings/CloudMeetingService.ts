@@ -7,8 +7,15 @@ import {CloudBase} from '../cloud/CloudBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 import {maybeApply} from '../../utils/collections';
+import {GraphTokenProvider} from '../tokens/TokenProviders';
 
 export class CloudMeetingService extends CloudBase implements MeetingsService {
+
+  constructor(graphTokenProvider: GraphTokenProvider) {
+    super(graphTokenProvider);
+    logger.info('Constructing CloudMeetingService');
+  }
+
 
   getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();

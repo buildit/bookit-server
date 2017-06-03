@@ -7,7 +7,7 @@ import {GraphTokenProvider} from './TokenProviders';
 /*
 TODO: modify this to return the same token if it's still valid
  */
-export class CloudTokenProvider implements GraphTokenProvider {
+export class MSGraphTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
 

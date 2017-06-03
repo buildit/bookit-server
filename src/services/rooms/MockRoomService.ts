@@ -1,10 +1,12 @@
 import {Room, RoomList} from '../../model/Room';
 import {MutableRoomService, RoomResponse, RoomService} from './RoomService';
 
+import {RootLog as logger} from '../../utils/RootLogger';
 
 export class MockRoomService implements RoomService, MutableRoomService {
 
   constructor(private roomLists: RoomList[]) {
+    logger.info('Initializing with rooms', roomLists);
   }
 
   addRoomList(name: string): void {
@@ -19,7 +21,7 @@ export class MockRoomService implements RoomService, MutableRoomService {
 
 
   getRooms(list: string): RoomResponse {
-    // logger.info('MockRoomService getting rooms');
+    logger.info('MockRoomService getting rooms');
     const rl = this.roomLists.find(rl => rl.name === list);
     if (rl) {
       return {

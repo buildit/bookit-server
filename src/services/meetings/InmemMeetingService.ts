@@ -8,7 +8,7 @@ import {Participant} from '../../model/Participant';
 import {MeetingsService} from './MeetingService';
 import {isMeetingOverlapping} from '../../utils/validation';
 
-export class InmemMeetingService implements MeetingsService {
+export class DepInmemMeetingService implements MeetingsService {
   private store: Meeting[] = [];
 
 

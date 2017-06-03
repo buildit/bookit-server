@@ -30,7 +30,7 @@ const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
 
 
 describe('Meeting routes write operations', () => {
-  it.skip('it creates the meeting', function() {
+  it('it creates the meeting', function() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-09 09:00';
 
@@ -55,8 +55,7 @@ describe('Meeting routes write operations', () => {
                        .set('Content-Type', 'application/json')
                        .send(meetingReq)
                        .expect(200)
-                       .then(
-                         () => meetingService.getMeetings(room.email, searchStart, searchEnd))
+                       .then(() => meetingService.getMeetings(room.email, searchStart, searchEnd))
                        .then((meetings) => {
                          expect(meetings).to.be.length(1, 'Expected to find one created meeting');
 
@@ -66,7 +65,7 @@ describe('Meeting routes write operations', () => {
                        });
   });
 
-  it.skip('it deletes the meeting', function() {
+  it.skip('it deletes the meeting', function testDeletingAMeeting() {
     const meetingStart = '2013-02-08 09:00';
     const meetingEnd = '2013-02-08 09:30';
 
