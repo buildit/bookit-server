@@ -17,12 +17,12 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
   const tokenOperations = new MSGraphTokenProvider(graphAPIParameters);
 
   return new RuntimeConfig(environment.port,
-                             new MockPasswordStore(),
-                             tokenOperations,
-                             jwtTokenProvider,
-                             () => new CloudUserService(tokenOperations),
-                             () => new MockRoomService(generateIntegrationRoomLists()),
-                             () => {
-                               return new CloudMeetingService(tokenOperations);
-                             });
+                           new MockPasswordStore(),
+                           tokenOperations,
+                           jwtTokenProvider,
+                           () => new CloudUserService(tokenOperations),
+                           () => new MockRoomService(generateIntegrationRoomLists()),
+                           () => {
+                             return new CloudMeetingService(tokenOperations);
+                           });
 }

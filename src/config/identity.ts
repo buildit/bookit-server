@@ -26,7 +26,7 @@ export function assignGraphIdentity(_environment: EnvironmentConfig, _identity: 
    These are the identities/identifiers for accessing the MS Graph API.
    */
   if (!_identity) {
-    throw new Error('When using cloud expected \'.env\'');
+    throw new Error('When using cloud expected \'CLOUD_CONFIG\' in \'.env\'');
   }
 
   const identity = _identity.toLowerCase();
