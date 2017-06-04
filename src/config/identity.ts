@@ -1,3 +1,5 @@
+import AppEnv from './env';
+
 import {RootLog as logger} from '../utils/RootLogger';
 
 import {roman, contoso, test} from './identities';
@@ -6,12 +8,15 @@ import {EnvironmentConfig} from '../model/EnvironmentConfig';
 function _assignGraphIdentity(env: string) {
   switch (env) {
     case 'roman': {
+      roman.clientSecret = AppEnv.ROMAN_SECRET;
       return roman;
     }
     case 'contoso': {
+      contoso.clientSecret = AppEnv.CONTOSO_SECRET;
       return contoso;
     }
     case 'test': {
+      test.clientSecret = AppEnv.TEST_SECRET;
       return test;
     }
     default: {

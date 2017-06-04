@@ -5,7 +5,9 @@ Expected environment variables from the .env file
 export interface Env {
   // readonly MICROSOFT_TENANT_ID: string;
   // readonly MICROSOFT_APP_ID: string;
-  // readonly MICROSOFT_CLIENT_SECRET: string;
+  readonly ROMAN_SECRET?: string;
+  readonly CONTOSO_SECRET?: string;
+  readonly TEST_SECRET?: string;
   readonly USE_CLOUD: boolean;
   readonly CLOUD_CONFIG: string;
   readonly JWT_TOKEN_SECRET: string;
@@ -35,7 +37,7 @@ export interface EnvironmentConfig {
 export interface GraphAPIParameters {
   tenantId: string;
   clientId: string;
-  clientSecret: string;
+  clientSecret?: string;
 }
 
 
