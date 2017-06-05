@@ -14,8 +14,6 @@ const environment = nodeConfig as EnvironmentConfig;
 /*
 Start of run-time configuration creation
  */
-logger.debug('environment', environment);
-
 function providerRuntime(): RuntimeConfig {
   switch (environment.testMode) {
     case TestMode.NONE:
@@ -28,5 +26,4 @@ function providerRuntime(): RuntimeConfig {
 }
 
 const __runtime = providerRuntime();
-logger.info('Initialized with runtime', __runtime);
 export const Runtime = __runtime;

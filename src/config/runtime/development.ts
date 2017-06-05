@@ -9,10 +9,10 @@ import {MockUserService} from '../../services/users/MockUserService';
 
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
-import {CloudMeetingService} from '../../services/meetings/CloudMeetingService';
+import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
 import {generateRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
-import {CloudUserService} from '../../services/users/CloudUserService';
+import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
@@ -29,10 +29,10 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              new MockPasswordStore(),
                              tokenOperations,
                              jwtTokenProvider,
-                             () => new CloudUserService(tokenOperations),
+                             () => new MSGraphUserService(tokenOperations),
                              () => new MockRoomService(generateRoomLists()),
                              (runtime) => {
-                               const cloudMeetingService = new CloudMeetingService(tokenOperations);
+                               const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
                                return new CachedMeetingService(runtime.roomService, cloudMeetingService);
                              });
   } else {

@@ -3,17 +3,17 @@ import * as moment from 'moment';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {findById, Meeting} from '../../model/Meeting';
 import {MeetingsService} from './MeetingService';
-import {CloudBase} from '../cloud/CloudBase';
+import {MSGraphBase} from '../cloud/MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 
-export class CloudMeetingService extends CloudBase implements MeetingsService {
+export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
-    logger.info('Constructing CloudMeetingService');
+    logger.info('Constructing MSGraphMeetingService');
   }
 
 
@@ -28,7 +28,7 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
                .get()
                .then(response => {
                  // logger.debug('Found meetings for ', email, start, end, response);
-                 return response.value.map((meeting: any) => CloudMeetingService.mapMeeting(meeting));
+                 return response.value.map((meeting: any) => MSGraphMeetingService.mapMeeting(meeting));
                }, err => {
                  console.error(err);
                  return [];
@@ -67,7 +67,7 @@ export class CloudMeetingService extends CloudBase implements MeetingsService {
 
     return this.client.api(`/users/${owner.email}/calendar/events`)
                .post(eventData)
-               .then(meeting => CloudMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
+               .then(meeting => MSGraphMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
   }
 
 

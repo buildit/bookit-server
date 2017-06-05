@@ -5,7 +5,7 @@ import {GraphTokenProvider} from '../tokens/TokenProviders';
 /**
  * A base class for encapsulating required
  */
-export class CloudBase {
+export class MSGraphBase {
 
   private clientInst: Client;
 

@@ -1,17 +1,16 @@
 import * as request from 'request';
 
+import {RootLog as logger} from '../../utils/RootLogger';
 
 import {GraphAPIParameters} from '../../model/EnvironmentConfig';
 import {GraphTokenProvider} from './TokenProviders';
 
-/*
-TODO: modify this to return the same token if it's still valid
- */
+
 export class MSGraphTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
 
-  constructor(private conf: GraphAPIParameters) {
+  constructor(private conf: GraphAPIParameters, private reuseTokens = true) {
     this.tokenEndpoint = 'https://login.windows.net/' + conf.tenantId + '/oauth2/token';
   }
 
@@ -27,6 +26,26 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
 
 
   public withToken(): Promise<string> {
+    if (this.token) {
+      return this.resolveExisting();
+    } else {
+      return this.acquireNew();
+    }
+  }
+
+
+  private resolveExisting() {
+    return Promise.resolve(this.token);
+  }
+
+
+  private acquireNew() {
+    const clearToken = (_timeout: string) => {
+      if (this.reuseTokens) {
+        const timeout = (Number(_timeout) - 10) * 1000;
+        setTimeout(() => this.token = null, timeout);
+      }
+    };
 
     return new Promise((resolve, reject) => {
       const params = {
@@ -46,11 +65,12 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
         } else if (data.error) {
           reject(data.error_description);
         } else {
-          resolve(data.access_token);
+          this.token = data.access_token;
+          clearToken(data.expires_in);
+          resolve(this.token);
         }
       });
     });
   }
-
 
 }

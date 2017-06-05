@@ -8,7 +8,7 @@ export interface Env {
   readonly ROMAN_SECRET?: string;
   readonly CONTOSO_SECRET?: string;
   readonly TEST_SECRET?: string;
-  readonly USE_CLOUD: boolean;
+  readonly USE_CLOUD: string;
   readonly CLOUD_CONFIG: string;
   readonly JWT_TOKEN_SECRET: string;
 }

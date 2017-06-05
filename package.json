@@ -28,6 +28,7 @@
     "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/rest/index.js",
     "dev": "concurrently --kill-others 'npm run watch' 'npm run watch:start'",
     "dev2": "npm run watch:start",
+    "spring": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/spring.js",
     "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js"
   },
   "dependencies": {
