@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {IdCachingStrategy} from '../../../src/services/cache/IdCachingStrategy';
+import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 
 /*
  export class Meeting {

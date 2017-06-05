@@ -1,5 +1,5 @@
 import {Meeting} from '../../model/Meeting';
-import {IdentityCachingStrategy} from './IdentityCachingStrategy';
+import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy';
 
 
 export class IdCachingStrategy extends IdentityCachingStrategy<Meeting> {

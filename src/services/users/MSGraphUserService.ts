@@ -1,6 +1,6 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {MSGraphBase} from '../cloud/MSGraphBase';
+import {MSGraphBase} from '../MSGraphBase';
 import {UserService} from './UserService';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {

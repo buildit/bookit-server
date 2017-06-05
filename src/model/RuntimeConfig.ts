@@ -3,7 +3,7 @@ import {RoomService} from '../services/rooms/RoomService';
 import {MeetingsService} from '../services/meetings/MeetingService';
 import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {invokeIfUnset} from '../utils/validation';
-import {PasswordStore} from '../services/PasswordStore';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 export type UserServiceFactory = (config: RuntimeConfig) => UserService;

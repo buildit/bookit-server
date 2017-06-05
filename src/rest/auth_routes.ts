@@ -5,7 +5,7 @@ import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectEndpoint} from './filters';
-import {PasswordStore} from '../services/PasswordStore';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 

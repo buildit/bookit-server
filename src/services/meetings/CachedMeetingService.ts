@@ -7,9 +7,9 @@ import {Participant} from '../../model/Participant';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {isMeetingWithinRange} from '../../utils/validation';
 import {RoomService} from '../rooms/RoomService';
-import {IdCachingStrategy} from '../cache/IdCachingStrategy';
-import {ParticipantsCachingStrategy} from '../cache/ParticipantsCachingStrategy';
-import {OwnerCachingStrategy} from '../cache/OwnerCachingStrategy';
+import {IdCachingStrategy} from './IdCachingStrategy';
+import {ParticipantsCachingStrategy} from './ParticipantsCachingStrategy';
+import {OwnerCachingStrategy} from './OwnerCachingStrategy';
 
 
 const DEFAULT_REFRESH = 10 * 1000;
@@ -69,10 +69,10 @@ export class CachedMeetingService implements MeetingsService {
 
     const _internalRefresh = () => {
       logger.info('Refreshing meetings now...');
-      const start = moment(); // TODO: Set the cache range in config
-      const end = moment().add(1, 'day');
-      // const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
-      // const end = moment().add(1, 'week');
+      // const start = moment(); // TODO: Set the cache range in config
+      // const end = moment().add(1, 'day');
+      const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
+      const end = moment().add(1, 'week');
       this.refreshCache(start, end);
     };
 

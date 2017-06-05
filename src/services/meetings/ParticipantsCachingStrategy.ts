@@ -1,6 +1,6 @@
 import {Meeting} from '../../model/Meeting';
 
-import {MultiListCachingStrategy} from './MultiListCachingStrategy';
+import {MultiListCachingStrategy} from '../../utils/cache/MultiListCachingStrategy';
 
 
 export class ParticipantsCachingStrategy extends MultiListCachingStrategy<Meeting> {

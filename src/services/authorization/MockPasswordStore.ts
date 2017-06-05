@@ -1,4 +1,4 @@
-import {PasswordStore} from '../PasswordStore';
+import {PasswordStore} from './PasswordStore';
 
 interface UserDetail {
   password: string;

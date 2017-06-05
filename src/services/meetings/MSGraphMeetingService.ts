@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {findById, Meeting} from '../../model/Meeting';
 import {MeetingsService} from './MeetingService';
-import {MSGraphBase} from '../cloud/MSGraphBase';
+import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {Duration, Moment} from 'moment';
 import {maybeApply} from '../../utils/collections';

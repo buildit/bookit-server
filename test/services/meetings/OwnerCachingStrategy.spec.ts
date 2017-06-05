@@ -2,8 +2,8 @@ import {expect} from 'chai';
 import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {IdCachingStrategy} from '../../../src/services/cache/IdCachingStrategy';
-import {OwnerCachingStrategy} from '../../../src/services/cache/OwnerCachingStrategy';
+import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
+import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
 
 /*
  export class Meeting {

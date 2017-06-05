@@ -66,6 +66,7 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
           reject(data.error_description);
         } else {
           this.token = data.access_token;
+          logger.info(data);
           clearToken(data.expires_in);
           resolve(this.token);
         }

@@ -2,7 +2,7 @@ import {Express, Router} from 'express';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 
-import {PasswordStore} from '../services/PasswordStore';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 import {MeetingsService} from '../services/meetings/MeetingService';
 import {RoomService} from '../services/rooms/RoomService';

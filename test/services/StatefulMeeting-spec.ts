@@ -14,7 +14,7 @@ import {retryUntil} from '../../src/utils/retry';
 
 // import * as UUID from 'uuid';
 
-export default function StatefulSpec(meetingService: MeetingsService, description: string) {
+export function StatefulMeetingSpec(meetingService: MeetingsService, description: string) {
   const ROMAN_ID = 'romans@myews.onmicrosoft.com';
   const cyanRoomId = 'cyan-room@myews.onmicrosoft.com';
 
@@ -29,7 +29,7 @@ export default function StatefulSpec(meetingService: MeetingsService, descriptio
   const subject = 'helper made!!';
 
   /* integration tests may take more time */
-  const defaultTimeoutMillis = 15000;
+  const defaultTimeoutMillis = 60000;
 
   describe(description + ' meeting creation test', function testCreateMeeting() {
     this.timeout(defaultTimeoutMillis);

@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {ParticipantsCachingStrategy} from '../../../src/services/cache/ParticipantsCachingStrategy';
+import {ParticipantsCachingStrategy} from '../../../src/services/meetings/ParticipantsCachingStrategy';
 
 
 const andrew = new Participant('andrew@wipro.com');

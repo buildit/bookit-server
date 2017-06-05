@@ -1,6 +1,6 @@
 import {Client} from '@microsoft/microsoft-graph-client';
 
-import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {GraphTokenProvider} from './tokens/TokenProviders';
 
 /**
  * A base class for encapsulating required
