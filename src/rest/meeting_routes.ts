@@ -78,7 +78,6 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
-  protectEndpoint(app, '/room/:roomEmail/meeting');
   app.post('/room/:roomEmail/meeting', (req, res) => {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);
