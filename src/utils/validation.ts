@@ -3,7 +3,6 @@ import {Meeting} from '../model/Meeting';
 import {Moment} from 'moment';
 
 
-// TODO: Replace this with express typings
 export interface Request {
   param: (paramName: string) => string;
 }

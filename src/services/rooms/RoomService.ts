@@ -1,7 +1,7 @@
 import {Room, RoomList} from '../../model/Room';
 
 export class RoomResponse {
-  readonly found: boolean;  // TODO: why is there a found flag on a room list?  not found should be null or undefined
+  readonly found: boolean;
   readonly rooms: Room[];
 }
 

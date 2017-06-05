@@ -23,11 +23,8 @@ function roomList(req: Request): string {
 
 
 // Services
-// TODO: DI kicks in here
 export function  getCurrentUser(): Participant {
-  // TODO: comes from user context (cookie / jwt)
-  // return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
-  return {name: 'Comes from the session!!!', email: 'bruce@myews.onmicrosoft.com'};
+  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
 }
 
 
@@ -81,7 +78,7 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
-  // protectEndpoint(app, '/room/:roomEmail/meeting');
+  protectEndpoint(app, '/room/:roomEmail/meeting');
   app.post('/room/:roomEmail/meeting', (req, res) => {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);

@@ -40,9 +40,6 @@ export class MeetingsOps {
 
 
   getRoomListMeetings(rooms: Room[], start: Moment, end: Moment) {
-    // FIXME: must use queue!!!
-    // TODO: figure out why
-
     const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room.email, start, end)

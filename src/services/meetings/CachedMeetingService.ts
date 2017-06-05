@@ -69,9 +69,7 @@ export class CachedMeetingService implements MeetingsService {
 
     const _internalRefresh = () => {
       logger.info('Refreshing meetings now...');
-      // const start = moment(); // TODO: Set the cache range in config
-      // const end = moment().add(1, 'day');
-      const start = moment().subtract(1, 'day'); // TODO: Set the cache range in config
+      const start = moment().subtract(1, 'day');
       const end = moment().add(1, 'week');
       this.refreshCache(start, end);
     };

@@ -24,7 +24,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                .api(`/users/${email}/calendar/calendarView`)
                .select('id,subject,organizer,attendees,start,end')
                .query({startDateTime, endDateTime})
-               .top(999) // FIXME: should limit???
                .get()
                .then(response => {
                  // logger.debug('Found meetings for ', email, start, end, response);
