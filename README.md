@@ -3,9 +3,11 @@
 A server for [Bookit](https://github.com/buildit/bookit-web).
 
 ## Quick start
+After checkout, this will get you started.
 ```
 npm install
-npm run dev
+npm run build
+npm run watch:start
 ```
 
 See room list at [http://localhost:8888/rooms/nyc/](http://localhost:8888/rooms/nyc/)
@@ -14,10 +16,11 @@ See meeting list at [http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?e
 
 ## Modes of operation
 
-The back end is heavily geared towards testing and stand-alone operation at the moment.  It has a dev mode against an in-memory generated
-meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test configuration, and an
-integration test configuration.  The **default mode of operation is in-memory dev**.  When the app runs in "in-mem" mode, an `EventGenerator` 
-creates a bunch of sample event data. The events are randomized, so you will see somewhat different results with every run.
+The back end is heavily geared towards testing and stand-alone operation at the moment.  It has a dev mode against an
+ in-memory generated meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test 
+ configuration, and an integration test configuration.  The **default mode of operation is in-memory dev**.  When the 
+ app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so 
+ you will see somewhat different results with every run.
 
 
 ### Accessing additional modes
@@ -29,11 +32,16 @@ To work with additional modes, you will need to create a plaintext file named '.
 USE_CLOUD=true
 ```
 
-##### MICROSOFT_CLIENT_SECRET
-This setting is the application secret that the app was registered with.  There will be some rework to take into account 
-the application id and the tenant id.  You will have to obtain the secret from a fellow developer.
+##### MICROSOFT GRAPH SETTINGS
+These settings represent the identity that the application will use to access MS Graph API services.  The variable
+that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'roman' as the value.
 ```
-MICROSOFT_CLIENT_SECRET=your-client-secret
+CLOUD_CONFIG=roman
+```
+
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use ROMAN_SECRET.
+```
+ROMAN_SECRET=your-client-secret
 ```
 
 ## Authentication
@@ -69,32 +77,27 @@ This token should be placed in the header for authentication for those endpoints
 
 ## Code architecture
 The environment bootstrapping is simple and is mainly driven off the two environment variables above.  This can be
-found under src/config.  The environment loading code is in env.ts.  The config is loaded using [node-config](https://github.com/lorenwest/node-config).
+found under src/config.  The environment loading code is in env.ts.  The config is loaded using
+ [node-config](https://github.com/lorenwest/node-config).
 
 The run-time configuration is generated in src/config/runtime.  The creation of all services is
-done in configuration.ts.  Note that the test are still a source of pain as there are unit and
-integration versions that still locally create stubs or mocks.
+done in configuration.ts.  There are interfaces for each service and mainly two implementations. 
+One is Mock and the other is MSGraph.
 
 ## Services
-There are a small set of services under which the code is organized.  There are too many versions
-at the moment that include: stub, mock, local, cached and cloud.  The cloud versions are the ones that
-interact with the MS Graph API.  These will be simplified and reduced to fewer versions.
-
-##### Stub
-Basic implementation of the interface that throws exceptions or does nothing.
-
-##### Local
-Specifically "mocked" version that is used to provide a specific and repeatable data set in dev mode.
+There are a small set of services under which the code is organized under src/services.  
 
 ##### Mock
-A version that is more open-ended and implements the service
+A version that implements the interface and has basic or pass-through functionality.
+
+##### MS Graph
+These are the services that connect to Microsoft.
 
 ##### Cached
-Wraps the service and caches data from the underlying service.  This is typically used with the cloud
-services
+Wraps the service and caches data from the underlying service.  This is typically used with the cloud connected
+services.  However, for testing purposes, there is a use case where a cached service functions as
+the actual service and delegates to a pass-through service.
 
-##### Cloud
-These are the services that connect to Microsoft.
 
 #### TokenOperations
 This is a class the provides two types of tokens.  The first are JWT tokens for protected endpoints.  The second
