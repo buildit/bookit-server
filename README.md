@@ -11,7 +11,7 @@ Then run:
 ```
 npm install
 npm run build
-npm run watch:start
+npm run server
 ```
 
 See room list at [http://localhost:8888/rooms/nyc/](http://localhost:8888/rooms/nyc/)
