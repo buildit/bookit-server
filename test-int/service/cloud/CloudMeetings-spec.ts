@@ -1,6 +1,6 @@
 import {Runtime} from '../../../src/config/runtime/configuration';
-import StatefulSpec from '../../../test/service/Stateful-spec';
+import {StatefulMeetingSpec} from '../../../test/services/StatefulMeeting-spec';
 
-const svc = Runtime.meetingService;
+const meetingsService = Runtime.meetingService;
 
-StatefulSpec(svc, 'Cloud Meetings service');
+StatefulMeetingSpec(meetingsService, 'Cloud Meetings services');

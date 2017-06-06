@@ -42,6 +42,19 @@ export function generateRoomLists(roomNames: string[] = roomColors,
 }
 
 
+export function generateUnitRoomLists() {
+  return [
+    {
+      name: 'nyc',
+      rooms: [
+        {name: 'red', email: 'red-room@myews.onmicrosoft.com'},
+        {name: 'black', email: 'black-room@myews.onmicrosoft.com'},
+      ]
+    }
+  ];
+}
+
+
 export function generateIntegrationRoomLists() {
   return [
     {

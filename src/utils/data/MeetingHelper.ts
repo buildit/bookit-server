@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
-import {MeetingsService} from '../../service/MeetingService';
+import {MeetingsService} from '../../services/meetings/MeetingService';
 
 export class MeetingHelper {
 
@@ -13,7 +13,7 @@ export class MeetingHelper {
                       private queue: TaskQueue<Promise<any>>) {
   }
 
-  // TODO: should this allow both types for owner
+
   static calendarOf(owner: Participant | string,
                     meetings: MeetingsService,
                     queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {

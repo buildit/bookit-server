@@ -2,7 +2,7 @@ import {Express, Request, Router} from 'express';
 
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
-import {TokenOperations} from '../service/TokenOperations';
+import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 
 
 const tokenFilter = Router();
@@ -17,12 +17,12 @@ function once(func: Function, ...args: any[]) {
 }
 
 
-export function initializeTokenFilter(tokenOperations: TokenOperations) {
+export function initializeTokenFilter(tokenOperations: JWTTokenProvider) {
   return once(innerInitializeFilter, tokenOperations);
 }
 
 
-function innerInitializeFilter(tokenOperations: TokenOperations) {
+function innerInitializeFilter(tokenOperations: JWTTokenProvider) {
   logger.debug('Initializing token filter');
   tokenFilter.use((req: Request, res, next) => {
     const token = req.body.token || req.query.token || req.headers['x-access-token'];

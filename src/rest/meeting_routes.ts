@@ -5,9 +5,9 @@ import {start} from 'repl';
 
 import {Participant} from '../model/Participant';
 
-import {MeetingsService} from '../service/MeetingService';
-import {MeetingsOps} from '../service/MeetingsOps';
-import {RoomService} from '../service/RoomService';
+import {MeetingsService} from '../services/meetings/MeetingService';
+import {MeetingsOps} from '../services/meetings/MeetingsOps';
+import {RoomService} from '../services/rooms/RoomService';
 import {RootLog as logger} from '../utils/RootLogger';
 import {extractAsMoment} from '../utils/validation';
 
@@ -23,11 +23,8 @@ function roomList(req: Request): string {
 
 
 // Services
-// TODO: DI kicks in here
 export function  getCurrentUser(): Participant {
-  // TODO: comes from user context (cookie / jwt)
-  // return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
-  return {name: 'Comes from the session!!!', email: 'bruce@myews.onmicrosoft.com'};
+  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
 }
 
 
@@ -81,7 +78,6 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
-  // protectEndpoint(app, '/room/:roomEmail/meeting');
   app.post('/room/:roomEmail/meeting', (req, res) => {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);

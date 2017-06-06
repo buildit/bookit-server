@@ -4,9 +4,9 @@ import {Duration, Moment} from 'moment';
 
 import {RootLog as logger} from '../RootLogger';
 
-import {MeetingsService} from '../../service/MeetingService';
+import {MeetingsService} from '../../services/meetings/MeetingService';
 import {MeetingHelper} from './MeetingHelper';
-import {RoomService} from '../../service/RoomService';
+import {RoomService} from '../../services/rooms/RoomService';
 
 export interface GeneratorConfig {
   readonly titles: string[];

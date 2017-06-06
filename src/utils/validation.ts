@@ -3,7 +3,6 @@ import {Meeting} from '../model/Meeting';
 import {Moment} from 'moment';
 
 
-// TODO: Replace this with express typings
 export interface Request {
   param: (paramName: string) => string;
 }
@@ -21,11 +20,7 @@ export const isMeetingOverlapping = (existingMeetingStart: moment.Moment, existi
   const isEndBetween = () => isMomentBetween(newMeetingEnd, existingMeetingStart, existingMeetingEnd);
   const isSurroundedBy = () => isMomentWithinRange(existingMeetingStart, existingMeetingEnd, newMeetingStart, newMeetingEnd);
 
-  return [isStartBetween, isEndBetween, isSurroundedBy].some(func => {
-    const result = func();
-
-    return result;
-  });
+  return [isStartBetween, isEndBetween, isSurroundedBy].some(func => { return func(); });
 };
 
 

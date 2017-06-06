@@ -3,9 +3,9 @@ import {Express, Request, Response, Router} from 'express';
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
-import {TokenOperations} from '../service/TokenOperations';
+import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectEndpoint} from './filters';
-import {PasswordStore} from '../service/PasswordStore';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 
@@ -27,7 +27,7 @@ export interface UserDetail {
 
 export function configureAuthenticationRoutes(app: Express,
                                               passwordStore: PasswordStore,
-                                              tokenOperations: TokenOperations) {
+                                              jwtTokenProvider: JWTTokenProvider) {
 
   app.post('/authenticate', (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
@@ -43,7 +43,7 @@ export function configureAuthenticationRoutes(app: Express,
       return;
     }
 
-    const token = tokenOperations.provideToken(credentials);
+    const token = jwtTokenProvider.provideToken(credentials);
     logger.info('Successfully authenticated: ', username);
     res.json({
                token: token,
