@@ -18,6 +18,11 @@ export class MSGraphBase {
   }
 
 
+  domain() {
+    return this.tokenOperations.domain();
+  }
+
+
   private createClient(): Client {
 
     const authProviderCallback = (done: Function) => {

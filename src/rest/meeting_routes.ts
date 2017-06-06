@@ -65,15 +65,19 @@ export function configureMeetingRoutes(app: Express,
       && checkParam(end.isAfter(start), 'End date must be after start date', res)
       && checkParam(range < 12 && range > -12, 'No more than a year at a time', res)) {
 
-      const roomResponse = roomSvc.getRooms(roomList(req));
-
-      if (!roomResponse.found) {
-        sendNotFound(res);
-      } else {
-        meetingsOps.getRoomListMeetings(roomResponse.rooms, start, end)
-                   .then(result => res.json(result))
-                   .catch(err => sendError(err, res));
-      }
+      roomSvc.getRoomList(listName)
+             .then(room => {
+               logger.info('getting meetings', room.rooms);
+               return room.rooms;
+             })
+             .then(rooms => {
+               meetingsOps.getRoomListMeetings(rooms, start, end)
+                          .then(result => res.json(result))
+                          .catch(err => sendError(err, res));
+             })
+             .catch(() => {
+               sendNotFound(res);
+             });
     }
   });
 

@@ -16,6 +16,11 @@ import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
+import {MSGraphDeviceService} from '../../services/devices/MSGraphDeviceService';
+import {MockDeviceService} from '../../services/devices/MockDeviceService';
+import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
+import {MockGroupService} from '../../services/groups/MockGroupService';
+import {MSGraphRoomService} from '../../services/rooms/MSGraphRoomService';
 
 
 export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig {
@@ -29,8 +34,10 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              new MockPasswordStore(),
                              tokenOperations,
                              jwtTokenProvider,
+                             () => new MSGraphDeviceService(tokenOperations),
                              () => new MSGraphUserService(tokenOperations),
-                             () => new MockRoomService(generateRoomLists()),
+                             () => new MSGraphGroupService(tokenOperations),
+                             (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
                                const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
                                return new CachedMeetingService(runtime.roomService, cloudMeetingService);
@@ -41,7 +48,9 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      new MockPasswordStore(),
                                      new MockGraphTokenProvider(),
                                      jwtTokenProvider,
+                                     () => new MockDeviceService(),
                                      () => new MockUserService(),
+                                     () => new MockGroupService(),
                                      () => new MockRoomService(generateRoomLists()),
                                      (config) => new CachedMeetingService(config.roomService));
 

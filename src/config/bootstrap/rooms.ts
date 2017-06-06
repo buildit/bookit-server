@@ -10,10 +10,11 @@ function makeEWSRoom(name: string) {
   return makeRoom(name);
 }
 
+let counter = 1;
 
 function makeRoom(color: string, suffixProducer: () => string = produceEWSSuffix): Room {
-  const email = `${color.toLowerCase()}-${suffixProducer()}`;
-  return {name: color, email};
+  const mail = `${color.toLowerCase()}-${suffixProducer()}`;
+  return {id: '' + counter++, name: color, mail, email: mail};
 }
 
 
@@ -35,6 +36,7 @@ export function generateRoomLists(roomNames: string[] = roomColors,
 
   return [
     {
+      id: '1',
       name: 'nyc',
       rooms
     }
@@ -42,26 +44,28 @@ export function generateRoomLists(roomNames: string[] = roomColors,
 }
 
 
-export function generateUnitRoomLists() {
+export function generateUnitRoomLists(): RoomList[] {
   return [
     {
+      id: '1',
       name: 'nyc',
       rooms: [
-        {name: 'red', email: 'red-room@myews.onmicrosoft.com'},
-        {name: 'black', email: 'black-room@myews.onmicrosoft.com'},
+        {id: '1', name: 'red', mail: 'red-room@myews.onmicrosoft.com', email: ''},
+        {id: '2', name: 'black', mail: 'black-room@myews.onmicrosoft.com', email: ''},
       ]
     }
   ];
 }
 
 
-export function generateIntegrationRoomLists() {
+export function generateIntegrationRoomLists(): RoomList[] {
   return [
     {
+      id: '1',
       name: 'nyc',
       rooms: [
-        {name: 'red', email: 'red-room@myews.onmicrosoft.com'},
-        {name: 'black', email: 'black-room@myews.onmicrosoft.com'},
+        {id: '1', name: 'red', mail: 'red-room@myews.onmicrosoft.com', email: ''},
+        {id: '2', name: 'black', mail: 'black-room@myews.onmicrosoft.com', email: ''},
       ]
     }
   ];

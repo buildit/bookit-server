@@ -21,6 +21,12 @@ const OWNER_CACHE_STRATEGY = new OwnerCachingStrategy();
 
 
 class PassThroughMeetingService implements MeetingsService {
+
+  domain() {
+    return 'FIXME';
+  }
+
+
   getMeetings(email: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     return Promise.resolve(new Array<Meeting>());
   }
@@ -74,10 +80,15 @@ export class CachedMeetingService implements MeetingsService {
       this.refreshCache(start, end);
     };
 
-    logger.info('Constructing cached services');
+    logger.info('Constructing cached meeting service wrapping:');
     _internalRefresh();
     this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH);
 
+  }
+
+
+  domain() {
+    return this.delegatedMeetingsService.domain();
   }
 
 
@@ -121,19 +132,18 @@ export class CachedMeetingService implements MeetingsService {
 
   private refreshCache(start: Moment, end: Moment) {
     const meetingSvc = this.delegatedMeetingsService;
-    const roomResponse = this.delegatedRoomService.getRooms('nyc');
+    this.delegatedRoomService.getRooms('nyc')
+        .then((rooms) => {
+          rooms.forEach(room => {
+            meetingSvc.getMeetings(room.mail, start, end)
+                      .then(meetings => meetings.forEach(this.cacheMeeting.bind(this)))
+                      .catch(error => {
+                        logger.error('Failed to cache meetings for:' + room.name);
+                      });
+          });
+        });
 
-    if (!roomResponse.found) {
-      return;
-    }
 
-    roomResponse.rooms.forEach(room => {
-      meetingSvc.getMeetings(room.email, start, end)
-                .then(meetings => meetings.forEach(this.cacheMeeting.bind(this)))
-                .catch(error => {
-                  logger.error('Failed to cache meetings for:' + room.name);
-                });
-    });
   }
 
 

@@ -1,14 +1,14 @@
 import {Room, RoomList} from '../../model/Room';
 
-export class RoomResponse {
-  readonly found: boolean;
-  readonly rooms: Room[];
-}
+// export class RoomResponse {
+//   readonly rooms: Room[];
+// }
 
 
 export interface RoomService {
-  getRoomLists(): RoomList[];
-  getRooms(list: string): RoomResponse;
+  getRoomList(list: string): Promise<RoomList>;
+  getRoomLists(): Promise<RoomList[]>;
+  getRooms(list: string): Promise<Room[]>;
 }
 
 

@@ -34,9 +34,12 @@ export function generateMeetings(roomService: RoomService,
                                  end: Moment = moment().add(1, 'weeks'),
                                  config: GeneratorConfig = DEFAULT_CONFIG): Promise<any> {
   // should config be used instead of AppConfig?
-  const roomLists = roomService.getRoomLists();
+  return roomService.getRoomLists()
+                    .then(roomLists => {
+                      return Promise.all(roomLists[0].rooms.map(
+                        room => regenerateEvents(room.mail, start, end, meetingsService, DEFAULT_CONFIG)));
+                    });
 
-  return Promise.all(roomLists[0].rooms.map(room => regenerateEvents(room.email, start, end, meetingsService, DEFAULT_CONFIG)));
 }
 
 

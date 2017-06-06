@@ -9,6 +9,8 @@ import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
+import {MockDeviceService} from '../../services/devices/MockDeviceService';
+import {MockGroupService} from '../../services/groups/MockGroupService';
 
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
@@ -18,7 +20,9 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            new MockPasswordStore(),
                            new MockGraphTokenProvider(),
                            jwtTokenProvider,
+                           () => new MockDeviceService(),
                            () => new MockUserService(),
+                           () => new MockGroupService(),
                            () => new MockRoomService(generateUnitRoomLists()),
                            (config) => new CachedMeetingService(config.roomService));
 }

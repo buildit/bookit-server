@@ -6,7 +6,7 @@ describe('Cloud User services', () => {
   it('returns a list of users', () => {
     return svc.getUsers().then(users => {
       console.log(JSON.stringify(users));
-      const user0 = users.value[0];
+      const user0 = users[0];
       //noinspection BadExpressionStatementJS
       expect(user0.id).to.be.string;
       //noinspection BadExpressionStatementJS

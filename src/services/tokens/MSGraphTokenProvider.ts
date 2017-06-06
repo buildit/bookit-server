@@ -10,8 +10,13 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
 
-  constructor(private conf: GraphAPIParameters, private reuseTokens = true) {
-    this.tokenEndpoint = 'https://login.windows.net/' + conf.tenantId + '/oauth2/token';
+  constructor(private _conf: GraphAPIParameters, private _reuseTokens = false) {
+    this.tokenEndpoint = 'https://login.windows.net/' + _conf.tenantId + '/oauth2/token';
+  }
+
+
+  domain(): string {
+    return this._conf.domain;
   }
 
 
@@ -41,7 +46,7 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
 
   private acquireNew() {
     const clearToken = (_timeout: string) => {
-      if (this.reuseTokens) {
+      if (this._reuseTokens) {
         const timeout = (Number(_timeout) - 10) * 1000;
         setTimeout(() => this.token = null, timeout);
       }
@@ -49,8 +54,8 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
 
     return new Promise((resolve, reject) => {
       const params = {
-        client_id: this.conf.clientId,
-        client_secret: this.conf.clientSecret,
+        client_id: this._conf.clientId,
+        client_secret: this._conf.clientSecret,
         grant_type: 'client_credentials',
         resource: 'https://graph.microsoft.com',
       };
@@ -66,7 +71,6 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
           reject(data.error_description);
         } else {
           this.token = data.access_token;
-          logger.info(data);
           clearToken(data.expires_in);
           resolve(this.token);
         }

@@ -36,6 +36,7 @@ export interface EnvironmentConfig {
 
 
 export interface GraphAPIParameters {
+  domain: string;
   tenantId: string;
   clientId: string;
   clientSecret?: string;

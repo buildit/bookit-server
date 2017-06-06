@@ -9,6 +9,9 @@ import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
+import {MSGraphDeviceService} from '../../services/devices/MSGraphDeviceService';
+import {token} from 'morgan';
+import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 
 
 export function provideIntegrationRuntime(environment: EnvironmentConfig): RuntimeConfig {
@@ -20,7 +23,9 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
                            new MockPasswordStore(),
                            tokenOperations,
                            jwtTokenProvider,
+                           () => new MSGraphDeviceService(tokenOperations),
                            () => new MSGraphUserService(tokenOperations),
+                           () => new MSGraphGroupService(tokenOperations),
                            () => new MockRoomService(generateIntegrationRoomLists()),
                            () => {
                              return new MSGraphMeetingService(tokenOperations);

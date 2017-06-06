@@ -6,6 +6,11 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
   }
 
 
+  domain(): string {
+    throw new Error('Should not be called');
+  }
+
+
   hasToken(): boolean {
     return false;
   }
