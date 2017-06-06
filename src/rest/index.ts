@@ -1,12 +1,10 @@
 import * as express from 'express';
-import * as cors from 'cors';
 import {RootLog as logger} from '../utils/RootLogger';
 
 import {Runtime} from '../config/runtime/configuration';
 import {configureRoutes} from './server';
 
 const app = express();
-app.use(cors());
 
 logger.info('Server: starting up');
 const promisedRoutes = configureRoutes(app,

@@ -1,4 +1,5 @@
 import {Express, Router} from 'express';
+import * as cors from 'cors';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 
@@ -20,6 +21,7 @@ import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 function configureExpress(app: Express) {
   app.use(bodyParser.json());
   app.use(morgan('dev'));
+  app.use(cors());
 }
 
 
