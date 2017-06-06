@@ -4,6 +4,10 @@ A server for [Bookit](https://github.com/buildit/bookit-web).
 
 ## Quick start
 After checkout, this will get you started.
+
+First, make sure the environment configuration is set up correctly. Find the file named `.env-sample`. Copy it and name the new file `.env`. This gives you the minimum environment configuration you need in order to run the app in dev mode.
+
+Then run:
 ```
 npm install
 npm run build
@@ -17,9 +21,9 @@ See meeting list at [http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?e
 ## Modes of operation
 
 The back end is heavily geared towards testing and stand-alone operation at the moment.  It has a dev mode against an
- in-memory generated meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test 
- configuration, and an integration test configuration.  The **default mode of operation is in-memory dev**.  When the 
- app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so 
+ in-memory generated meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test
+ configuration, and an integration test configuration.  The **default mode of operation is in-memory dev**.  When the
+ app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so
  you will see somewhat different results with every run.
 
 
@@ -45,8 +49,8 @@ ROMAN_SECRET=your-client-secret
 ```
 
 ## Authentication
-There are a few endpoints that require a token in order to access.  It's either because it needs 
-to be protected or because it is user-context sensitive.  The server has an endpoint for retrieving a token for using 
+There are a few endpoints that require a token in order to access.  It's either because it needs
+to be protected or because it is user-context sensitive.  The server has an endpoint for retrieving a token for using
 in some subsequent requests.  Send a json object that conforms to the below interface.
 
 ```
@@ -81,7 +85,7 @@ found under src/config.  The environment loading code is in env.ts.  The config 
  [node-config](https://github.com/lorenwest/node-config).
 
 The run-time configuration is generated in src/config/runtime.  The creation of all services is
-done in configuration.ts.  There are interfaces for each service and mainly two implementations. 
+done in configuration.ts.  There are interfaces for each service and mainly two implementations.
 One is Mock and the other is MSGraph.
 
 ## Services
@@ -125,7 +129,7 @@ To set up the login routes
 The routes for CRUD meeting operations that bookit-web interacts with.
 
 ## Special cases
-MeetingOps seems to be an IOC class meant for reusing logic (e.g. checking for meeting availability) against an 
+MeetingOps seems to be an IOC class meant for reusing logic (e.g. checking for meeting availability) against an
 interchangeable set of services.
 
 ## Useful links
