@@ -66,7 +66,10 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
     return this.client.api(`/users/${owner.email}/calendar/events`)
                .post(eventData)
-               .then(meeting => MSGraphMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
+               .then(meeting => {
+                 logger.info('Created', meeting.id);
+                 return MSGraphMeetingService.mapMeeting(meeting);
+               }) as Promise<Meeting>;
   }
 
 
@@ -108,3 +111,5 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     };
   }
 }
+
+// Created AAMkAGZjOGZiMjkyLWVlZTktNGI4Zi1hZjI3LWU1NmMwZmFmZTQ1NwBGAAAAAAD3xsCQ9StBQriMaPZ40gegBwD-9MwDWgcgSa2XxpJQw3YhAAAAAAENAAD-9MwDWgcgSa2XxpJQw3YhAAAy4t1xAAA=

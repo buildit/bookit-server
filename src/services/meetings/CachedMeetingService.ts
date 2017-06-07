@@ -12,7 +12,7 @@ import {ParticipantsCachingStrategy} from './ParticipantsCachingStrategy';
 import {OwnerCachingStrategy} from './OwnerCachingStrategy';
 
 
-const DEFAULT_REFRESH = 10 * 1000;
+const DEFAULT_REFRESH = 300 * 1000;
 
 const ID_CACHE_STRATEGY = new IdCachingStrategy();
 const PARTICIPANTS_CACHE_STRATEGY = new ParticipantsCachingStrategy();
@@ -43,6 +43,7 @@ class PassThroughMeetingService implements MeetingsService {
   deleteMeeting(owner: string, id: string): Promise<any> {
     return Promise.resolve();
   }
+
 
   findMeeting(email: string, meetingId: string, start: moment.Moment, end: moment.Moment): Promise<Meeting> {
     return Promise.reject('No actual underlying meetings');
@@ -95,9 +96,7 @@ export class CachedMeetingService implements MeetingsService {
     return this.delegatedMeetingsService
                .createMeeting(subj, start, duration, owner, room)
                .then(meeting => {
-                 this.cacheMeeting(meeting);
-
-                 return meeting;
+                 return this.cacheMeeting(meeting);
                });
   }
 
