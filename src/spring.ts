@@ -1,7 +1,7 @@
 import {RootLog as logger} from './utils/RootLogger';
 
 import {Runtime} from './config/runtime/configuration';
-import {Room} from './model/Room';
+import {Room, RoomList} from './model/Room';
 
 logger.info('Spring: starting up');
 
@@ -50,10 +50,10 @@ function testGetGroups() {
 function testGetRooms() {
   roomService.getRoomLists()
              .then(roomLists => {
-               return Promise.all(roomLists.map(roomList => roomService.getRooms(roomList.id)));
+               return Promise.all(roomLists.map(roomList => roomService.getRoomList(roomList.id)));
              })
-             .then((members: Room[][]) => {
-               logger.info('', members.map(member => member.map(room => room.mail)));
+             .then((members: RoomList[]) => {
+               logger.info('', members.map(member => member.rooms.map(room => room.mail)));
                // logger.info('', members);
              })
              .catch(error => {

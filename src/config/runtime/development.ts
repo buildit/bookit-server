@@ -10,7 +10,7 @@ import {MockUserService} from '../../services/users/MockUserService';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
-import {generateRoomLists} from '../bootstrap/rooms';
+import {generateMSGroup, generateRomanNYCRoomList, generateRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
@@ -18,10 +18,22 @@ import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
 import {MSGraphDeviceService} from '../../services/devices/MSGraphDeviceService';
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
-import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
 import {MSGraphRoomService} from '../../services/rooms/MSGraphRoomService';
+import {MSUser} from '../../services/users/UserService';
+import {GroupService, MSGroup} from '../../services/groups/GroupService';
+import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 
+
+function generateRomanMockGroup(domain: string) {
+  const group = generateMSGroup('nyc', domain);
+  const rooms = generateRomanNYCRoomList(domain);
+
+  const map = new Map<string, MSUser[]>();
+  map.set(group.id, rooms);
+
+  return new MockGroupService([group], map);
+}
 
 export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig {
   const jwtTokenProvider = new MockJWTTokenProvider(env.jwtTokenSecret);
@@ -30,13 +42,21 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
   if (graphAPIParameters) {
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters);
 
+    const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
+
+    const createMockGroupService = (runtime: RuntimeConfig) => {
+      return generateRomanMockGroup(graphAPIParameters.domain);
+    };
+
+    const groupServiceFactory = graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;
+
     return new RuntimeConfig(env.port,
                              new MockPasswordStore(),
                              tokenOperations,
                              jwtTokenProvider,
                              () => new MSGraphDeviceService(tokenOperations),
                              () => new MSGraphUserService(tokenOperations),
-                             () => new MSGraphGroupService(tokenOperations),
+                             groupServiceFactory,
                              (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
                                const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
@@ -50,7 +70,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      jwtTokenProvider,
                                      () => new MockDeviceService(),
                                      () => new MockUserService(),
-                                     () => new MockGroupService(),
+                                     () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                                      () => new MockRoomService(generateRoomLists()),
                                      (config) => new CachedMeetingService(config.roomService));
 

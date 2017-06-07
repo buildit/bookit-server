@@ -35,10 +35,11 @@ describe('meeting routes operations', function testMeetingRoutes() {
     return request(app).get('/rooms/nyc')
                        .expect(200)
                        .then((res) => {
-                         const rooms = roomService.getRooms('nyc');
-                         // logger.info(res.body);
-                         logger.info('Got rooms', rooms);
-                         expect(res.body).to.deep.equal(rooms);
+                         roomService.getRoomList('nyc')
+                                    .then(roomList => {
+                                      const rooms = roomList.rooms;
+                                      expect(rooms).should.eventually.be.deep.equal(res.body);
+                                    });
                        });
   });
 

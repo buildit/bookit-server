@@ -11,12 +11,13 @@ import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
+import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 
 // import * as UUID from 'uuid';
 
 export function StatefulMeetingSpec(meetingService: MeetingsService, description: string) {
-  const BRUCE_ID = `bruce@${meetingService.domain()}.onmicrosoft.com`;
-  const redRoomId = `red-room@${meetingService.domain()}.onmicrosoft.com`;
+  const BRUCE_ID = getEmail('bruce', meetingService.domain());
+  const redRoomId = getRoomEmail('red', meetingService.domain());
 
   const bruceParticipant = new Participant(BRUCE_ID);
   const redRoomParticipant = new Participant(redRoomId);

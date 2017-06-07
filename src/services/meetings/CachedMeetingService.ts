@@ -80,7 +80,7 @@ export class CachedMeetingService implements MeetingsService {
       this.refreshCache(start, end);
     };
 
-    logger.info('Constructing cached meeting service wrapping:');
+    logger.info('Constructing CachedMeetingService');
     _internalRefresh();
     this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH);
 
@@ -132,9 +132,9 @@ export class CachedMeetingService implements MeetingsService {
 
   private refreshCache(start: Moment, end: Moment) {
     const meetingSvc = this.delegatedMeetingsService;
-    this.delegatedRoomService.getRooms('nyc')
-        .then((rooms) => {
-          rooms.forEach(room => {
+    this.delegatedRoomService.getRoomList('nyc')
+        .then(roomList => {
+          roomList.rooms.forEach(room => {
             meetingSvc.getMeetings(room.mail, start, end)
                       .then(meetings => meetings.forEach(this.cacheMeeting.bind(this)))
                       .catch(error => {

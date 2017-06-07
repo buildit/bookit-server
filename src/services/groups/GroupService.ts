@@ -1,5 +1,6 @@
 
 import {MSUser} from '../users/UserService';
+
 export interface MSGroup {
   id: string;
   description: string;

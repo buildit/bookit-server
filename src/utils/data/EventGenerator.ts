@@ -9,6 +9,7 @@ import {MeetingHelper} from './MeetingHelper';
 import {RoomService} from '../../services/rooms/RoomService';
 
 export interface GeneratorConfig {
+  readonly maxMeetings: number;
   readonly titles: string[];
   readonly names: string[];
   readonly topics: string[];
@@ -18,6 +19,7 @@ export interface GeneratorConfig {
 }
 
 const DEFAULT_CONFIG: GeneratorConfig = {
+  maxMeetings: 100,
   titles: ['Inspirational lunch with {n}', 'New {t} stuff from {n}', 'Presentation of {t} by {n} and his friends', 'Sales proposal discussion about {t}'],
   names: ['Alex', 'Zac', 'Nicole', 'Roman', 'Grommit'],
   topics: ['tomatoes', 'rotten tomatoes', 'art house', 'Google', 'Pink Easter Egg', 'Firing Joe'],
@@ -47,13 +49,16 @@ function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetin
   const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
   const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
 
+  const maxMeetings = Math.ceil(conf.maxMeetings * Math.random());
+
   return Promise.all([roomMeetingHelper.cleanupMeetings(start, end),
                        meetingHelper.cleanupMeetings(start, end)])
                 .then(() => {
                   const currentDate = moment(start).set('minutes', 0).set('seconds', 0).set('milliseconds', 0);
                   const events: Promise<any>[] = [];
+                  let numEvents = 0;
 
-                  while (currentDate.isBefore(end)) {
+                  while (currentDate.isBefore(end) && numEvents <= maxMeetings) {
                     const duration = random15MinDelay(conf.maxDuration);
                     const subject = createSubject(conf);
 
@@ -63,6 +68,7 @@ function regenerateEvents(email: string, start: Moment, end: Moment, svc: Meetin
                     );
 
                     currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
+                    numEvents++;
                   }
 
                   logger.debug(`Generated ${events.length} random events for ${email} on ${currentDate.format('MMM DD YYYY')}.`);

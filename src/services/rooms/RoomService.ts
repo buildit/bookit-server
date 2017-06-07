@@ -8,7 +8,7 @@ import {Room, RoomList} from '../../model/Room';
 export interface RoomService {
   getRoomList(list: string): Promise<RoomList>;
   getRoomLists(): Promise<RoomList[]>;
-  getRooms(list: string): Promise<Room[]>;
+  // getRooms(list: string): Promise<Room[]>;
 }
 
 

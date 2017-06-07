@@ -1,5 +1,5 @@
 import {RoomService} from './RoomService';
-import {Room, RoomList} from '../../model/Room';
+import {RoomList} from '../../model/Room';
 
 export class CacheRoomService implements RoomService {
 
@@ -12,9 +12,5 @@ export class CacheRoomService implements RoomService {
 
   getRoomLists(): Promise<RoomList[]> {
     return this.roomService.getRoomLists();
-  }
-
-  getRooms(listName: string): Promise<Room[]> {
-    return this.roomService.getRooms(listName);
   }
 }

@@ -16,7 +16,7 @@ import {protectEndpoint} from './filters';
 import {TokenInfo} from './auth_routes';
 
 
-function roomList(req: Request): string {
+function extractRoomListName(req: Request): string {
   return req.params.listName;
   // todo: add listName name validation
 }
@@ -35,10 +35,11 @@ export function configureMeetingRoutes(app: Express,
   const meetingsOps = new MeetingsOps(meetingSvc);
 
   app.get('/rooms/:listName', (req, res) => {
-    const listName = roomList(req);
+    const listName = extractRoomListName(req);
     assert(listName, 'List name can\'t be empty');
-    const rooms = roomSvc.getRooms(listName);
-    res.json(rooms);
+    roomSvc.getRoomList(listName).then(roomList => {
+      res.json(roomList.rooms);
+    });
   });
 
 

@@ -11,6 +11,8 @@ import {CachedMeetingService} from '../../services/meetings/CachedMeetingService
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
+import {MSUser} from '../../services/users/UserService';
+import {MSGroup} from '../../services/groups/GroupService';
 
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
@@ -22,7 +24,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            jwtTokenProvider,
                            () => new MockDeviceService(),
                            () => new MockUserService(),
-                           () => new MockGroupService(),
+                           () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                            () => new MockRoomService(generateUnitRoomLists()),
                            (config) => new CachedMeetingService(config.roomService));
 }
