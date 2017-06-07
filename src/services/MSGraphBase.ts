@@ -35,7 +35,7 @@ export class MSGraphBase {
     };
 
     return Client.init({
-      debugLogging: false,
+      debugLogging: true,
       authProvider: authProviderCallback
     });
   }
