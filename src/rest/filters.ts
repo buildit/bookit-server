@@ -43,6 +43,6 @@ function innerInitializeFilter(tokenOperations: JWTTokenProvider) {
 }
 
 export function protectEndpoint(app: Express, path: string) {
-  console.info('JWT protected endpoint:', path);
+  logger.info('JWT protected endpoint:', path);
   app.use(path, tokenFilter);
 }
