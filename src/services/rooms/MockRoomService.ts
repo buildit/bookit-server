@@ -4,7 +4,6 @@ import {MutableRoomService, RoomService} from './RoomService';
 import {RootLog as logger} from '../../utils/RootLogger';
 
 export class MockRoomService implements RoomService, MutableRoomService {
-
   constructor(private _roomLists: RoomList[]) {
     logger.info('MockRoomService: initializing with rooms', _roomLists);
   }
@@ -27,6 +26,7 @@ export class MockRoomService implements RoomService, MutableRoomService {
     });
   }
 
+
   getRoomLists(): Promise<RoomList[]> {
     return Promise.resolve(this._roomLists);
   }
@@ -42,5 +42,16 @@ export class MockRoomService implements RoomService, MutableRoomService {
       reject(`Unable to find room ${list}`);
     });
   }
+
+
+  getRoomByName(name: string): Promise<Room> {
+    return Promise.reject('Unimplemented');
+  }
+
+  getRoomByMail(mail: string): Promise<Room> {
+    return Promise.reject('Unimplemented');
+  }
+
+
 }
 

@@ -7,6 +7,8 @@ import {RootLog as logger} from '../RootLogger';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {MeetingHelper} from './MeetingHelper';
 import {RoomService} from '../../services/rooms/RoomService';
+import {Room} from '../../model/Room';
+import {Participant} from '../../model/Participant';
 
 export interface GeneratorConfig {
   readonly maxMeetings: number;
@@ -39,41 +41,42 @@ export function generateMeetings(roomService: RoomService,
   return roomService.getRoomLists()
                     .then(roomLists => {
                       return Promise.all(roomLists[0].rooms.map(
-                        room => regenerateEvents(room.mail, start, end, meetingsService, DEFAULT_CONFIG)));
+                        room => regenerateEvents(room, start, end, meetingsService, DEFAULT_CONFIG)));
                     });
 
 }
 
 
-function regenerateEvents(email: string, start: Moment, end: Moment, svc: MeetingsService, conf: GeneratorConfig): Promise<any> {
-  const meetingHelper = MeetingHelper.calendarOf(conf.hostUser, svc, queue);
-  const roomMeetingHelper = MeetingHelper.calendarOf(email, svc, queue);
-
+function regenerateEvents(room: Room, start: Moment, end: Moment, svc: MeetingsService, conf: GeneratorConfig): Promise<any> {
+  const roomMeetingHelper = MeetingHelper.calendarOf(room, svc, queue);
   const maxMeetings = Math.ceil(conf.maxMeetings * Math.random());
+  const randomPart = new Participant('random@random.com');
 
-  return Promise.all([roomMeetingHelper.cleanupMeetings(start, end),
-                       meetingHelper.cleanupMeetings(start, end)])
-                .then(() => {
-                  const currentDate = moment(start).set('minutes', 0).set('seconds', 0).set('milliseconds', 0);
-                  const events: Promise<any>[] = [];
-                  let numEvents = 0;
+  return roomMeetingHelper.cleanupMeetings(start, end)
+                          .then(() => {
+                            const currentDate = moment(start).set('minutes', 0).set('seconds', 0)
+                                                             .set('milliseconds', 0);
+                            const events: Promise<any>[] = [];
+                            let numEvents = 0;
 
-                  while (currentDate.isBefore(end) && numEvents <= maxMeetings) {
-                    const duration = random15MinDelay(conf.maxDuration);
-                    const subject = createSubject(conf);
+                            while (currentDate.isBefore(end) && numEvents <= maxMeetings) {
+                              const duration = random15MinDelay(conf.maxDuration);
+                              const subject = createSubject(conf);
 
-                    const eventDate = currentDate.clone();
-                    events.push(queue.wrap(() => meetingHelper.createMeeting(subject, eventDate, duration, [{email}]))()
-                                     .catch(err => logger.error(`Failed to create event for ${email}`, err))
-                    );
+                              const eventDate = currentDate.clone();
+                              events.push(
+                                queue.wrap(() => roomMeetingHelper.createMeeting(subject, eventDate, duration, [randomPart]))()
+                                     .catch(err => logger.error(`Failed to create event for ${randomPart.email}`, err))
+                              );
 
-                    currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
-                    numEvents++;
-                  }
+                              currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
+                              numEvents++;
+                            }
 
-                  logger.debug(`Generated ${events.length} random events for ${email} on ${currentDate.format('MMM DD YYYY')}.`);
-                  return Promise.all(events);
-                });
+                            logger.debug(`Generated ${events.length} random events for ${randomPart.email} on ${currentDate.format(
+                              'MMM DD YYYY')}.`);
+                            return Promise.all(events);
+                          });
 }
 
 function createSubject(conf: GeneratorConfig) {

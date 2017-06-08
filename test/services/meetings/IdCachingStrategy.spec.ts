@@ -21,10 +21,13 @@ const andrew = new Participant('andrew@wipro.com');
 const karsten = new Participant('karsten@wipro.com');
 const alex = new Participant('alex@wipro.com');
 
+const redRoom = {displayName: 'Red'};
+
 const first: Meeting = {
   id: '1',
   title: 'My first meeting',
   owner: andrew,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -34,6 +37,7 @@ const second: Meeting = {
   id: '2',
   title: 'My second meeting',
   owner: andrew,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -43,6 +47,7 @@ const third: Meeting = {
   id: '3',
   title: 'My third meeting',
   owner: karsten,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),

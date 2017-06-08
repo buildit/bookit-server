@@ -1,13 +1,15 @@
 import * as moment from 'moment';
+import {Duration, Moment} from 'moment';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {findById, Meeting} from '../../model/Meeting';
+import {Room} from '../../model/Room';
 import {MeetingsService} from './MeetingService';
 import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
-import {Duration, Moment} from 'moment';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
 
@@ -17,12 +19,12 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
+  getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
     const endDateTime = end.toISOString();
     return this.client
-               .api(`/users/${email}/calendar/calendarView`)
-               .select('id,subject,organizer,attendees,start,end')
+               .api(`/users/${room.email}/calendar/calendarView`)
+               .select('id,subject,organizer,attendees,location,start,end')
                .query({startDateTime, endDateTime})
                .get()
                .then(response => {
@@ -36,7 +38,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     const participants = [room];
     const attendees = participants.map(participant => (
       {
@@ -70,8 +72,8 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
-    return this.getMeetings(email, start, end)
+  findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return this.getMeetings(room, start, end)
                .then(meetings => {
                  const meeting = findById(meetings, meetingId);
                  if (!meeting) {
@@ -96,15 +98,23 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       };
     };
 
+    logger.info('Source meeting', meeting);
+    logger.info('Meeting attendee', meeting.attendees);
+    logger.info('Meeting location', meeting.location);
+
     const participants = maybeApply(meeting.attendees, mapToParticipant);
 
-    return {
+    const mappedMeeting = {
       id: meeting.id as string,
       title: meeting.subject as string,
       owner: mapToParticipant(meeting.organizer),
+      location: meeting.location,
       participants: participants,
       start: moment.utc(meeting.start.dateTime),
       end: moment.utc(meeting.end.dateTime)
     };
+
+    logger.info('Mapped meeting', mappedMeeting);
+    return mappedMeeting;
   }
 }

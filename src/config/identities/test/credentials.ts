@@ -12,4 +12,6 @@ export const creds: GraphAPIParameters = {
 const roomCreds = {
   black: 'Jugo11744',
   blue: 'Kuho05384',
-}
+  bruce: 'Xoju09274',
+  roo: 'Kuxa60135'
+};

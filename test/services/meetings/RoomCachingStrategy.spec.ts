@@ -4,6 +4,7 @@ import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
 import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
+import {RoomCachingStrategy} from '../../../src/services/meetings/RoomCachingStrategy';
 
 /*
  export class Meeting {
@@ -23,12 +24,13 @@ const paul = new Participant('paul@wipro.com');
 const alex = new Participant('alex@wipro.com');
 
 const redRoom = {displayName: 'Red'};
+const blueRoom = {displayName: 'Blue'};
 
 const first: Meeting = {
   id: '1',
   title: 'My first meeting',
   owner: andrew,
-  location: redRoom,
+  location: blueRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -48,7 +50,7 @@ const third: Meeting = {
   id: '3',
   title: 'My third meeting',
   owner: paul,
-  location: redRoom,
+  location: blueRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -58,32 +60,34 @@ const fourth: Meeting = {
   id: '4',
   title: 'My fourth meeting',
   owner: alex,
-  location: redRoom,
+  location: blueRoom,
   participants: [],
   start: moment(),
   end: moment(),
 };
 
-describe('owner caching suite', function filterSuite() {
-  it('caches by owner', function testFilterById() {
+
+describe('room caching suite', function filterSuite() {
+  it('caches by room', function testFilterById() {
 
     const cache = new Map<string, Meeting[]>();
-    const ownerCacher = new OwnerCachingStrategy();
+    const roomCacher = new RoomCachingStrategy();
 
-    [first, second, third, fourth].forEach(meeting => ownerCacher.put(cache, meeting));
+    [first, second, third, fourth].forEach(meeting => roomCacher.put(cache, meeting));
 
-    const andrewList = ownerCacher.get(cache, 'andrew@wipro.com');
-    expect(andrewList.length).to.be.equal(1);
-    expect(andrewList[0].title).to.be.equal('My first meeting');
+    const redRoomList = roomCacher.get(cache, 'Red');
+    expect(redRoomList.length).to.be.equal(1);
+    const redRoomSet = new Set(redRoomList.map(m => m.id));
+    expect(redRoomSet.has('2')).to.be.true;
 
-    const alexList = ownerCacher.get(cache, 'alex@wipro.com');
-    expect(alexList.length).to.be.equal(2);
-    expect(alexList[0].title).to.be.equal('My second meeting');
-    expect(alexList[1].title).to.be.equal('My fourth meeting');
+    // expect(andrewList[0].title).to.be.equal('My first meeting');
 
-    const paulList = ownerCacher.get(cache, 'andrew@wipro.com');
-    expect(paulList.length).to.be.equal(1);
-    expect(paulList[0].title).to.be.equal('My first meeting');
+    const blueRoomList = roomCacher.get(cache, 'Blue');
+    expect(blueRoomList.length).to.be.equal(3);
+    const blueRoomSet = new Set(blueRoomList.map(m => m.id));
+    expect(blueRoomSet.has('1')).to.be.true;
+    expect(blueRoomSet.has('3')).to.be.true;
+    expect(blueRoomSet.has('4')).to.be.true;
   });
 
 });

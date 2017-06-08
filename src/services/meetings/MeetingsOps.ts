@@ -21,12 +21,12 @@ function hasConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMe
 
 
 function checkTimeIsAvailable(meetingsService: MeetingsService,
-                              calendarOwner: Participant,
+                              room: Room,
                               start: moment.Moment,
                               duration: moment.Duration): Promise<any> {
   const end = start.clone().add(duration);
 
-  return meetingsService.getMeetings(calendarOwner.email, start, end)
+  return meetingsService.getMeetings(room, start, end)
                         .then(meetings => hasConflicts(meetings, start, end));
 }
 
@@ -42,9 +42,12 @@ export class MeetingsOps {
   getRoomListMeetings(rooms: Room[], start: Moment, end: Moment) {
     const mapRoom = (room: Room) => {
       return this.meetingsService
-                 .getMeetings(room.mail, start, end)
+                 .getMeetings(room, start, end)
                  .then(m => {
                    return {room, meetings: m};
+                 })
+                 .catch(error => {
+                   logger.error(error);
                  });
     };
 
@@ -52,18 +55,18 @@ export class MeetingsOps {
   }
 
 
-  getMeetings(email: string, start: Moment, end: Moment): Promise<Meeting[]> {
-    // logger.debug('Getting meetings', this.meetingsService);
-    return this.meetingsService.getMeetings(email, start, end);
+  getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
+    logger.debug('Getting meetings', this.meetingsService);
+    return this.meetingsService.getMeetings(room, start, end);
   }
 
 
-  findMeeting(email: string, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
-    return this.meetingsService.findMeeting(email, meetingId, start, end);
+  findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+    return this.meetingsService.findMeeting(room, meetingId, start, end);
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting> {
+  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve, reject) => {
       const promisedCheck = checkTimeIsAvailable(this.meetingsService, room, start, duration);
 

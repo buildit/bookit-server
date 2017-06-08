@@ -14,6 +14,7 @@ import {extractAsMoment} from '../utils/validation';
 import {checkParam, sendError, sendGatewayError, sendNotFound} from './rest_support';
 import {protectEndpoint} from './filters';
 import {TokenInfo} from './auth_routes';
+import {Room} from '../model/Room';
 
 
 function extractRoomListName(req: Request): string {
@@ -23,8 +24,8 @@ function extractRoomListName(req: Request): string {
 
 
 // Services
-export function  getCurrentUser(): Participant {
-  return {name: 'Comes from the session!!!', email: 'romans@myews.onmicrosoft.com'};
+export function  getCurrentUser(domain: string = 'myews'): Participant {
+  return {name: 'Comes from the session!!!', email: `bruce@${domain}.onmicrosoft.com`};
 }
 
 
@@ -54,7 +55,7 @@ export function configureMeetingRoutes(app: Express,
       res.status(400).send();
     }
 
-    logger.info(`Getting meetings for ${listName}`);
+    logger.info(`Getting meetings for ${listName} from ${start} to ${end}`);
     // range validation!!
     const range = end.diff(start, 'months');
     logger.debug(start.format() as string);
@@ -83,47 +84,45 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
-  app.post('/room/:roomEmail/meeting', (req, res) => {
+  function createMeeting(req: any, res: any, owner: Participant) {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);
     const endMoment = moment(event.end);
+    const roomId = req.params.roomEmail;
+
+    const createMeeting = (room: Room) => {
+      meetingsOps.createMeeting(event.title,
+                                startMoment,
+                                moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
+                                owner,
+                                room)
+                 .then(meeting => res.json(meeting))
+                 .catch(err => sendError(err, res));
+    };
+
     if (checkParam(event.title && event.title.trim().length > 0, 'Title must be provided', res)
       && checkParam(startMoment.isValid(), 'Start date must be provided', res)
       && checkParam(endMoment.isValid(), 'End date must be provided', res)
       && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
 
-
-      meetingsOps.createMeeting(event.title,
-                                startMoment,
-                                moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                                getCurrentUser(),
-                                {name: 'room', email: req.params.roomEmail})
-                 .then(meeting => res.json(meeting))
-                 .catch(err => sendError(err, res));
+      roomSvc.getRoomByName(roomId)
+             .then(createMeeting)
+             .catch(() => roomSvc.getRoomByMail(roomId))
+             .then(createMeeting)
+             .catch(err => sendError(err, res));
     }
+
+  }
+
+  app.post('/room/:roomEmail/meeting', (req, res) => {
+    return createMeeting(req, res, getCurrentUser(meetingSvc.domain()));
   });
 
 
   protectEndpoint(app, '/room/:roomEmail/meeting_protected');
   app.post('/room/:roomEmail/meeting_protected', (req, res) => {
     const credentials = req.body.credentials as TokenInfo;
-    const event = req.body as MeetingRequest;
-    const startMoment = moment(event.start);
-    const endMoment = moment(event.end);
-    if (checkParam(event.title && event.title.trim().length > 0, 'Title must be provided', res)
-      && checkParam(startMoment.isValid(), 'Start date must be provided', res)
-      && checkParam(endMoment.isValid(), 'End date must be provided', res)
-      && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
-
-
-      meetingsOps.createMeeting(event.title,
-                                startMoment,
-                                moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                                new Participant(credentials.user),
-                                {name: 'room', email: req.params.roomEmail})
-                 .then(meeting => res.json(meeting))
-                 .catch(err => sendError(err, res));
-    }
+    return createMeeting(req, res, new Participant(credentials.user));
   });
 
 

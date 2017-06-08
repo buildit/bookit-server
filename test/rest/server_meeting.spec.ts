@@ -39,6 +39,9 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                     .then(roomList => {
                                       const rooms = roomList.rooms;
                                       expect(rooms).should.eventually.be.deep.equal(res.body);
+                                    })
+                                    .catch(error => {
+                                      throw new Error('Should not be here');
                                     });
                        });
   });

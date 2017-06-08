@@ -7,7 +7,6 @@ import {GroupService} from '../groups/GroupService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 
 export class MSGraphRoomService extends MSGraphBase implements RoomService {
-
   constructor(graphTokenProvider: GraphTokenProvider, private _groupService: GroupService) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphRoomService');
@@ -57,6 +56,16 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
                               };
                             });
                });
+  }
+
+
+  getRoomByName(name: string): Promise<Room> {
+    return Promise.reject('Unimplemented');
+  }
+
+
+  getRoomByMail(mail: string): Promise<Room> {
+    return Promise.reject('Unimplemented');
   }
 
 
