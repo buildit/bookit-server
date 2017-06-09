@@ -13,5 +13,6 @@ const roomCreds = {
   black: 'Jugo11744',
   blue: 'Kuho05384',
   bruce: 'Xoju09274',
-  roo: 'Kuxa60135'
+  roo: 'Kuxa60135',
+  red: 'Qofu46604'
 };

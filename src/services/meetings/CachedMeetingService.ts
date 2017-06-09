@@ -120,9 +120,7 @@ export class CachedMeetingService implements MeetingsService {
     return this.delegatedMeetingsService
                .createMeeting(subj, start, duration, owner, room)
                .then(meeting => {
-                 this.cacheMeeting(meeting);
-
-                 return meeting;
+                 return this.cacheMeeting(meeting);
                });
   }
 

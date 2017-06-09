@@ -89,8 +89,9 @@ export function generateUnitRoomLists(): RoomList[] {
       id: '1',
       name: 'nyc',
       rooms: [
-        {id: '1', name: 'red', mail: 'red-room@myews.onmicrosoft.com', email: ''},
-        {id: '2', name: 'black', mail: 'black-room@myews.onmicrosoft.com', email: ''},
+        new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
+        new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),
+        new Room('3', 'white', 'white-room@myews.onmicrosoft.com'),
       ]
     }
   ];
@@ -103,8 +104,9 @@ export function generateIntegrationRoomLists(): RoomList[] {
       id: '1',
       name: 'nyc',
       rooms: [
-        {id: '1', name: 'red', mail: 'red-room@myews.onmicrosoft.com', email: ''},
-        {id: '2', name: 'black', mail: 'black-room@myews.onmicrosoft.com', email: ''},
+        new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
+        new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),
+        new Room('3', 'white', 'white-room@myews.onmicrosoft.com'),
       ]
     }
   ];

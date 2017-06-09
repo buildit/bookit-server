@@ -3,7 +3,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {MSGraphBase} from '../MSGraphBase';
 import {RoomService} from './RoomService';
 import {Room, RoomList} from '../../model/Room';
-import {GroupService} from '../groups/GroupService';
+import {GroupService, MSGroup} from '../groups/GroupService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 
 export class MSGraphRoomService extends MSGraphBase implements RoomService {
@@ -14,44 +14,43 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
 
 
   getRoomLists(): Promise<RoomList[]> {
-    return this._groupService.getGroups()
-               .then(groups => {
-                 // assume that the groups of rooms have '-rooms' in the name
-                 logger.info('Found groups', groups.map(group => group.displayName));
-
-                 return groups.filter((group) => group.displayName.indexOf('-rooms'));
-               })
-               .then(rooms => {
-                 return rooms.map(room => {
-                   return {
-                     'id': room.id,
-                     'name': room.displayName,
-                     'rooms': []
-                   };
+    return this.getRoomGroups()
+               .then(roomGroups => {
+                 const roomPromises = roomGroups.map(roomGroup => {
+                   return this.getRooms(roomGroup.id)
+                              .then(rooms => {
+                                return {
+                                  'id': roomGroup.id,
+                                  'name': roomGroup.displayName,
+                                  'rooms': rooms
+                                };
+                              });
                  });
+
+                 return Promise.all(roomPromises);
                });
   }
 
 
   getRoomList(list: string): Promise<RoomList> {
-    return this._groupService.getGroups()
+    return this.getRoomGroups()
                .then(groups => {
                  // assume that the groups of rooms have '-rooms' in the name
-                 const roomName = `${list}-rooms`;
-                 const filteredRooms = groups.filter(group => group.displayName === roomName);
-                 if (!filteredRooms.length) {
+                 const groupName = `${list}-rooms`;
+                 const filteredGroups = groups.filter(group => group.displayName === groupName);
+                 if (!filteredGroups.length) {
                    throw new Error('Unable to find room');
                  }
 
-                 return filteredRooms[0];
+                 return filteredGroups[0];
                })
-               .then(room => {
-                 logger.info('Room', room);
-                 return this.getRooms(room.id)
+               .then(roomGroup => {
+                 logger.info('Room', roomGroup);
+                 return this.getRooms(roomGroup.id)
                             .then(rooms => {
                               return {
-                                'id': room.id,
-                                'name': room.displayName,
+                                'id': roomGroup.id,
+                                'name': roomGroup.displayName,
                                 'rooms': rooms
                               };
                             });
@@ -60,27 +59,57 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
 
 
   getRoomByName(name: string): Promise<Room> {
-    return Promise.reject('Unimplemented');
+    return this.getAllRooms().then(rooms => {
+      const filtered = rooms.filter(room => room.name === name);
+      if (filtered.length) {
+        return filtered[0];
+      }
+
+      throw new Error(`Unable to find room ${name}`);
+    });
   }
 
 
   getRoomByMail(mail: string): Promise<Room> {
-    return Promise.reject('Unimplemented');
+    return this.getAllRooms().then(rooms => {
+      const filtered = rooms.filter(room => room.mail === mail);
+      if (filtered.length) {
+        return filtered[0];
+      }
+
+      throw new Error(`Unable to find room ${mail}`);
+    });
   }
 
 
-  private getRooms(roomId: string): Promise<Room[]> {
-    logger.info(`getting rooms for room id'${roomId}`);
+  private getRoomGroups(): Promise<MSGroup[]> {
+    return this._groupService.getGroups()
+               .then(groups => {
+                 // assume that the groups of rooms have '-rooms' in the name
+                 logger.info('Found groups', groups.map(group => group.displayName));
+
+                 return groups.filter((group) => group.displayName.indexOf('-rooms'));
+               });
+  }
+
+
+  private getAllRooms(): Promise<Room[]> {
+    return this.getRoomLists().then(roomLists => {
+      return roomLists.reduce((acc, roomList) => {
+        acc.push.apply(acc, roomList.rooms);
+        return acc;
+      }, []);
+    });
+  }
+
+
+  private getRooms(roomGroupId: string): Promise<Room[]> {
+    logger.info(`getting rooms for room id'${roomGroupId}`);
     return this._groupService
-               .getGroupMembers(roomId)
+               .getGroupMembers(roomGroupId)
                .then(users => {
                  return users.map(user => {
-                   return {
-                     id: user.id,
-                     name: user.displayName,
-                     mail: user.mail,
-                     email: user.mail
-                   };
+                   return new Room(user.id, user.displayName, user.mail);
                  });
                });
   }

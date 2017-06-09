@@ -12,6 +12,7 @@ import {Participant} from '../../src/model/Participant';
 import {MeetingsOps} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
+import {Room} from '../../src/model/Room';
 
 // import * as UUID from 'uuid';
 
@@ -20,9 +21,9 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
   const redRoomId = getRoomEmail('red', meetingService.domain());
 
   const bruceParticipant = new Participant(BRUCE_ID);
-  const redRoomParticipant = new Participant(redRoomId);
+  const redRoom = new Room('1', 'Red', redRoomId);
 
-  console.log('participants are:', bruceParticipant, redRoomParticipant);
+  console.log('participants are:', bruceParticipant, redRoom);
 
   /* why do we have these three? */
   const meetingOps = new MeetingsOps(meetingService);
@@ -42,7 +43,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
                                       start.clone().add(1, 'minute'),
                                       moment.duration(10, 'minute'),
                                       bruceParticipant,
-                                      redRoomParticipant)
+                                      redRoom)
                        .then(meeting => {
                          logger.info('Created the following meeting', meeting);
                          return meeting;
@@ -53,7 +54,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     describe('will not allow meeting overlaps', function testDoubleBookingBefore() {
       before('wait until the cloud services registers the above initial meeting', function wait() {
         logger.debug('waiting on meeting');
-        return retryUntil(() => meetingOps.getMeetings(redRoomId, start, end), meetings => meetings.length > 0);
+        return retryUntil(() => meetingOps.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
       });
 
       it('will conflict on before', function theTest() {
@@ -62,7 +63,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
                                         start.clone().subtract(5, 'minutes'),
                                         moment.duration(10, 'minutes'),
                                         bruceParticipant,
-                                        redRoomParticipant)
+                                        redRoom)
                          .then((thing) => {
                            logger.debug('what is this?', thing);
                            throw new Error('Should not be here!!!');
@@ -77,7 +78,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
                                         start.clone().add(5, 'minutes'),
                                         moment.duration(10, 'minutes'),
                                         bruceParticipant,
-                                        redRoomParticipant)
+                                        redRoom)
                          .then(() => {
                            throw new Error('Should not be here!!!');
                          })
@@ -95,21 +96,21 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     before('wait until the cloud services registers the above initial meeting', function wait() {
-      return retryUntil(() => meetingOps.getMeetings(redRoomId, start, end), meetings => meetings.length > 0);
+      return retryUntil(() => meetingOps.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
     });
 
     it('`findMeeting` works', function testMeetingsAreEmpty() {
 
-      return meetingOps.getMeetings(redRoomId, start, end)
+      return meetingOps.getMeetings(redRoom, start, end)
                        .then(meetings => {
                          const meeting = meetings[0];
-                         return meetingOps.findMeeting(redRoomId, meeting.id, start, end);
+                         return meetingOps.findMeeting(redRoom, meeting.id, start, end);
                        })
                        .should.eventually.be.not.empty;
     });
 
     it('`findMeeting` throws on non-existent', function testMeetingsAreEmpty() {
-      return meetingOps.findMeeting(redRoomId, 'bogus', start, end).should.be.rejected;
+      return meetingOps.findMeeting(redRoom, 'bogus', start, end).should.be.rejected;
     });
 
   });
@@ -119,7 +120,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('fails to delete non-existent room', function testDeleteOfNonexistent() {
-      meetingOps.deleteMeeting(redRoomId, 'bogus').should.eventually.be.rejected;
+      meetingOps.deleteMeeting(redRoom.email, 'bogus').should.eventually.be.rejected;
     });
 
     it('has deletes all meetings', function testMeetingsAreEmpty() {
@@ -127,17 +128,17 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
       /*
       This looks a bit off.  Need to ensure that the owner is a user an not a room.
        */
-      return meetingOps.getMeetings(redRoomId, start, end)
+      return meetingOps.getMeetings(redRoom, start, end)
                         .then(meetings => {
                           const deletePromises = meetings.map(meeting => meetingOps.deleteMeeting(redRoomId, meeting.id));
                           return Promise.all(deletePromises);
                         })
-                        .then(() => meetingOps.getMeetings(redRoomId, start, end)).should.eventually.be.empty;
+                        .then(() => meetingOps.getMeetings(redRoom, start, end)).should.eventually.be.empty;
     });
 
     it('verifies no meetings', function testMeetingsEmpty() {
 
-      return meetingOps.getMeetings(redRoomId, start, end)
+      return meetingOps.getMeetings(redRoom, start, end)
                        .should.eventually.be.empty;
     });
 

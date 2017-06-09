@@ -3,6 +3,13 @@ export class Room {
   name: string;
   mail: string;
   email: string;
+
+  constructor(id: string, name: string, mail: string) {
+    this.id = id;
+    this.name = name;
+    this.mail = mail;
+    this.email = mail;
+  }
 }
 
 

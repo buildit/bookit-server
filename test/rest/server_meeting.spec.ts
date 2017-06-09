@@ -18,15 +18,21 @@ import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {UserDetail} from '../../src/rest/auth_routes';
+import {Room} from '../../src/model/Room';
 
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
 
 
-const app = configureRoutes(express(), Runtime.passwordStore, Runtime.jwtTokenProvider, Runtime.roomService, Runtime.userService, meetingService);
+const app = configureRoutes(express(),
+                            Runtime.passwordStore,
+                            Runtime.jwtTokenProvider,
+                            Runtime.roomService,
+                            Runtime.userService,
+                            meetingService);
 
 const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
-const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
+const room = new Room('1', 'White', 'white-room@myews.onmicrosoft.com');
 
 
 describe('meeting routes operations', function testMeetingRoutes() {
@@ -71,7 +77,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        .set('Content-Type', 'application/json')
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => meetingService.getMeetings(room.email, searchStart, searchEnd))
+                       .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
                        .then((meetings) => {
                          expect(meetings).to.be.length(1, 'Expected to find one created meeting');
 
@@ -103,7 +109,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                            });
                          })
                          .then((meeting) => {
-                           return meetingService.findMeeting(room.email, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                           return meetingService.findMeeting(room, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
                          });
   });
 

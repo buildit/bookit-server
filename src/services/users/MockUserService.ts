@@ -16,7 +16,7 @@ export class MockUserService implements UserService {
 
 
   getDevices(userId: string): Promise<Array<any>> {
-    return Promise.reject('Unimplemented');
+    return Promise.reject('Unimplemented: MockUserService:getDevices');
   }
 }
 

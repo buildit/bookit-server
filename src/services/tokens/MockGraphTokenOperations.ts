@@ -22,7 +22,7 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
 
 
   withToken(): Promise<string> {
-    return Promise.reject('Unimplemented');
+    return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 
 }
