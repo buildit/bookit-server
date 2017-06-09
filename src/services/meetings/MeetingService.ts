@@ -10,7 +10,7 @@ export interface MeetingsService {
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting>;
 
-  deleteMeeting(owner: string, id: string): Promise<any>;
+  deleteMeeting(owner: Participant, id: string): Promise<any>;
 
   findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting>;
 }

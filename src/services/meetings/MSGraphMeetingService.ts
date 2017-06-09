@@ -62,10 +62,11 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       body: {contentType: 'text', content: 'hello from helper'},
       start: {dateTime: moment.utc(start), timeZone: 'UTC'},
       end: {dateTime: moment.utc(start.clone().add(duration)), timeZone: 'UTC'},
-      location: {displayName: 'helper', address: {}},
-      attendees,
+      location: {displayName: room.name, address: {}},
+      attendees
     };
 
+    console.info('Meeting payload', eventData);
     return this.client.api(`/users/${owner.email}/calendar/events`)
                .post(eventData)
                .then(meeting => MSGraphMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
@@ -85,8 +86,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  deleteMeeting(owner: string, id: string): Promise<any> {
-    return this.client.api(`/users/${owner}/calendar/events/${id}`).delete() as Promise<any>;
+  deleteMeeting(owner: Participant, id: string): Promise<any> {
+    console.info('Want to delete', owner, id);
+    return this.client.api(`/users/${owner.email}/calendar/events/${id}`).delete() as Promise<any>;
   }
 
 
@@ -98,9 +100,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       };
     };
 
-    logger.info('Source meeting', meeting);
-    logger.info('Meeting attendee', meeting.attendees);
-    logger.info('Meeting location', meeting.location);
+    logger.debug('Source meeting', meeting);
+    logger.debug('Meeting attendee', meeting.attendees);
+    logger.debug('Meeting location', meeting.location);
 
     const participants = maybeApply(meeting.attendees, mapToParticipant);
 
@@ -114,7 +116,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.info('Mapped meeting', mappedMeeting);
+    logger.debug('Mapped meeting', mappedMeeting);
     return mappedMeeting;
   }
 }

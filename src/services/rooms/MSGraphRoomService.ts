@@ -45,7 +45,6 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
                  return filteredGroups[0];
                })
                .then(roomGroup => {
-                 logger.info('Room', roomGroup);
                  return this.getRooms(roomGroup.id)
                             .then(rooms => {
                               return {

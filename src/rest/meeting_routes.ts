@@ -90,6 +90,7 @@ export function configureMeetingRoutes(app: Express,
     const endMoment = moment(event.end);
     const roomId = req.params.roomEmail;
 
+    logger.info('Want to create meeting:', event);
     const createMeeting = (room: Room) => {
       meetingsOps.createMeeting(event.title,
                                 startMoment,
@@ -130,7 +131,7 @@ export function configureMeetingRoutes(app: Express,
     const roomEmail = req.param('roomEmail');
     const meetingId = req.param('meetingId');
 
-    meetingsOps.deleteMeeting(roomEmail, meetingId)
+    meetingsOps.deleteMeeting(meetingId)
                .then(() => res.json())
                .catch(error => {
                  sendGatewayError(error, res);

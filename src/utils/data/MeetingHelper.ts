@@ -29,7 +29,7 @@ export class MeetingHelper {
 
   cleanupMeetings(start: Moment, end: Moment): Promise<any> {
     const wrapDelete = (m: Meeting) => {
-      return this.queue.wrap(() => this.deleteMeeting(m.id))();
+      return this.queue.wrap(() => this.deleteMeeting(m.owner, m.id))();
     };
 
     /* I'm not sure what this is really accomplishing */
@@ -51,7 +51,7 @@ export class MeetingHelper {
     return this.meetingsSvc.createMeeting(subj, start, duration, this.room, participants[0]);
   }
 
-  deleteMeeting(id: string): Promise<any> {
-    return this.meetingsSvc.deleteMeeting(this.room.email, id);
+  deleteMeeting(owner: Participant, id: string): Promise<any> {
+    return this.meetingsSvc.deleteMeeting(owner, id);
   }
 }

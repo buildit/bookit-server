@@ -9,10 +9,10 @@ export const creds: GraphAPIParameters = {
   clientId: '123999c5-771d-4136-9d87-b5fc03f3266e',
 };
 
-const roomCreds = {
-  black: 'Jugo11744',
-  blue: 'Kuho05384',
-  bruce: 'Xoju09274',
-  roo: 'Kuxa60135',
-  red: 'Qofu46604'
+export const testAppADusers = {
+  'black-room@designitcontoso.onmicrosoft.com': 'Jugo11744',
+  'blue@designitcontoso.onmicrosoft.com': 'Kuho05384',
+  'bruce@designitcontoso.onmicrosoft.com': 'Xoju09274',
+  'roo@designitcontoso.onmicrosoft.com': 'Kuxa60135',
+  'red@designitcontoso.onmicrosoft.com': 'Qofu46604'
 };
