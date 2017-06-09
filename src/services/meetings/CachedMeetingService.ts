@@ -104,9 +104,9 @@ export class CachedMeetingService implements MeetingsService {
       const participantMeetings = PARTICIPANTS_CACHE_STRATEGY.get(this.participantCache, owner);
       logger.info('For participant:', owner, 'found:', participantMeetings);
       const roomMeetings = ROOM_CACHE_STRATEGY.get(this.roomCache, owner);
-      logger.info('For room:', owner, 'found:', participantMeetings);
+      logger.info('For room:', owner, 'found:', roomMeetings);
 
-      const allMeetings = [...participantMeetings, ...roomMeetings];
+      const allMeetings = [...(participantMeetings || []), ...(roomMeetings || [])];
       const meetings =  allMeetings || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
       logger.info('Filtered to:', filtered);
