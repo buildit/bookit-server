@@ -87,7 +87,7 @@ export function generateUnitRoomLists(): RoomList[] {
   return [
     {
       id: '1',
-      name: 'nyc',
+      name: 'nyc-rooms',
       rooms: [
         new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
         new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),
@@ -102,7 +102,7 @@ export function generateIntegrationRoomLists(): RoomList[] {
   return [
     {
       id: '1',
-      name: 'nyc',
+      name: 'nyc-rooms',
       rooms: [
         new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
         new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),

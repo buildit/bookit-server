@@ -41,14 +41,16 @@ describe('meeting routes operations', function testMeetingRoutes() {
     return request(app).get('/rooms/nyc')
                        .expect(200)
                        .then((res) => {
-                         roomService.getRoomList('nyc')
-                                    .then(roomList => {
-                                      const rooms = roomList.rooms;
-                                      expect(rooms).should.eventually.be.deep.equal(res.body);
-                                    })
-                                    .catch(error => {
-                                      throw new Error('Should not be here');
-                                    });
+                         logger.info('', roomService);
+                         return roomService.getRoomList('nyc')
+                                           .then(roomList => {
+                                             const rooms = roomList.rooms;
+                                             expect(rooms).to.be.deep.equal(res.body);
+                                           })
+                                           .catch(error => {
+                                             logger.error(error);
+                                             throw new Error('RLIA Should not be here');
+                                           });
                        });
   });
 
@@ -100,12 +102,16 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
     return meetingService.createMeeting('test delete', momentStart, meetingDuration, owner, room)
                          .then((meeting: Meeting) => {
+                           logger.info('meeting to delete created!');
                            const meetingRoom = room.email;
                            const meetingId = meeting.id;
 
                            return new Promise<Meeting>((resolve) => {
                              request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
-                                         .then(() => resolve(meeting));
+                                         .then(() => {
+                                           logger.info('delete completed');
+                                           resolve(meeting);
+                                         });
                            });
                          })
                          .then((meeting) => {

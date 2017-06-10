@@ -131,7 +131,8 @@ export function configureMeetingRoutes(app: Express,
     const roomEmail = req.param('roomEmail');
     const meetingId = req.param('meetingId');
 
-    meetingsOps.deleteMeeting(meetingId)
+    logger.info('Want to delete meeting', roomEmail, meetingId);
+    meetingsOps.deleteMeeting(new Participant(roomEmail), meetingId)
                .then(() => res.json())
                .catch(error => {
                  sendGatewayError(error, res);

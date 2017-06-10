@@ -51,6 +51,7 @@ class PassThroughMeetingService implements MeetingsService {
   }
 
   deleteMeeting(owner: Participant, id: string): Promise<any> {
+    logger.info('deleting', id);
     return Promise.resolve();
   }
 
@@ -146,6 +147,7 @@ export class CachedMeetingService implements MeetingsService {
                  .deleteMeeting(meeting.owner, id)
                  .then(() => {
                    this.uncacheMeeting(id);
+                   resolve();
                  });
     });
   }

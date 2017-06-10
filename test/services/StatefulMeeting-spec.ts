@@ -66,7 +66,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
                                         redRoom)
                          .then((thing) => {
                            logger.debug('what is this?', thing);
-                           throw new Error('Should not be here!!!');
+                           throw new Error('WCOB should not be here!!!');
                          })
                          .catch(err => {
                            expect(err).to.be.eq('Found conflict');
@@ -80,7 +80,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
                                         bruceParticipant,
                                         redRoom)
                          .then(() => {
-                           throw new Error('Should not be here!!!');
+                           throw new Error('WCOA Should not be here!!!');
                          })
                          .catch(err => {
                            expect(err).to.be.eq('Found conflict');
@@ -120,7 +120,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('fails to delete non-existent room', function testDeleteOfNonexistent() {
-      meetingOps.deleteMeeting(redRoom.email, 'bogus').should.eventually.be.rejected;
+      meetingOps.deleteMeeting(redRoom, 'bogus').should.eventually.be.rejected;
     });
 
     it('has deletes all meetings', function testMeetingsAreEmpty() {
@@ -130,7 +130,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
        */
       return meetingOps.getMeetings(redRoom, start, end)
                         .then(meetings => {
-                          const deletePromises = meetings.map(meeting => meetingOps.deleteMeeting(redRoomId, meeting.id));
+                          const deletePromises = meetings.map(meeting => meetingOps.deleteMeeting(redRoom, meeting.id));
                           return Promise.all(deletePromises);
                         })
                         .then(() => meetingOps.getMeetings(redRoom, start, end)).should.eventually.be.empty;

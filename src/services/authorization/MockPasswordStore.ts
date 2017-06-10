@@ -20,8 +20,6 @@ Object.keys(testAppADusers).forEach(user => {
 });
 
 
-console.info('Password store users:', userPasswords);
-
 export class MockPasswordStore implements PasswordStore {
   getUserId(user: string): number {
     const details = userPasswords.get(user);

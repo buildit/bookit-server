@@ -21,12 +21,13 @@ export class MockRoomService implements RoomService, MutableRoomService {
 
   getRoomList(list: string): Promise<RoomList> {
     return new Promise((resolve, reject) => {
-      const rl = this._roomLists.find(rl => rl.name === list);
-      if (rl) {
-        return resolve(rl);
+      logger.info('room lists', this._roomLists, list);
+      const rl = this._roomLists.find(rl => rl.name === `${list}-rooms`);
+      if (!rl) {
+        throw new Error(`Unable to find room ${list}`);
       }
 
-      reject(`Unable to find room ${list}`);
+      resolve(rl);
     });
   }
 

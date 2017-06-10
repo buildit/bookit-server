@@ -79,12 +79,9 @@ export class MeetingsOps {
   }
 
 
-  deleteMeeting(id: string): Promise<any> {
-    return this.meetingsService.deleteMeeting(null, id);
+  deleteMeeting(owner: Participant, id: string): Promise<any> {
+    return this.meetingsService.deleteMeeting(owner, id);
   }
-
-
-
 
 
 }

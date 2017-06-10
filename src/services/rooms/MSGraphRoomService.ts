@@ -64,7 +64,7 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
         return filtered[0];
       }
 
-      throw new Error(`Unable to find room ${name}`);
+      throw new Error(`Unable to find room with name ${name}`);
     });
   }
 
@@ -76,7 +76,7 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
         return filtered[0];
       }
 
-      throw new Error(`Unable to find room ${mail}`);
+      throw new Error(`Unable to find room with email ${mail}`);
     });
   }
 
