@@ -40,12 +40,12 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
   const graphAPIParameters = env.graphAPIParameters;
 
   if (graphAPIParameters) {
-    const tokenOperations = new MSGraphTokenProvider(graphAPIParameters);
+    const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain);
 
     const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
 
     const createMockGroupService = (runtime: RuntimeConfig) => {
-      return generateRomanMockGroup(graphAPIParameters.domain);
+      return generateRomanMockGroup(env.domain.domainName);
     };
 
     const groupServiceFactory = graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;

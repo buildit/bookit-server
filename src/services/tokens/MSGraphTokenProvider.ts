@@ -2,7 +2,7 @@ import * as request from 'request';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {GraphAPIParameters} from '../../model/EnvironmentConfig';
+import {Domain, GraphAPIParameters} from '../../model/EnvironmentConfig';
 import {GraphTokenProvider} from './TokenProviders';
 
 
@@ -10,13 +10,13 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
 
-  constructor(private _conf: GraphAPIParameters, private _reuseTokens = false) {
+  constructor(private _conf: GraphAPIParameters, private _domain: Domain, private _reuseTokens = false) {
     this.tokenEndpoint = 'https://login.windows.net/' + _conf.tenantId + '/oauth2/token';
   }
 
 
   domain(): string {
-    return this._conf.domain;
+    return this._domain.domainName;
   }
 
 

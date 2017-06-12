@@ -29,15 +29,18 @@ export enum TestMode {
 export interface EnvironmentConfig {
   port?: number;
   graphAPIIdentity?: string;
+  domain?: Domain;
   graphAPIParameters?: GraphAPIParameters;
   testMode?: TestMode;
   jwtTokenSecret?: string;
 }
 
+export interface Domain {
+  domainName: string;
+}
 
 export interface GraphAPIParameters {
   identity: string;
-  domain: string;
   tenantId: string;
   clientId: string;
   clientSecret?: string;

@@ -10,14 +10,13 @@ import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingServi
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
 import {MSGraphDeviceService} from '../../services/devices/MSGraphDeviceService';
-import {token} from 'morgan';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 
 
 export function provideIntegrationRuntime(environment: EnvironmentConfig): RuntimeConfig {
   const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
   const graphAPIParameters = environment.graphAPIParameters;
-  const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, false);
+  const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, environment.domain, false);
 
   return new RuntimeConfig(environment.port,
                            new MockPasswordStore(),
