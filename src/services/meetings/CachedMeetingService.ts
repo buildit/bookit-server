@@ -25,13 +25,20 @@ const ROOM_CACHE_STRATEGY = new RoomCachingStrategy();
 
 class PassThroughMeetingService implements MeetingsService {
 
+  meetings: Meeting[];
+
+  constructor() {
+    this.meetings = new Array<Meeting>();
+  }
+
+
   domain() {
     return 'FIXME';
   }
 
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
-    return Promise.resolve(new Array<Meeting>());
+    return Promise.resolve(this.meetings);
   }
 
   createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
@@ -46,16 +53,21 @@ class PassThroughMeetingService implements MeetingsService {
         participants: [owner, room],
       };
 
+      this.meetings.push(meeting);
       resolve(meeting);
     });
   }
 
   deleteMeeting(owner: Participant, id: string): Promise<any> {
-    logger.info('deleting', id);
+    this.meetings = this.meetings.filter(meeting => meeting.id === id);
     return Promise.resolve();
   }
 
-  findMeeting(room: Room, meetingId: string, start: moment.Moment, end: moment.Moment): Promise<Meeting> {
+  findMeeting(room: Room, id: string, start: moment.Moment, end: moment.Moment): Promise<Meeting> {
+    const filtered = this.meetings.filter(meeting => meeting.id === id);
+    if (filtered.length) {
+      return Promise.resolve(filtered[0]);
+    }
     return Promise.reject('No actual underlying meetings');
   }
 }

@@ -1,5 +1,7 @@
 import * as moment from 'moment';
 
+import {RootLog as logger} from '../../utils/RootLogger';
+
 import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 import {generateMeetings} from '../../utils/data/EventGenerator';
 
@@ -10,7 +12,7 @@ import {MockUserService} from '../../services/users/MockUserService';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
-import {generateMSGroup, generateRomanNYCRoomList, generateRoomLists} from '../bootstrap/rooms';
+import {ROOM_COLORS, generateMSGroup, generateRomanNYCRoomList, generateRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
@@ -25,13 +27,14 @@ import {GroupService, MSGroup} from '../../services/groups/GroupService';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 
 
-function generateRomanMockGroup(domain: string) {
+function generateMockGroup(domain: string): GroupService {
   const group = generateMSGroup('nyc', domain);
   const rooms = generateRomanNYCRoomList(domain);
 
   const map = new Map<string, MSUser[]>();
   map.set(group.id, rooms);
 
+  logger.info('Using MockGroupServer');
   return new MockGroupService([group], map);
 }
 
@@ -45,7 +48,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
     const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
 
     const createMockGroupService = (runtime: RuntimeConfig) => {
-      return generateRomanMockGroup(env.domain.domainName);
+      return generateMockGroup(env.domain.domainName);
     };
 
     const groupServiceFactory = graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;
@@ -70,8 +73,10 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      jwtTokenProvider,
                                      () => new MockDeviceService(),
                                      () => new MockUserService(),
-                                     () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
-                                     () => new MockRoomService(generateRoomLists()),
+                                     () => {
+                                       return generateMockGroup(env.domain.domainName);
+                                     },
+                                     () => new MockRoomService(generateRoomLists(ROOM_COLORS, env.domain.domainName)),
                                      (config) => new CachedMeetingService(config.roomService));
 
     generateMeetings(config.roomService, config.meetingService, moment().add(-1, 'days'), moment().add(1, 'week'));

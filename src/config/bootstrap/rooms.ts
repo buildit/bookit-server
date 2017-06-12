@@ -3,26 +3,26 @@ import {MSGroup} from '../../services/groups/GroupService';
 import {MSUser} from '../../services/users/UserService';
 
 
-function produceEWSSuffix() {
-  return 'room@myews.onmicrosoft.com';
-}
-
-
-function makeEWSRoom(name: string) {
-  return makeRoom(name);
-}
-
-
 let counter = 1;
 
 
-function makeRoom(color: string, suffixProducer: () => string = produceEWSSuffix): Room {
-  const mail = `${color.toLowerCase()}-${suffixProducer()}`;
+export function getEmail(name: string, domain: string) {
+  return `${name.toLowerCase()}@${domain}.onmicrosoft.com`;
+}
+
+
+export function getRoomEmail(name: string, domain: string) {
+  return getEmail(`${name}-room`, domain);
+}
+
+
+function makeRoom(color: string, domain: string): Room {
+  const mail = getRoomEmail(color, domain);
   return {id: '' + counter++, name: color, mail, email: mail};
 }
 
 
-const roomColors = [
+export const ROOM_COLORS = [
   'Red',
   'Green',
   'White',
@@ -32,16 +32,6 @@ const roomColors = [
   'Cyan',
   'Magenta'
 ];
-
-
-export function getEmail(name: string, domain: string) {
-  return `${name.toLowerCase()}@${domain}.onmicrosoft.com`;
-}
-
-
-export function getRoomEmail(name: string, domain: string) {
-  return `${name.toLowerCase()}-room@${domain}.onmicrosoft.com`;
-}
 
 
 export function generateMSGroup(name: string, domain: string): MSGroup {
@@ -54,59 +44,39 @@ export function generateMSGroup(name: string, domain: string): MSGroup {
 }
 
 
-export function generateRomanNYCRoomList(domain: string, roomNames: string[] = roomColors) {
+export function generateRomanNYCRoomList(domain: string, roomNames: string[] = ROOM_COLORS) {
   return roomNames.map(room => generateMSResource(room, domain));
 }
 
 
 export function generateMSResource(name: string, domain: string): MSUser {
-  return {
-    id: 'room' + counter++,
-    description: 'auto-generated room resource',
-    displayName: name,
-    mail: getRoomEmail(name, domain)
-  };
+  return new MSUser('room' + counter++, name, 'auto-generated room resource', getRoomEmail(name, domain));
 }
 
 
-export function generateRoomLists(roomNames: string[] = roomColors,
-                                  producer: (name: string) => Room = makeEWSRoom): RoomList[] {
-  const rooms = roomNames.map(producer);
+export function generateRoomLists(roomNames: string[],
+                                  domain: string): RoomList[] {
+  const rooms = roomNames.map(name => generateMSResource(name, domain));
 
   return [
     {
       id: '1',
-      name: 'nyc',
+      name: 'nyc-rooms',
       rooms
     }
   ];
 }
 
 
-export function generateUnitRoomLists(): RoomList[] {
+export function generateTestRoomLists(domain: string): RoomList[] {
   return [
     {
       id: '1',
       name: 'nyc-rooms',
       rooms: [
-        new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
-        new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),
-        new Room('3', 'white', 'white-room@myews.onmicrosoft.com'),
-      ]
-    }
-  ];
-}
-
-
-export function generateIntegrationRoomLists(): RoomList[] {
-  return [
-    {
-      id: '1',
-      name: 'nyc-rooms',
-      rooms: [
-        new Room('1', 'red', 'red-room@myews.onmicrosoft.com'),
-        new Room('2', 'black', 'black-room@myews.onmicrosoft.com'),
-        new Room('3', 'white', 'white-room@myews.onmicrosoft.com'),
+        generateMSResource('red', domain),
+        generateMSResource('black', domain),
+        generateMSResource('white', domain),
       ]
     }
   ];

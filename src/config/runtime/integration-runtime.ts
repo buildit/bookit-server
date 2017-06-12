@@ -3,7 +3,7 @@ import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 import {MSGraphTokenProvider} from '../../services/tokens/MSGraphTokenProvider';
 
 import {RuntimeConfig} from '../../model/RuntimeConfig';
-import {generateIntegrationRoomLists} from '../bootstrap/rooms';
+import {generateTestRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
@@ -25,7 +25,7 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
                            () => new MSGraphDeviceService(tokenOperations),
                            () => new MSGraphUserService(tokenOperations),
                            () => new MSGraphGroupService(tokenOperations),
-                           () => new MockRoomService(generateIntegrationRoomLists()),
+                           () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
                            () => {
                              return new MSGraphMeetingService(tokenOperations);
                            });

@@ -3,7 +3,7 @@ import {RuntimeConfig} from '../../model/RuntimeConfig';
 
 import {MockUserService} from '../../services/users/MockUserService';
 
-import {generateUnitRoomLists} from '../bootstrap/rooms';
+import {generateTestRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
@@ -25,6 +25,6 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            () => new MockDeviceService(),
                            () => new MockUserService(),
                            () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
-                           () => new MockRoomService(generateUnitRoomLists()),
+                           () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
                            (config) => new CachedMeetingService(config.roomService));
 }
