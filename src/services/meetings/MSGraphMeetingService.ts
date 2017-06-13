@@ -66,8 +66,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       attendees
     };
 
-    console.info('Meeting payload', eventData);
-    return this.client.api(`/users/${owner.email}/calendar/events`)
+    const URL = `/users/${owner.email}/calendar/events`;
+    console.info('POST', URL, eventData);
+    return this.client.api(URL)
                .post(eventData)
                .then(meeting => MSGraphMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
   }
@@ -86,9 +87,29 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
+  cancelMeeting(owner: Participant, id: string): Promise<any> {
+    const URL = `/users/${owner.email}/calendar/events/${id}/cancel`;
+    console.info('BOOK IT CANCEL', URL);
+    return this.client
+               .api(URL)
+               .post({'Comment': 'BookIt canceling meeting'})
+               .then((result) => {
+                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
+                 return result;
+               }) as Promise<any>;
+  }
+
+
   deleteMeeting(owner: Participant, id: string): Promise<any> {
-    console.info('Want to delete', owner, id);
-    return this.client.api(`/users/${owner.email}/calendar/events/${id}`).delete() as Promise<any>;
+    const URL = `/users/${owner.email}/calendar/events/${id}`;
+    console.info('BOOK IT DELETE', URL);
+    return this.client
+               .api(URL)
+               .delete()
+               .then((result) => {
+                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
+                 return result;
+               }) as Promise<any>;
   }
 
 

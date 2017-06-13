@@ -6,6 +6,7 @@ import {invokeIfUnset} from '../utils/validation';
 import {PasswordStore} from '../services/authorization/PasswordStore';
 import {DeviceService} from '../services/devices/DeviceService';
 import {GroupService} from '../services/groups/GroupService';
+import {Domain} from './EnvironmentConfig';
 
 
 export type DeviceServiceFactory = (config: RuntimeConfig) => DeviceService;
@@ -30,6 +31,7 @@ export class RuntimeConfig {
    */
 
   constructor(port: number,
+              private _domain: Domain,
               private _passwordStore: PasswordStore,
               private _graphTokenProvider: GraphTokenProvider,
               private _jwtTokenProvider: JWTTokenProvider,
@@ -44,6 +46,11 @@ export class RuntimeConfig {
 
   get port() {
     return this._port;
+  }
+
+
+  get domain() {
+    return this._domain;
   }
 
 

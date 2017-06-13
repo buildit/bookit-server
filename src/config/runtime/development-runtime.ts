@@ -54,6 +54,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
     const groupServiceFactory = graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;
 
     return new RuntimeConfig(env.port,
+                             env.domain,
                              new MockPasswordStore(),
                              tokenOperations,
                              jwtTokenProvider,
@@ -63,11 +64,12 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
                                const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
-                               return new CachedMeetingService(runtime.roomService, cloudMeetingService);
+                               return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
                              });
   } else {
 
     const config = new RuntimeConfig(env.port,
+                                     env.domain,
                                      new MockPasswordStore(),
                                      new MockGraphTokenProvider(),
                                      jwtTokenProvider,
@@ -77,7 +79,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                        return generateMockGroup(env.domain.domainName);
                                      },
                                      () => new MockRoomService(generateRoomLists(ROOM_COLORS, env.domain.domainName)),
-                                     (config) => new CachedMeetingService(config.roomService));
+                                     (config) => new CachedMeetingService(env.domain, config.roomService));
 
     generateMeetings(config.roomService, config.meetingService, moment().add(-1, 'days'), moment().add(1, 'week'));
 

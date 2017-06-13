@@ -107,4 +107,37 @@ describe('participant caching suite', function filterSuite() {
     expect(zacList[0].id).to.be.equal('5');
   });
 
+  it('un-caches by participant strategy properly', function testParticipantCaching() {
+    function mapToSet(meetings: Meeting[]) {
+      return new Set(meetings.map(m => m.id));
+    }
+
+    const cache = new Map<string, Meeting[]>();
+    const participantCacher = new ParticipantsCachingStrategy();
+
+    [first, second, third, fourth, fifth].forEach(meeting => participantCacher.put(cache, meeting));
+
+    participantCacher.remove(cache, first);
+
+    expect(mapToSet(participantCacher.get(cache, 'andrew@wipro.com')).has('1')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'paul@wipro.com')).has('1')).to.be.false;
+
+    participantCacher.remove(cache, second);
+
+    expect(mapToSet(participantCacher.get(cache, 'andrew@wipro.com')).has('2')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'alex@wipro.com')).has('2')).to.be.false;
+
+    participantCacher.remove(cache, third);
+    expect(mapToSet(participantCacher.get(cache, 'alex@wipro.com')).has('3')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'paul@wipro.com')).has('3')).to.be.false;
+
+    participantCacher.remove(cache, fourth);
+    expect(mapToSet(participantCacher.get(cache, 'alex@wipro.com')).has('4')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'paul@wipro.com')).has('4')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'andrew@wipro.com')).has('4')).to.be.false;
+
+    participantCacher.remove(cache, fifth);
+    expect(mapToSet(participantCacher.get(cache, 'andrew@wipro.com')).has('5')).to.be.false;
+    expect(mapToSet(participantCacher.get(cache, 'zac@wipro.com')).has('5')).to.be.false;
+  });
 });

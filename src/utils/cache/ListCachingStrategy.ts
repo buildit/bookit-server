@@ -1,3 +1,4 @@
+import {RootLog as logger} from '../../utils/RootLogger';
 
 import {CachingStrategy} from './CachingStrategy';
 
@@ -22,6 +23,7 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
 
   remove(cache: Map<string, Type[]>, item: Type): boolean {
     const key = this.getKey(item);
+    logger.info('Will remove by key', key);
     return this.removeKey(cache, key, item);
   }
 
@@ -53,7 +55,7 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
       return false;
     }
 
-    const filtered = existing.filter(meeting => { return this.areIdentical(meeting, item); });
+    const filtered = existing.filter(some => { return !this.areIdentical(some, item); });
     if (filtered.length) {
       cache.set(key, filtered);
       return true;

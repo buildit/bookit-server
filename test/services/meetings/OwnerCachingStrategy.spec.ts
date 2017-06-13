@@ -4,6 +4,7 @@ import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
 import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
+import {RootLog as logger} from '../../../src/utils/RootLogger';
 
 /*
  export class Meeting {
@@ -24,7 +25,7 @@ const alex = new Participant('alex@wipro.com');
 
 const redRoom = {displayName: 'Red'};
 
-const first: Meeting = {
+const andrewFirst: Meeting = {
   id: '1',
   title: 'My first meeting',
   owner: andrew,
@@ -34,7 +35,7 @@ const first: Meeting = {
   end: moment(),
 };
 
-const second: Meeting = {
+const alexFirst: Meeting = {
   id: '2',
   title: 'My second meeting',
   owner: alex,
@@ -44,7 +45,7 @@ const second: Meeting = {
   end: moment(),
 };
 
-const third: Meeting = {
+const paulFirst: Meeting = {
   id: '3',
   title: 'My third meeting',
   owner: paul,
@@ -54,7 +55,7 @@ const third: Meeting = {
   end: moment(),
 };
 
-const fourth: Meeting = {
+const alexSecond: Meeting = {
   id: '4',
   title: 'My fourth meeting',
   owner: alex,
@@ -64,13 +65,14 @@ const fourth: Meeting = {
   end: moment(),
 };
 
+
 describe('owner caching suite', function filterSuite() {
-  it('caches by owner', function testFilterById() {
+  it('caches by owner', function testCacheByOwner() {
 
     const cache = new Map<string, Meeting[]>();
     const ownerCacher = new OwnerCachingStrategy();
 
-    [first, second, third, fourth].forEach(meeting => ownerCacher.put(cache, meeting));
+    [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
 
     const andrewList = ownerCacher.get(cache, 'andrew@wipro.com');
     expect(andrewList.length).to.be.equal(1);
@@ -81,9 +83,35 @@ describe('owner caching suite', function filterSuite() {
     expect(alexList[0].title).to.be.equal('My second meeting');
     expect(alexList[1].title).to.be.equal('My fourth meeting');
 
-    const paulList = ownerCacher.get(cache, 'andrew@wipro.com');
+    const paulList = ownerCacher.get(cache, 'paul@wipro.com');
     expect(paulList.length).to.be.equal(1);
-    expect(paulList[0].title).to.be.equal('My first meeting');
+    expect(paulList[0].title).to.be.equal('My third meeting');
+  });
+
+
+  it('un-caches by owner', function testUnCacheByOwner() {
+
+    const cache = new Map<string, Meeting[]>();
+    const ownerCacher = new OwnerCachingStrategy();
+
+    [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
+
+    ownerCacher.remove(cache, andrewFirst);
+    const andrewList = ownerCacher.get(cache, 'andrew@wipro.com');
+    logger.info('', andrewList);
+    expect(andrewList).to.be.undefined;
+
+    ownerCacher.remove(cache, alexFirst);
+    const alexList = ownerCacher.get(cache, 'alex@wipro.com');
+    expect(alexList.length).to.be.equal(1);
+
+    ownerCacher.remove(cache, alexSecond);
+    const alexList2 = ownerCacher.get(cache, 'alex@wipro.com');
+    expect(alexList2).to.be.undefined;
+
+    ownerCacher.remove(cache, paulFirst);
+    const paulList = ownerCacher.get(cache, 'paul@wipro.com');
+    expect(paulList).to.be.undefined;
   });
 
 });

@@ -37,7 +37,7 @@ export const ROOM_COLORS = [
 export function generateMSGroup(name: string, domain: string): MSGroup {
   return {
       id: 'room group' + counter++,
-      description: 'auto-generated room',
+      description: 'auto-generated group',
       displayName: `${name}-rooms`,
       mail: getRoomEmail(name, domain)
   };
@@ -45,18 +45,23 @@ export function generateMSGroup(name: string, domain: string): MSGroup {
 
 
 export function generateRomanNYCRoomList(domain: string, roomNames: string[] = ROOM_COLORS) {
-  return roomNames.map(room => generateMSResource(room, domain));
+  return roomNames.map(room => generateMSRoomResource(room, domain));
 }
 
 
-export function generateMSResource(name: string, domain: string): MSUser {
+export function generateMSUserResource(name: string, domain: string): MSUser {
+  return new MSUser('user' + counter++, name, 'auto-generated user resource', getEmail(name, domain));
+}
+
+
+export function generateMSRoomResource(name: string, domain: string): MSUser {
   return new MSUser('room' + counter++, name, 'auto-generated room resource', getRoomEmail(name, domain));
 }
 
 
 export function generateRoomLists(roomNames: string[],
                                   domain: string): RoomList[] {
-  const rooms = roomNames.map(name => generateMSResource(name, domain));
+  const rooms = roomNames.map(name => generateMSRoomResource(name, domain));
 
   return [
     {
@@ -74,9 +79,9 @@ export function generateTestRoomLists(domain: string): RoomList[] {
       id: '1',
       name: 'nyc-rooms',
       rooms: [
-        generateMSResource('red', domain),
-        generateMSResource('black', domain),
-        generateMSResource('white', domain),
+        generateMSRoomResource('red', domain),
+        generateMSRoomResource('black', domain),
+        generateMSRoomResource('white', domain),
       ]
     }
   ];

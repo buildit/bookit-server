@@ -19,6 +19,7 @@ import {Meeting} from '../../src/model/Meeting';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {UserDetail} from '../../src/rest/auth_routes';
 import {Room} from '../../src/model/Room';
+import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
@@ -31,8 +32,8 @@ const app = configureRoutes(express(),
                             Runtime.userService,
                             meetingService);
 
-const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
-const room = new Room('1', 'White', 'white-room@myews.onmicrosoft.com');
+const owner = generateMSUserResource('romans', Runtime.meetingService.domain());
+const room = generateMSRoomResource('White', Runtime.meetingService.domain());
 
 
 describe('meeting routes operations', function testMeetingRoutes() {

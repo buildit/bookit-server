@@ -12,9 +12,10 @@ import {ParticipantsCachingStrategy} from './ParticipantsCachingStrategy';
 import {OwnerCachingStrategy} from './OwnerCachingStrategy';
 import {RoomCachingStrategy} from './RoomCachingStrategy';
 import {Room} from '../../model/Room';
+import {Domain} from '../../model/EnvironmentConfig';
 
 
-// const DEFAULT_REFRESH = 120 * 1000;
+// const DEFAULT_REFRESH = 1200 * 1000;
 const DEFAULT_REFRESH = 5 * 1000;
 
 const ID_CACHE_STRATEGY = new IdCachingStrategy();
@@ -27,13 +28,13 @@ class PassThroughMeetingService implements MeetingsService {
 
   meetings: Meeting[];
 
-  constructor() {
+  constructor(private _domain: string) {
     this.meetings = new Array<Meeting>();
   }
 
 
   domain() {
-    return 'FIXME';
+    return this._domain;
   }
 
 
@@ -90,8 +91,9 @@ export class CachedMeetingService implements MeetingsService {
   private participantCache = new Map<string, Meeting[]>();
 
 
-  constructor(private roomService: RoomService,
-              private delegatedMeetingsService: MeetingsService = new PassThroughMeetingService()) {
+  constructor(private _domain: Domain,
+              private roomService: RoomService,
+              private delegatedMeetingsService?: MeetingsService) {
 
     const _internalRefresh = () => {
       logger.info('Refreshing meetings now...');
@@ -100,6 +102,9 @@ export class CachedMeetingService implements MeetingsService {
       this.refreshCache(start, end);
     };
 
+    if (!delegatedMeetingsService) {
+      this.delegatedMeetingsService = new PassThroughMeetingService(_domain.domainName);
+    }
     logger.info('Constructing CachedMeetingService');
     _internalRefresh();
     this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH);
@@ -117,14 +122,14 @@ export class CachedMeetingService implements MeetingsService {
       const owner = room.email;
       const roomName = room.name;
       const participantMeetings = PARTICIPANTS_CACHE_STRATEGY.get(this.participantCache, owner);
-      logger.info('For participant:', owner, 'found:', participantMeetings);
+      logger.info('For participant:', owner, 'found:', participantMeetings.map(m => m.id));
       const roomMeetings = ROOM_CACHE_STRATEGY.get(this.roomCache, roomName);
-      logger.info('For room:', roomName, 'found:', roomMeetings);
+      // logger.info('For room:', roomName, 'found:', roomMeetings);
 
       const allMeetings = [...(participantMeetings || []), ...(roomMeetings || [])];
       const meetings =  allMeetings || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.info('Filtered to:', filtered);
+      // logger.info('Filtered to:', filtered);
 
       resolve(filtered);
     });
@@ -155,9 +160,11 @@ export class CachedMeetingService implements MeetingsService {
         throw new Error(`Unable to find meeting id: ${id}`);
       }
 
+      logger.info('Will CANCEL meeting from owner', meeting.owner);
       return this.delegatedMeetingsService
                  .deleteMeeting(meeting.owner, id)
                  .then(() => {
+                   logger.info('MS Graph returned');
                    this.uncacheMeeting(id);
                    resolve();
                  });

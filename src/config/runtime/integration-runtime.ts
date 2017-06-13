@@ -19,6 +19,7 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
   const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, environment.domain, false);
 
   return new RuntimeConfig(environment.port,
+                           environment.domain,
                            new MockPasswordStore(),
                            tokenOperations,
                            jwtTokenProvider,

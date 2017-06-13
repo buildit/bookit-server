@@ -19,6 +19,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
   const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
 
   return new RuntimeConfig(environment.port,
+                           environment.domain,
                            new MockPasswordStore(),
                            new MockGraphTokenProvider(),
                            jwtTokenProvider,
@@ -26,5 +27,5 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            () => new MockUserService(),
                            () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
-                           (config) => new CachedMeetingService(config.roomService));
+                           (config) => new CachedMeetingService(environment.domain, config.roomService));
 }
