@@ -13,4 +13,10 @@ export interface MeetingsService {
   deleteMeeting(owner: Participant, id: string): Promise<any>;
 
   findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting>;
+
+  /**
+   * this is a catch all hack to quickly test the MS API without having to modify the full MeetingService interface
+   * @param test
+   */
+  doSomeShiznit(test: any): Promise<any>;
 }

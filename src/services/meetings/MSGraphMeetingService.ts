@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
+import * as request from 'superagent';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {findById, Meeting} from '../../model/Meeting';
@@ -22,55 +23,49 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
     const endDateTime = end.toISOString();
-    return this.client
-               .api(`/users/${room.email}/calendar/calendarView`)
-               .select('id,subject,organizer,attendees,location,start,end')
-               .query({startDateTime, endDateTime})
-               .get()
-               .then(response => {
-                 // logger.debug('Found meetings for ', email, start, end, response);
-                 return response.value.map((meeting: any) => MSGraphMeetingService.mapMeeting(meeting));
-               }, err => {
-                 console.error(err);
-                 return [];
-               }) as Promise<Meeting[]>;
 
+
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get('https://graph.microsoft.com/v1.0/users/' + room.email + '/calendar/calendarView')
+                   .set('Authorization', `Bearer ${token}`)
+                   .query({startDateTime, endDateTime})
+                   .end((error, response) => {
+                     if (error) {
+                       reject(new Error(error));
+                     }
+
+                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
+
+                     resolve(meetings);
+                   });
+          });
+    });
   }
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-    const participants = [room];
-    const attendees = participants.map(participant => (
-      {
-        type: 'required',
-        emailAddress: {
-          name: participant.name,
-          address: participant.email
-        }
-      }
-    ));
+    const eventData = MSGraphMeetingService._generateEventPayload(subj, start, duration, owner, room);
 
-    const eventData = {
-      originalStartTimeZone: 'UTC',
-      originalEndTimeZone: 'UTC',
-      subject: subj,
-      sensitivity: 'normal',
-      isAllDay: false,
-      responseRequested: true,
-      showAs: 'busy',
-      type: 'singleInstance',
-      body: {contentType: 'text', content: 'hello from helper'},
-      start: {dateTime: moment.utc(start), timeZone: 'UTC'},
-      end: {dateTime: moment.utc(start.clone().add(duration)), timeZone: 'UTC'},
-      location: {displayName: room.name, address: {}},
-      attendees
-    };
-
-    const URL = `/users/${owner.email}/calendar/events`;
+    const URL = `https://graph.microsoft.com/v1.0/users/${owner.email}/calendar/events`;
     console.info('POST', URL, eventData);
-    return this.client.api(URL)
-               .post(eventData)
-               .then(meeting => MSGraphMeetingService.mapMeeting(meeting)) as Promise<Meeting>;
+
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.post(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .send(eventData)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(new Error(error));
+                     }
+                     logger.info('got response meeting', response.body.value);
+                     resolve(MSGraphMeetingService._mapMeeting(response.body.value));
+                   });
+          });
+    });
   }
 
 
@@ -87,7 +82,59 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  cancelMeeting(owner: Participant, id: string): Promise<any> {
+  deleteMeeting(owner: Participant, id: string): Promise<any> {
+    return this._deleteMeeting(owner, id);
+  }
+
+
+  doSomeShiznit(test: any): Promise<any> {
+    const meeting = test as Meeting;
+
+    const eventData = MSGraphMeetingService._generateEventPayload(meeting.title,
+                                                                  meeting.start,
+                                                                  moment.duration(1, 'minute'),
+                                                                  meeting.owner,
+                                                                  meeting.owner);
+    eventData.id = meeting.id;
+    eventData.isCancelled = true;
+
+    const URL = `/users/${meeting.owner.email}/calendar/events`;
+    return this.client.api(URL)
+               .post(eventData)
+               .then(meeting => MSGraphMeetingService._mapMeeting(meeting)) as Promise<Meeting>;
+  }
+
+
+  private static _generateEventPayload(subj: string, start: Moment, duration: Duration, owner: Participant,
+                                       room: Room): any {
+    const participants = [room];
+    const attendees = participants.map(MSGraphMeetingService._mapToRequiredEmailAddress);
+
+    return {
+      originalStartTimeZone: 'UTC',
+      originalEndTimeZone: 'UTC',
+      subject: subj,
+      sensitivity: 'normal',
+      isAllDay: false,
+      responseRequested: true,
+      showAs: 'busy',
+      type: 'singleInstance',
+      isOrganizer: true,
+      body: {contentType: 'text', content: 'This meeting was auto-generated by BookIt'},
+      start: {dateTime: moment.utc(start), timeZone: 'UTC'},
+      end: {dateTime: moment.utc(start.clone().add(duration)), timeZone: 'UTC'},
+      location: {displayName: room.name, address: {}},
+      organizer: MSGraphMeetingService._mapToEmailAddress(owner),
+      attendees
+    };
+  }
+
+  /*
+  The various cancels/declines/etc will be promoted to proper calls in the interface.  Also, we will be gutting
+  the client.api stuff
+   */
+
+  private _cancelMeeting(owner: Participant, id: string): Promise<any> {
     const URL = `/users/${owner.email}/calendar/events/${id}/cancel`;
     console.info('BOOK IT CANCEL', URL);
     return this.client
@@ -100,12 +147,12 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
-    const URL = `/users/${owner.email}/calendar/events/${id}`;
-    console.info('BOOK IT DELETE', URL);
+  private _cancelViaUpdate(owner: Participant, id: string): Promise<any> {
+    const URL = `/users/${owner.email}/calendar/events/${id}/update`;
+    console.info('BOOK IT CANCEL', URL);
     return this.client
                .api(URL)
-               .delete()
+               .patch({'Comment': 'BookIt canceling meeting'})
                .then((result) => {
                  logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
                  return result;
@@ -113,15 +160,60 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  private static mapMeeting(meeting: any): Meeting {
+  private _declineMeeting(owner: Participant, id: string): Promise<any> {
+    const URL = `/users/${owner.email}/calendar/events/${id}/decline`;
+    console.info('BOOK IT DECLINE', URL);
+    return this.client
+               .api(URL)
+               .post({'sendResponse': true})
+               .then((result) => {
+                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
+                 return result;
+               }) as Promise<any>;
+  }
+
+
+  private _deleteMeeting(owner: Participant, id: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.delete('https://graph.microsoft.com/v1.0/users/' + owner.email + '/calendar/events/' + id)
+                   .set('Authorization', `Bearer ${token}`)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(new Error(error));
+                     }
+                     resolve('Deleted the event');
+                   });
+          });
+    });
+  }
+
+
+  private static _mapToEmailAddress(participant: Participant): any {
+    return {
+      emailAddress: {
+        name: participant.name,
+        address: participant.email
+      }
+    };
+  };
+
+
+  private static _mapToRequiredEmailAddress(participant: Participant) {
+    const emailAddress = MSGraphMeetingService._mapToEmailAddress(participant);
+    emailAddress.type = 'required';
+
+    return emailAddress;
+  };
+
+
+  private static _mapMeeting(meeting: any): Meeting {
     const mapToParticipant = (attendee: any) => {
-      return {
-        name: attendee.emailAddress.name,
-        email: attendee.emailAddress.address
-      };
+      return new Participant(attendee.emailAddress.address, attendee.emailAddress.name);
     };
 
-    logger.debug('Source meeting', meeting);
+    // logger.info('Source meeting', meeting);
     logger.debug('Meeting attendee', meeting.attendees);
     logger.debug('Meeting location', meeting.location);
 
@@ -137,7 +229,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.debug('Mapped meeting', mappedMeeting);
+    logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }

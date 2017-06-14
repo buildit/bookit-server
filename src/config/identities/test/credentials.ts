@@ -1,7 +1,8 @@
 import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
-  domainName: 'designitcontoso'
+  domainName: 'designitcontoso',
+  sites: ['nyc']
 };
 
 export const creds: GraphAPIParameters = {
@@ -12,8 +13,9 @@ export const creds: GraphAPIParameters = {
 
 export const testAppADusers = {
   'black-room@designitcontoso.onmicrosoft.com': 'Jugo11744',
-  'blue@designitcontoso.onmicrosoft.com': 'Kuho05384',
+  'blue-room@designitcontoso.onmicrosoft.com': 'Kuho05384',
   'bruce@designitcontoso.onmicrosoft.com': 'Xoju09274',
   'roo@designitcontoso.onmicrosoft.com': 'Kuxa60135',
-  'red@designitcontoso.onmicrosoft.com': 'Qofu46604'
+  'red-room@designitcontoso.onmicrosoft.com': 'Qofu46604',
+  'roboto@designitcontoso.onmicrosoft.com': 'Toko5038'
 };

@@ -1,7 +1,8 @@
 import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
-  domainName: 'digitalbuildit'
+  domainName: 'digitalbuildit',
+  sites: ['nyc']
 };
 
 

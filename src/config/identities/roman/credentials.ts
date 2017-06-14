@@ -1,7 +1,8 @@
 import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
-  domainName: 'myews'
+  domainName: 'myews',
+  sites: ['nyc']
 };
 
 export const creds: GraphAPIParameters = {

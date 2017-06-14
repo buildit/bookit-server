@@ -14,7 +14,7 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
 
 
   getGroups(): Promise<MSGroup[]> {
-    logger.info('getting groups');
+    logger.debug('getting groups');
     return this.client
                .api('/groups')
                // .select('id,displayName,mail')
@@ -24,7 +24,7 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
 
 
   getGroupMembers(id: string): Promise<MSUser[]> {
-    logger.info('getting group members', id);
+    logger.debug('getting group members', id);
     return this.client
                .api(`/groups/${id}/members`)
                .get()

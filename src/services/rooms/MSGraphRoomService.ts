@@ -85,7 +85,7 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
     return this._groupService.getGroups()
                .then(groups => {
                  // assume that the groups of rooms have '-rooms' in the name
-                 logger.info('Found groups', groups.map(group => group.displayName));
+                 logger.debug('Found groups', groups.map(group => group.displayName));
 
                  return groups.filter((group) => group.displayName.indexOf('-rooms'));
                });
@@ -103,7 +103,7 @@ export class MSGraphRoomService extends MSGraphBase implements RoomService {
 
 
   private getRooms(roomGroupId: string): Promise<Room[]> {
-    logger.info(`getting rooms for room id'${roomGroupId}`);
+    logger.debug(`getting rooms for room id '${roomGroupId}'`);
     return this._groupService
                .getGroupMembers(roomGroupId)
                .then(users => {

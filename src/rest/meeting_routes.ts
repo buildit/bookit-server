@@ -25,7 +25,7 @@ function extractRoomListName(req: Request): string {
 
 // Services
 export function  getCurrentUser(domain: string = 'myews'): Participant {
-  return {name: 'Comes from the session!!!', email: `bruce@${domain}.onmicrosoft.com`};
+  return new Participant(`bruce@${domain}.onmicrosoft.com`);
 }
 
 

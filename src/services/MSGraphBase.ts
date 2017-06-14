@@ -3,7 +3,7 @@ import {Client} from '@microsoft/microsoft-graph-client';
 import {GraphTokenProvider} from './tokens/TokenProviders';
 
 /**
- * A base class for encapsulating required
+ * This class will eventually be changed to not use the MS Graph Client as it is problematic
  */
 export class MSGraphBase {
 
@@ -14,7 +14,7 @@ export class MSGraphBase {
    The type should stay cloud based as it's unlikely that part of cloud base we'd want to use anything other than
    a cloud token provider
    */
-  constructor(private tokenOperations: GraphTokenProvider) {
+  constructor(protected tokenOperations: GraphTokenProvider) {
   }
 
 
@@ -35,7 +35,7 @@ export class MSGraphBase {
     };
 
     return Client.init({
-      debugLogging: false,
+      debugLogging: true,
       authProvider: authProviderCallback
     });
   }

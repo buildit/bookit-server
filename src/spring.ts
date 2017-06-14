@@ -1,26 +1,31 @@
+import * as moment from 'moment';
 import {RootLog as logger} from './utils/RootLogger';
 
 import {Runtime} from './config/runtime/configuration';
 import {Room, RoomList} from './model/Room';
+import {Participant} from './model/Participant';
+import {generateMSRoomResource, generateMSUserResource} from './config/bootstrap/rooms';
+import {Meeting} from './model/Meeting';
 
 logger.info('Spring: starting up');
 
 const userService = Runtime.userService;
 const groupService = Runtime.groupService;
 const roomService = Runtime.roomService;
+const meetingService = Runtime.meetingService;
 
-function testGetUser() {
-  userService.getUsers()
-             .then(users => {
-               logger.info('', users);
-               return Promise.all(users.map(user => userService.getDevices(user.id)));
-             })
-             .then(response => {
-               logger.info('', response);
-             })
-             .catch(error => {
-               logger.error(error);
-             });
+function testGetUsers() {
+  return userService.getUsers()
+                    .then(users => {
+                      logger.info('', users);
+                      return Promise.all(users.map(user => userService.getDevices(user.id)));
+                    })
+                    .then(response => {
+                      logger.info('', response);
+                    })
+                    .catch(error => {
+                      logger.error(error);
+                    });
 }
 
 function testGetDevices() {
@@ -61,5 +66,36 @@ function testGetRooms() {
              });
 }
 
-// testGetGroups();
-testGetRooms();
+
+async function testMeetingCreate() {
+  const owner = new Participant('bruce@designitcontoso.onmicrosoft.com');
+  const room = generateMSRoomResource('Red', 'designitcontoso');
+  const start = moment().startOf('hour').add(1, 'hour');
+  const duration = moment.duration(1, 'hour');
+
+  logger.info('start time', start);
+
+  return meetingService.createMeeting(`Springboard meeting at ${start}`, start, duration, owner, room);
+}
+
+
+async function testMeetingDelete(meeting: Meeting) {
+  const owner = new Participant('bruce@designitcontoso.onmicrosoft.com');
+  // const room = generateMSRoomResource('Red', 'designitcontoso');
+  // const start = moment().startOf('day').subtract(1, 'day');
+  // const end = moment().startOf('day').add(1, 'day');
+
+  logger.info('Meetings', meeting);
+  return meetingService.deleteMeeting(owner, meeting.id);
+}
+
+testMeetingCreate().then(meeting => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      testMeetingDelete(meeting).then(resolve);
+    }, 7500);
+  });
+}).then(() => {
+  logger.info('Done');
+});
+// testGetUsers();
