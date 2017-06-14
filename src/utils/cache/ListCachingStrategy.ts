@@ -1,4 +1,4 @@
-import {RootLog as logger} from '../../utils/RootLogger';
+import {RootLog as logger} from '../RootLogger';
 
 import {CachingStrategy} from './CachingStrategy';
 
@@ -29,38 +29,46 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
 
 
   putKey(cache: Map<string, Type[]>, key: string, toCache: Type): Type[] {
+    logger.trace('Putting key', key, 'identity', this.getIdentityMapper(toCache));
     const existing = cache.get(key);
     if (!existing) {
       const list = [toCache];
       cache.set(key, list);
+      logger.trace('New list for key', key, list.length);
       return list;
     }
 
     if (existing.length) {
+      logger.trace('Existing list', key, 'size', existing.length);
       const found = existing.some(item => { return this.areIdentical(item, toCache); });
       if (found) {
-        return;
+        return existing;
       }
     }
 
     existing.push(toCache);
+    logger.trace('Adding to list', key, 'size', existing.length);
 
     return existing;
   }
 
 
-  removeKey(cache: Map<string, Type[]>, key: string, item: Type): boolean {
+  removeKey(cache: Map<string, Type[]>, key: string, toRemove: Type): boolean {
+    logger.trace('Removing key', key, 'identity', this.getIdentityMapper(toRemove));
     const existing = cache.get(key);
     if (!existing) {
+      console.trace('Unable to find key to remove', key);
       return false;
     }
 
-    const filtered = existing.filter(some => { return !this.areIdentical(some, item); });
+    const filtered = existing.filter(some => { return !this.areIdentical(some, toRemove); });
     if (filtered.length) {
+      logger.trace('Filtered key', key, 'to list size', filtered.length);
       cache.set(key, filtered);
       return true;
     }
 
+    logger.trace('Filtered key', key, 'to list zero');
     cache.delete(key);
     return true;
   }

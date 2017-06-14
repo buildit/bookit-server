@@ -97,21 +97,17 @@ describe('owner caching suite', function filterSuite() {
     [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
 
     ownerCacher.remove(cache, andrewFirst);
-    const andrewList = ownerCacher.get(cache, 'andrew@wipro.com');
-    logger.info('', andrewList);
-    expect(andrewList).to.be.undefined;
+
+    expect(ownerCacher.get(cache, 'andrew@wipro.com')).to.be.undefined;
 
     ownerCacher.remove(cache, alexFirst);
-    const alexList = ownerCacher.get(cache, 'alex@wipro.com');
-    expect(alexList.length).to.be.equal(1);
+    expect(ownerCacher.get(cache, 'alex@wipro.com').length).to.be.equal(1);
 
     ownerCacher.remove(cache, alexSecond);
-    const alexList2 = ownerCacher.get(cache, 'alex@wipro.com');
-    expect(alexList2).to.be.undefined;
+    expect(ownerCacher.get(cache, 'alex@wipro.com')).to.be.undefined;
 
     ownerCacher.remove(cache, paulFirst);
-    const paulList = ownerCacher.get(cache, 'paul@wipro.com');
-    expect(paulList).to.be.undefined;
+    expect(ownerCacher.get(cache, 'paul@wipro.com')).to.be.undefined;
   });
 
 });

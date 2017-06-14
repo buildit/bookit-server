@@ -15,8 +15,7 @@ import {Room} from '../../model/Room';
 import {Domain} from '../../model/EnvironmentConfig';
 
 
-const DEFAULT_REFRESH = 1200 * 1000;
-// const DEFAULT_REFRESH = 5 * 1000;
+const DEFAULT_REFRESH = 300 * 1000;
 
 const ID_CACHE_STRATEGY = new IdCachingStrategy();
 const PARTICIPANTS_CACHE_STRATEGY = new ParticipantsCachingStrategy();

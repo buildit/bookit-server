@@ -13,6 +13,8 @@ const userPasswords = new Map<string, UserDetail>();
 userPasswords.set('bruce@myews.onmicrosoft.com', {password: 'who da boss?', id: counter++});
 userPasswords.set('babs@myews.onmicrosoft.com', {password: 'call me barbra', id: counter++});
 userPasswords.set('romans@myews.onmicrosoft.com', {password: 'enterprise: engage', id: counter++});
+userPasswords.set('rasmus@designit.com', {password: 'hey', id: 4});
+userPasswords.set('z', {password: 'z', id: 5});
 
 Object.keys(testAppADusers).forEach(user => {
   const userMap = testAppADusers as any;
