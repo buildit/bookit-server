@@ -60,9 +60,10 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .end((error, response) => {
                      if (error) {
                        reject(new Error(error));
+                       return;
                      }
-                     logger.info('got response meeting', response.body.value);
-                     resolve(MSGraphMeetingService._mapMeeting(response.body.value));
+
+                     resolve(MSGraphMeetingService._mapMeeting(response.body));
                    });
           });
     });
