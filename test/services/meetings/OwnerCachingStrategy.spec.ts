@@ -4,6 +4,7 @@ import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
 import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
+import {RootLog as logger} from '../../../src/utils/RootLogger';
 
 /*
  export class Meeting {
@@ -22,10 +23,13 @@ const andrew = new Participant('andrew@wipro.com');
 const paul = new Participant('paul@wipro.com');
 const alex = new Participant('alex@wipro.com');
 
+const redRoom = {displayName: 'Red'};
+
 const andrewFirst: Meeting = {
   id: '1',
   title: 'My first meeting',
   owner: andrew,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -35,6 +39,7 @@ const alexFirst: Meeting = {
   id: '2',
   title: 'My second meeting',
   owner: alex,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -44,6 +49,7 @@ const paulFirst: Meeting = {
   id: '3',
   title: 'My third meeting',
   owner: paul,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
@@ -53,10 +59,12 @@ const alexSecond: Meeting = {
   id: '4',
   title: 'My fourth meeting',
   owner: alex,
+  location: redRoom,
   participants: [],
   start: moment(),
   end: moment(),
 };
+
 
 describe('owner caching suite', function filterSuite() {
   it('caches by owner', function testCacheByOwner() {
@@ -89,6 +97,7 @@ describe('owner caching suite', function filterSuite() {
     [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
 
     ownerCacher.remove(cache, andrewFirst);
+
     expect(ownerCacher.get(cache, 'andrew@wipro.com')).to.be.undefined;
 
     ownerCacher.remove(cache, alexFirst);

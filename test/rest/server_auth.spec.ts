@@ -11,7 +11,6 @@ import * as request from 'supertest';
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
 
-import {Participant} from '../../src/model/Participant';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {UserDetail} from '../../src/rest/auth_routes';
@@ -21,9 +20,6 @@ const meetingService = Runtime.meetingService;
 
 
 const app = configureRoutes(express(), Runtime.passwordStore, Runtime.jwtTokenProvider, Runtime.roomService, Runtime.userService, meetingService);
-
-const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
-const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
 
 
 describe('tests authentication', () => {

@@ -1,10 +1,15 @@
 import {Participant} from './Participant';
 import * as moment from 'moment';
 
+export class Location {
+  displayName: string;
+  address?: any;
+}
+
 export class Meeting {
   id: string;
   title: string;
-  location?: string;
+  location: Location;
   owner: Participant;
   participants: Participant[];
   start: moment.Moment;

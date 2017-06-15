@@ -4,9 +4,14 @@ import {MeetingsService} from '../services/meetings/MeetingService';
 import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {invokeIfUnset} from '../utils/validation';
 import {PasswordStore} from '../services/authorization/PasswordStore';
+import {DeviceService} from '../services/devices/DeviceService';
+import {GroupService} from '../services/groups/GroupService';
+import {Domain} from './EnvironmentConfig';
 
 
+export type DeviceServiceFactory = (config: RuntimeConfig) => DeviceService;
 export type UserServiceFactory = (config: RuntimeConfig) => UserService;
+export type GroupServiceFactory = (config: RuntimeConfig) => GroupService;
 export type MeetingServiceFactory = (config: RuntimeConfig) => MeetingsService;
 export type RoomServiceFactory = (config: RuntimeConfig) => RoomService;
 
@@ -15,7 +20,9 @@ export type RoomServiceFactory = (config: RuntimeConfig) => RoomService;
  */
 export class RuntimeConfig {
   private _port: number;
+  private _deviceService: DeviceService;
   private _userService: UserService;
+  private _groupService: GroupService;
   private _roomService: RoomService;
   private _meetingService: MeetingsService;
 
@@ -24,10 +31,13 @@ export class RuntimeConfig {
    */
 
   constructor(port: number,
+              private _domain: Domain,
               private _passwordStore: PasswordStore,
               private _graphTokenProvider: GraphTokenProvider,
               private _jwtTokenProvider: JWTTokenProvider,
+              private _deviceServiceFactory: DeviceServiceFactory,
               private _userServiceFactory: UserServiceFactory,
+              private _groupServiceFactory: GroupServiceFactory,
               private _roomServiceFactory: RoomServiceFactory,
               private _meetingServiceFactory: MeetingServiceFactory) {
     this._port = port;
@@ -36,6 +46,11 @@ export class RuntimeConfig {
 
   get port() {
     return this._port;
+  }
+
+
+  get domain() {
+    return this._domain;
   }
 
 
@@ -54,9 +69,21 @@ export class RuntimeConfig {
   }
 
 
+  get deviceService() {
+    this._deviceService = invokeIfUnset(this._deviceService, this._deviceServiceFactory.bind(undefined, this));
+    return this._deviceService;
+  }
+
+
   get userService() {
     this._userService = invokeIfUnset(this._userService, this._userServiceFactory.bind(undefined, this));
     return this._userService;
+  }
+
+
+  get groupService() {
+    this._groupService = invokeIfUnset(this._groupService, this._groupServiceFactory.bind(undefined, this));
+    return this._groupService;
   }
 
 

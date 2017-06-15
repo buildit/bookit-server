@@ -5,33 +5,31 @@ import {Duration, Moment} from 'moment';
 import {Meeting} from '../../model/Meeting';
 import {Participant} from '../../model/Participant';
 import {MeetingsService} from '../../services/meetings/MeetingService';
+import {Room} from '../../model/Room';
 
 export class MeetingHelper {
 
-  private constructor(public owner: Participant,
+  private constructor(private room: Room,
                       private meetingsSvc: MeetingsService,
                       private queue: TaskQueue<Promise<any>>) {
   }
 
 
-  static calendarOf(owner: Participant | string,
+  static calendarOf(room: Room,
                     meetings: MeetingsService,
                     queue: TaskQueue<Promise<any>> = new TaskQueue(Promise, 3)): MeetingHelper {
-    if (typeof owner === 'string') {
-      return new MeetingHelper({email: owner, name: owner.split('@')[0]}, meetings, queue);
-    }
-    return new MeetingHelper(owner, meetings, queue);
+    return new MeetingHelper(room, meetings, queue);
   }
 
 
   getMeetings(start: Moment, end: Moment): Promise<Meeting[]> {
-    return this.meetingsSvc.getMeetings(this.owner.email, start, end);
+    return this.meetingsSvc.getMeetings(this.room, start, end);
   }
 
 
   cleanupMeetings(start: Moment, end: Moment): Promise<any> {
     const wrapDelete = (m: Meeting) => {
-      return this.queue.wrap(() => this.deleteMeeting(m.id))();
+      return this.queue.wrap(() => this.deleteMeeting(m.owner, m.id))();
     };
 
     /* I'm not sure what this is really accomplishing */
@@ -50,10 +48,10 @@ export class MeetingHelper {
 
   createMeeting(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
     assert(participants.length === 1);
-    return this.meetingsSvc.createMeeting(subj, start, duration, this.owner, participants[0]);
+    return this.meetingsSvc.createMeeting(subj, start, duration, this.room, participants[0]);
   }
 
-  deleteMeeting(id: string): Promise<any> {
-    return this.meetingsSvc.deleteMeeting(this.owner.email, id);
+  deleteMeeting(owner: Participant, id: string): Promise<any> {
+    return this.meetingsSvc.deleteMeeting(owner, id);
   }
 }

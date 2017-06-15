@@ -18,15 +18,22 @@ import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {UserDetail} from '../../src/rest/auth_routes';
+import {Room} from '../../src/model/Room';
+import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
 
 
-const app = configureRoutes(express(), Runtime.passwordStore, Runtime.jwtTokenProvider, Runtime.roomService, Runtime.userService, meetingService);
+const app = configureRoutes(express(),
+                            Runtime.passwordStore,
+                            Runtime.jwtTokenProvider,
+                            Runtime.roomService,
+                            Runtime.userService,
+                            meetingService);
 
-const owner = new Participant('romans@myews.onmicrosoft.com', 'person');
-const room = new Participant('white-room@myews.onmicrosoft.com', 'room');
+const owner = generateMSUserResource('romans', Runtime.meetingService.domain());
+const room = generateMSRoomResource('White', Runtime.meetingService.domain());
 
 
 describe('meeting routes operations', function testMeetingRoutes() {
@@ -35,10 +42,16 @@ describe('meeting routes operations', function testMeetingRoutes() {
     return request(app).get('/rooms/nyc')
                        .expect(200)
                        .then((res) => {
-                         const rooms = roomService.getRooms('nyc');
-                         // logger.info(res.body);
-                         logger.info('Got rooms', rooms);
-                         expect(res.body).to.deep.equal(rooms);
+                         logger.info('', roomService);
+                         return roomService.getRoomList('nyc')
+                                           .then(roomList => {
+                                             const rooms = roomList.rooms;
+                                             expect(rooms).to.be.deep.equal(res.body);
+                                           })
+                                           .catch(error => {
+                                             logger.error(error);
+                                             throw new Error('RLIA Should not be here');
+                                           });
                        });
   });
 
@@ -67,7 +80,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        .set('Content-Type', 'application/json')
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => meetingService.getMeetings(room.email, searchStart, searchEnd))
+                       .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
                        .then((meetings) => {
                          expect(meetings).to.be.length(1, 'Expected to find one created meeting');
 
@@ -90,16 +103,20 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
     return meetingService.createMeeting('test delete', momentStart, meetingDuration, owner, room)
                          .then((meeting: Meeting) => {
+                           logger.info('meeting to delete created!');
                            const meetingRoom = room.email;
                            const meetingId = meeting.id;
 
                            return new Promise<Meeting>((resolve) => {
                              request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
-                                         .then(() => resolve(meeting));
+                                         .then(() => {
+                                           logger.info('delete completed');
+                                           resolve(meeting);
+                                         });
                            });
                          })
                          .then((meeting) => {
-                           return meetingService.findMeeting(room.email, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                           return meetingService.findMeeting(room, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
                          });
   });
 

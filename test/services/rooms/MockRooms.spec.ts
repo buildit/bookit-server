@@ -1,18 +1,32 @@
-import {expect} from 'chai';
+import * as chai from 'chai';
+import * as chai_as_promised from 'chai-as-promised';
+
+const expect = chai.expect;
+chai.use(chai_as_promised);
+chai.should();
+
 import {MockRoomService} from '../../../src/services/rooms/MockRoomService';
 
 const svc = new MockRoomService([
-  {name: 'room list', rooms: [{name: 'room1', email: 'test@test'}]}
+  {
+    id: '1',
+    name: 'room list',
+    rooms: [
+      {
+        id: '2',
+        name: 'room1',
+        email: 'test@test',
+        mail: 'test@test'
+      }]}
 ]);
 
-describe('Room list', function() {
+describe('Room list', function testReturnRoom() {
   it('provides a room list', () => {
     const roomList = svc.getRooms('room list');
     expect(roomList).to.exist;
   });
 
-  it('returns not found when requested list does not exist', function() {
-    const roomList = svc.getRooms('nyc');
-    expect(roomList.found).to.be.false;
+  it('returns not found when requested list does not exist', function testMissingRoomListRejected() {
+    return svc.getRooms('nyc').should.eventually.be.rejected;
   });
 });

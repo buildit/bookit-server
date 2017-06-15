@@ -5,9 +5,9 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 import {EnvironmentConfig, TestMode} from '../../model/EnvironmentConfig';
 
-import {provideDevelopmentRuntime} from './development';
-import {provideUnitRuntime} from './unit';
-import {provideIntegrationRuntime} from './integration';
+import {provideDevelopmentRuntime} from './development-runtime';
+import {provideUnitRuntime} from './unit-runtime';
+import {provideIntegrationRuntime} from './integration-runtime';
 
 const environment = nodeConfig as EnvironmentConfig;
 

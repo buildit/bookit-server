@@ -1,8 +1,21 @@
-import {GraphAPIParameters} from '../../../model/EnvironmentConfig';
+import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
-// const f = 'hf5wRmG8scmuCXrVYxeU6fC';
+export const domain: Domain = {
+  domainName: 'designitcontoso',
+  sites: ['nyc']
+};
 
 export const creds: GraphAPIParameters = {
+  identity: 'test',
   tenantId: '575c5b98-c069-4475-99d9-cfb32e39d24e',
   clientId: '123999c5-771d-4136-9d87-b5fc03f3266e',
+};
+
+export const testAppADusers = {
+  'black-room@designitcontoso.onmicrosoft.com': 'Jugo11744',
+  'blue-room@designitcontoso.onmicrosoft.com': 'Kuho05384',
+  'bruce@designitcontoso.onmicrosoft.com': 'Xoju09274',
+  'roo@designitcontoso.onmicrosoft.com': 'Kuxa60135',
+  'red-room@designitcontoso.onmicrosoft.com': 'Qofu46604',
+  'roboto@designitcontoso.onmicrosoft.com': 'Toko5038'
 };

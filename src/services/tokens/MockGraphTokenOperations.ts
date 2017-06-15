@@ -6,6 +6,11 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
   }
 
 
+  domain(): string {
+    throw new Error('Should not be called');
+  }
+
+
   hasToken(): boolean {
     return false;
   }
@@ -17,7 +22,7 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
 
 
   withToken(): Promise<string> {
-    return Promise.reject('Unimplemented');
+    return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 
 }
