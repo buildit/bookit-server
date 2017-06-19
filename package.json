@@ -47,8 +47,7 @@
     "moment": "^2.18.1",
     "morgan": "^1.8.1",
     "request": "^2.81.0",
-    "superagent": "^3.5.2",
-    "uuid": "^3.0.1"
+    "superagent": "^3.5.2"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^0.4.1",
@@ -62,9 +61,9 @@
     "@types/log4js": "0.0.32",
     "@types/mocha": "^2.0.0",
     "@types/node": "^6.0.68",
-    "@types/node-uuid": "0.0.28",
     "@types/request": "0.0.42",
     "@types/supertest": "^2.0.0",
+    "@types/uuid": "^3.0.0",
     "chai": "^3.0.0",
     "chai-as-promised": "^6.0.0",
     "concurrently": "^3.4.0",
@@ -75,7 +74,8 @@
     "supertest": "^3.0.0",
     "ts-node": "^2.0.0",
     "tslint": "^4.0.0",
-    "typescript": "^2.0.0"
+    "typescript": "^2.0.0",
+    "uuid": "^3.1.0"
   },
   "engines": {
     "node": ">=4.0.0"

@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import {Duration, Moment} from 'moment';
+import {v4 as uuid} from 'uuid';
 
 import {Meeting} from '../../model/Meeting';
 import {MeetingsService} from './MeetingService';
@@ -226,7 +227,7 @@ class PassThroughMeetingService implements MeetingsService {
   createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve) => {
       const meeting: Meeting = {
-        id: `guid-${Math.random().toString()}`,
+        id: uuid(),
         owner: owner,
         title: subj,
         start: start,
