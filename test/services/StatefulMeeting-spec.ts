@@ -14,7 +14,6 @@ import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 import {Room} from '../../src/model/Room';
 
-// import * as UUID from 'uuid';
 
 export function StatefulMeetingSpec(meetingService: MeetingsService, description: string) {
   const BRUCE_ID = getEmail('bruce', meetingService.domain());
