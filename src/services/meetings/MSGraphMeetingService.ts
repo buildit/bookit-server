@@ -10,9 +10,13 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {MSUser} from '../users/UserService';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
+  domain(): string {
+    return this.tokenOperations.domain();
+  }
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
@@ -43,6 +47,12 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
           });
     });
   }
+
+
+  getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    return Promise.reject('Method not implemented.');
+  }
+
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
@@ -230,7 +240,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }
