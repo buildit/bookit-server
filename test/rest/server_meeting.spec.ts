@@ -13,7 +13,7 @@ import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
 
 import {Participant} from '../../src/model/Participant';
-import {MeetingRequest} from '../../src/rest/meeting_routes';
+import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';

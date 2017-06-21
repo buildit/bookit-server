@@ -19,6 +19,7 @@ import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy
 
 
 const DEFAULT_REFRESH = 300 * 1000;
+// const DEFAULT_REFRESH = 1 * 1000;
 
 
 class IdentityCache<RType> {

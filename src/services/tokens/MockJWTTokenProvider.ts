@@ -13,6 +13,7 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
   constructor(private jwtSecret: string) {
   }
 
+
   provideToken(credentials: Credentials): string {
     logger.info('provide token:', this.jwtSecret);
     return jwt.sign(credentials, this.jwtSecret, { expiresIn: '60m' });
@@ -23,8 +24,7 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         const info = decoded as TokenInfo;

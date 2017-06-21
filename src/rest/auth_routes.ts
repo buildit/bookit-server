@@ -4,7 +4,7 @@ import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
-import {protectEndpoint} from './filters';
+import {protectedEndpoint} from './filters';
 import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
@@ -54,8 +54,7 @@ export function configureAuthenticationRoutes(app: Express,
   });
 
 
-  protectEndpoint(app, '/backdoor');
-  app.get('/backdoor', (req: Request, res: Response) => {
+  protectedEndpoint(app, '/backdoor', app.get, (req: Request, res: Response) => {
     const credentials = req.body.credentials as TokenInfo;
     res.send(`You had a token and you are ${credentials.user}`);
   });
