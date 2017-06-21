@@ -12,7 +12,7 @@ import {RootLog as logger} from '../utils/RootLogger';
 import {extractAsMoment} from '../utils/validation';
 
 import {checkParam, sendError, sendGatewayError, sendNotFound} from './rest_support';
-import {protectEndpoint} from './filters';
+import {protectedEndpoint, protectEndpoint} from './filters';
 import {TokenInfo} from './auth_routes';
 import {Room} from '../model/Room';
 
@@ -84,6 +84,46 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
+  protectedEndpoint(app, '/rooms/:listName/meetings', app.get, (req, res) => {
+    const listName = req.param('listName');
+    const start = extractAsMoment(req, 'start');
+    const end = extractAsMoment(req, 'end');
+
+    // TODO: Pull param validation out.
+    logger.info(req.param('start'), req.param('end'), start.isValid(), end.isValid());
+    if (!start.isValid() || !end.isValid()) {
+      res.status(400).send();
+    }
+
+    logger.info(`Getting meetings for ${listName} from ${start} to ${end}`);
+    // range validation!!
+    const range = end.diff(start, 'months');
+    logger.debug(start.format() as string);
+    logger.debug(end.format() as string);
+
+    if (checkParam(start || end as any, 'At least one of the following must be supplied: start, end', res)
+      && checkParam(start.isValid(), 'Start date is not valid', res)
+      && checkParam(end.isValid(), 'End date is not valid', res)
+      && checkParam(end.isAfter(start), 'End date must be after start date', res)
+      && checkParam(range < 12 && range > -12, 'No more than a year at a time', res)) {
+
+      roomSvc.getRoomList(listName)
+             .then(room => {
+               logger.info('getting meetings', room.rooms);
+               return room.rooms;
+             })
+             .then(rooms => {
+               meetingsOps.getRoomListMeetings(rooms, start, end)
+                          .then(result => res.json(result))
+                          .catch(err => sendError(err, res));
+             })
+             .catch(() => {
+               sendNotFound(res);
+             });
+    }
+  });
+
+
   function createMeeting(req: any, res: any, owner: Participant) {
     const event = req.body as MeetingRequest;
     const startMoment = moment(event.start);
@@ -112,22 +152,20 @@ export function configureMeetingRoutes(app: Express,
              .then(createMeeting)
              .catch(err => sendError(err, res));
     }
-
   }
 
-  app.post('/room/:roomEmail/meeting', (req, res) => {
+  protectedEndpoint(app, '/room/:roomEmail/meeting', app.post, (req, res) => {
     return createMeeting(req, res, getCurrentUser(meetingSvc.domain()));
   });
 
 
-  protectEndpoint(app, '/room/:roomEmail/meeting_protected');
-  app.post('/room/:roomEmail/meeting_protected', (req, res) => {
+  protectedEndpoint(app, '/room/:roomEmail/meeting_protected', app.post, (req, res) => {
     const credentials = req.body.credentials as TokenInfo;
     return createMeeting(req, res, new Participant(credentials.user));
   });
 
 
-  app.delete('/room/:roomEmail/meeting/:meetingId', (req, res) => {
+  protectedEndpoint(app, '/room/:roomEmail/meeting/:meetingId', app.delete, (req, res) => {
     const roomEmail = req.param('roomEmail');
     const meetingId = req.param('meetingId');
 

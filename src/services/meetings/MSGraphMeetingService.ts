@@ -13,6 +13,9 @@ import {GraphTokenProvider} from '../tokens/TokenProviders';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
+  domain(): string {
+    return this.tokenOperations.domain();
+  }
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
@@ -43,6 +46,12 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
           });
     });
   }
+
+
+  getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    return Promise.reject('Method not implemented.');
+  }
+
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {

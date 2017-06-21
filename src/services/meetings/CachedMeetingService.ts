@@ -14,14 +14,56 @@ import {OwnerCachingStrategy} from './OwnerCachingStrategy';
 import {RoomCachingStrategy} from './RoomCachingStrategy';
 import {Room} from '../../model/Room';
 import {Domain} from '../../model/EnvironmentConfig';
+import {ListCachingStrategy} from '../../utils/cache/ListCachingStrategy';
+import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy';
 
 
 const DEFAULT_REFRESH = 300 * 1000;
 
-const ID_CACHE_STRATEGY = new IdCachingStrategy();
-const PARTICIPANTS_CACHE_STRATEGY = new ParticipantsCachingStrategy();
-const OWNER_CACHE_STRATEGY = new OwnerCachingStrategy();
-const ROOM_CACHE_STRATEGY = new RoomCachingStrategy();
+
+class IdentityCache<RType> {
+  constructor(private cache: Map<string, RType>, private strategy: IdentityCachingStrategy<RType>) {
+  }
+
+  put(meeting: RType) {
+    this.strategy.put(this.cache, meeting);
+  }
+
+  get(key: string): RType {
+    return this.strategy.get(this.cache, key);
+  }
+
+  remove(meeting: RType) {
+    this.strategy.remove(this.cache, meeting);
+  }
+
+  keys(): IterableIterator<string> {
+    return this.cache.keys();
+  }
+}
+
+
+class ListCache<RType> {
+  constructor(private cache: Map<string, RType[]>, private strategy: ListCachingStrategy<RType>) {
+  }
+
+  put(meeting: RType) {
+    this.strategy.put(this.cache, meeting);
+  }
+
+  get(key: string): RType[] {
+    return this.strategy.get(this.cache, key);
+  }
+
+  remove(meeting: RType) {
+    this.strategy.remove(this.cache, meeting);
+  }
+
+  keys(): IterableIterator<string> {
+    return this.cache.keys();
+  }
+}
+
 
 
 export class CachedMeetingService implements MeetingsService {
@@ -31,17 +73,15 @@ export class CachedMeetingService implements MeetingsService {
 
   private jobId: NodeJS.Timer;
 
+  private idCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
 
-  private idCache = new Map<string, Meeting>();
+  private ownerCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new OwnerCachingStrategy());
 
+  private entitledOwnerCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new OwnerCachingStrategy());
 
-  private ownerCache = new Map<string, Meeting[]>();
+  private participantCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new ParticipantsCachingStrategy());
 
-
-  private roomCache = new Map<string, Meeting[]>();
-
-
-  private participantCache = new Map<string, Meeting[]>();
+  private roomCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new RoomCachingStrategy());
 
 
   constructor(private _domain: Domain,
@@ -59,12 +99,20 @@ export class CachedMeetingService implements MeetingsService {
     logger.info('Constructing CachedMeetingService');
     _internalRefresh();
     this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH);
-
   }
 
 
   domain() {
     return this.delegatedMeetingsService.domain();
+  }
+
+
+  getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
+    logger.info('Fetched?:', this.fetched);
+    const fetchMeetings = this.fetched ? Promise.resolve() : this.refreshCache();
+    return fetchMeetings.then(() => {
+      return this.getUserCachedMeetings(user, start, end);
+    });
   }
 
 
@@ -100,7 +148,7 @@ export class CachedMeetingService implements MeetingsService {
 
   deleteMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      const meeting = ID_CACHE_STRATEGY.get(this.idCache, id);
+      const meeting = this.idCache.get(id);
       if (!meeting) {
         throw new Error(`Unable to find meeting id: ${id}`);
       }
@@ -127,15 +175,29 @@ export class CachedMeetingService implements MeetingsService {
     return new Promise((resolve) => {
       const owner = room.email;
       const roomName = room.name;
-      const participantMeetings = PARTICIPANTS_CACHE_STRATEGY.get(this.participantCache, owner);
+      const participantMeetings = this.participantCache.get(owner);
       // logger.info('For participant:', owner, 'found:', participantMeetings.map(m => m.id));
       logger.info('For participant:', owner, 'found:', participantMeetings);
-      const roomMeetings = ROOM_CACHE_STRATEGY.get(this.roomCache, roomName);
+      const roomMeetings = this.roomCache.get(roomName);
       // logger.info('For room:', roomName, 'found:', roomMeetings);
 
       const allMeetings = [...(participantMeetings || []), ...(roomMeetings || [])];
       const meetings =  allMeetings || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
+      logger.info('Filtered to:', filtered.map(m => m.id));
+
+      resolve(filtered);
+    });
+  }
+
+
+  private getUserCachedMeetings(participant: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
+    logger.info('searching user meetings:', participant, start, end);
+    return new Promise((resolve) => {
+      const owner = participant.email;
+      const ownerMeetings = this.entitledOwnerCache.get(owner);
+      const meetings = ownerMeetings || [];
+      const filtered = meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
       logger.info('Filtered to:', filtered.map(m => m.id));
 
       resolve(filtered);
@@ -178,10 +240,10 @@ export class CachedMeetingService implements MeetingsService {
   }
 
   private cacheMeeting(meeting: Meeting) {
-    ID_CACHE_STRATEGY.put(this.idCache, meeting);
-    OWNER_CACHE_STRATEGY.put(this.ownerCache, meeting);
-    PARTICIPANTS_CACHE_STRATEGY.put(this.participantCache, meeting);
-    ROOM_CACHE_STRATEGY.put(this.roomCache, meeting);
+    this.idCache.put(meeting);
+    this.ownerCache.put(meeting);
+    this.participantCache.put(meeting);
+    this.roomCache.put(meeting);
 
     logger.info('Caching meeting', meeting.id);
     logger.debug('id keys', this.idCache.keys());
@@ -194,12 +256,12 @@ export class CachedMeetingService implements MeetingsService {
 
   private uncacheMeeting(id: string) {
     logger.info('Uncaching meeting', id);
-    const meeting = ID_CACHE_STRATEGY.get(this.idCache, id);
+    const meeting = this.idCache.get(id);
 
-    ID_CACHE_STRATEGY.remove(this.idCache, meeting);
-    OWNER_CACHE_STRATEGY.remove(this.ownerCache, meeting);
-    PARTICIPANTS_CACHE_STRATEGY.remove(this.participantCache, meeting);
-    ROOM_CACHE_STRATEGY.remove(this.roomCache, meeting);
+    this.idCache.remove(meeting);
+    this.ownerCache.remove(meeting);
+    this.participantCache.remove(meeting);
+    this.roomCache.remove(meeting);
 
     return meeting;
   }
@@ -223,6 +285,12 @@ class PassThroughMeetingService implements MeetingsService {
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     return Promise.resolve(this.meetings);
   }
+
+
+  getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
+    return Promise.reject('Figure it out');
+  }
+
 
   createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve) => {

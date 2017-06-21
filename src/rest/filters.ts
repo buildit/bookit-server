@@ -1,4 +1,4 @@
-import {Express, Request, Router} from 'express';
+import {Express, IRouterMatcher, Request, Router} from 'express';
 
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
@@ -45,4 +45,11 @@ function innerInitializeFilter(tokenOperations: JWTTokenProvider) {
 export function protectEndpoint(app: Express, path: string) {
   logger.info('JWT protected endpoint:', path);
   app.use(path, tokenFilter);
+}
+
+
+export function protectedEndpoint(app: Express, route: string, method: Function, handler: (req: any, res: any) => any) {
+  logger.info('JWT protected endpoint:', route);
+  app.use(route, tokenFilter);
+  method.apply(app, [route, handler]);
 }

@@ -39,7 +39,7 @@ export class MeetingsOps {
   };
 
 
-  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment) {
+  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment, owner?: Participant) {
     const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room, start, end)
