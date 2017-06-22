@@ -11,7 +11,7 @@ import {RoomService} from '../services/rooms/RoomService';
 import {configureTestRoutes} from './test_routes';
 import {configureMeetingRoutes} from './meetings/meeting_routes';
 import {configureAuthenticationRoutes} from './auth_routes';
-import {initializeTokenFilter} from './filters';
+import {initializeCredentialsFilter, initializeTokenFilter} from './filters';
 import {configureUsersRoutes} from './user_routes';
 import {UserService} from '../services/users/UserService';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
@@ -33,6 +33,7 @@ export function configureRoutes(app: Express,
                                 userService: UserService,
                                 meetingsService: MeetingsService): Express {
   initializeTokenFilter(jwtTokenProvider);
+  initializeCredentialsFilter(jwtTokenProvider);
   configureExpress(app);
 
   configureAuthenticationRoutes(app, passwordStore, jwtTokenProvider);

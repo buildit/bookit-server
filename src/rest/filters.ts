@@ -19,11 +19,13 @@ function once(func: Function, ...args: any[]) {
 
 
 export function initializeTokenFilter(tokenOperations: JWTTokenProvider) {
+  logger.info('initializeTokenFilter');
   return once(innerInitializeTokenFilter, tokenOperations);
 }
 
 
 export function initializeCredentialsFilter(tokenOperations: JWTTokenProvider) {
+  logger.info('initializeCredentialsFilter');
   return once(innerCredentialedFilter, tokenOperations);
 }
 
@@ -31,6 +33,7 @@ export function initializeCredentialsFilter(tokenOperations: JWTTokenProvider) {
 function extractAndVerifyToken(req: Request, tokenOperations: JWTTokenProvider): Promise<Credentials> {
   return new Promise((resolve, reject) => {
     const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    logger.info('extractAndVerifyToken -', token);
     if (!token) {
       return reject({message: 'No token string found in request'});
     }
@@ -43,8 +46,10 @@ function extractAndVerifyToken(req: Request, tokenOperations: JWTTokenProvider):
 
 
 function extractAndSetCredentials(req: Request, tokenOperations: JWTTokenProvider, next: NextFunction) {
+  logger.info('extractAndSetCredentials - start');
   return extractAndVerifyToken(req, tokenOperations).then(credentials => {
     req.body.credentials = credentials;
+    logger.info('extractAndSetCredentials - got', credentials);
     next();
   }).catch(err => {
     throw new Error(err);
@@ -54,7 +59,7 @@ function extractAndSetCredentials(req: Request, tokenOperations: JWTTokenProvide
 
 function innerInitializeTokenFilter(tokenOperations: JWTTokenProvider) {
   logger.debug('Initializing token filter');
-  tokenFilter.use((req: Request, res, next) => {
+  tokenFilter.use((req: Request, res, next: NextFunction) => {
     return extractAndSetCredentials(req, tokenOperations, next).catch(() => {
       sendUnauthorized(res);
     });
@@ -73,7 +78,7 @@ function innerCredentialedFilter(tokenOperations: JWTTokenProvider) {
 
 
 export function credentialedEndpoint(app: Express, route: string, method: Function, handler: (req: any, res: any) => any) {
-  logger.info('JWT protected endpoint:', route);
+  logger.info('JWT credentialed endpoint:', route);
   app.use(route, credentialFilter);
   method.apply(app, [route, handler]);
 }

@@ -18,8 +18,8 @@ import {ListCachingStrategy} from '../../utils/cache/ListCachingStrategy';
 import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy';
 
 
-const DEFAULT_REFRESH = 300 * 1000;
-// const DEFAULT_REFRESH = 1 * 1000;
+const DEFAULT_REFRESH_IN_MILLIS = 300 * 1000;
+// const DEFAULT_REFRESH_IN_MILLIS = 1 * 1000;
 
 
 class IdentityCache<RType> {
@@ -99,7 +99,7 @@ export class CachedMeetingService implements MeetingsService {
 
     logger.info('Constructing CachedMeetingService');
     _internalRefresh();
-    this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH);
+    this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH_IN_MILLIS);
   }
 
 
@@ -109,7 +109,6 @@ export class CachedMeetingService implements MeetingsService {
 
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
-    logger.info('Fetched?:', this.fetched);
     const fetchMeetings = this.fetched ? Promise.resolve() : this.refreshCache();
     return fetchMeetings.then(() => {
       return this.getUserCachedMeetings(user, start, end);
@@ -118,7 +117,6 @@ export class CachedMeetingService implements MeetingsService {
 
 
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    logger.info('Fetched?:', this.fetched);
     const fetchMeetings = this.fetched ? Promise.resolve() : this.refreshCache();
     return fetchMeetings.then(() => {
       return this.getCachedMeetings(room, start, end);
@@ -172,20 +170,20 @@ export class CachedMeetingService implements MeetingsService {
 
 
   private getCachedMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    logger.info('searching meetings:', room, start, end);
+    // logger.info('searching meetings:', room, start, end);
     return new Promise((resolve) => {
       const owner = room.email;
       const roomName = room.name;
       const participantMeetings = this.participantCache.get(owner);
       // logger.info('For participant:', owner, 'found:', participantMeetings.map(m => m.id));
-      logger.info('For participant:', owner, 'found:', participantMeetings);
+      // logger.info('For participant:', owner, 'found:', participantMeetings);
       const roomMeetings = this.roomCache.get(roomName);
       // logger.info('For room:', roomName, 'found:', roomMeetings);
 
       const allMeetings = [...(participantMeetings || []), ...(roomMeetings || [])];
       const meetings =  allMeetings || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.info('Filtered to:', filtered.map(m => m.id));
+      // logger.info('Filtered to:', filtered.map(m => m.id));
 
       resolve(filtered);
     });

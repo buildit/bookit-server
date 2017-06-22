@@ -1,16 +1,14 @@
 import * as moment from 'moment';
-import {Meeting} from '../model/Meeting';
 import {Moment} from 'moment';
+import {Request} from 'express';
 
-
-export interface Request {
-  param: (paramName: string) => string;
-}
+import {Meeting} from '../model/Meeting';
+import {RootLog as logger} from './RootLogger';
 
 
 export const extractAsMoment = (req: Request, param: string) => {
-  const startParam = req.param(param);
-  return moment(startParam);
+  const paramValue = req.query[param];
+  return moment(paramValue);
 };
 
 

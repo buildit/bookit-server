@@ -22,6 +22,7 @@ export function sendGatewayError(err: any, res: Response) {
 
 
 export function sendValidation(err: any, res: Response) {
+  logger.error('Responding with error:', err);
   sendStatus({message: err}, 400, res);
 }
 

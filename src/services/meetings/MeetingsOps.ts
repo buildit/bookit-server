@@ -36,18 +36,24 @@ export function createMeetingOperation(meetingService: MeetingsService,
                                        start: Moment,
                                        duration: Duration,
                                        owner: Participant,
-                                       room: Room) {
+                                       room: Room): Promise<Meeting> {
+
   return new Promise((resolve, reject) => {
-    const promisedCheck = checkTimeIsAvailable(this.meetingsService, room, start, duration);
+    const ifAvailable = checkTimeIsAvailable(meetingService, room, start, duration);
 
-    promisedCheck.then(() => meetingService.createMeeting(subj, start, duration, owner, room)
-                                           .then(resolve)
-                                           .catch(reject))
-                 .catch(reject);
+    ifAvailable.then(() => meetingService.createMeeting(subj, start, duration, owner, room)
+                                         .then(resolve)
+                                         .catch(reject))
+               .catch(reject);
   });
-
 }
 
+
+export interface RoomMeetings
+{
+  room: Room;
+  meetings: Meeting[];
+}
 
 export class MeetingsOps {
 
@@ -55,7 +61,7 @@ export class MeetingsOps {
   };
 
 
-  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment, owner?: Participant) {
+  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment, owner?: Participant): Promise<RoomMeetings[]> {
     const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room, start, end)

@@ -239,7 +239,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }
