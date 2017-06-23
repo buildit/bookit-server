@@ -12,11 +12,14 @@ import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperat
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
 import {MSUser} from '../../services/users/UserService';
+import {MSGraphMailService} from '../../services/mail/MSGraphMailService';
 import {MSGroup} from '../../services/groups/GroupService';
-
+import {MSGraphTokenProvider} from '../../services/tokens/MSGraphTokenProvider';
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
   const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
+  const graphAPIParameters = environment.graphAPIParameters;
+  const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, environment.domain, false);
 
   return new RuntimeConfig(environment.port,
                            environment.domain,
@@ -25,6 +28,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            jwtTokenProvider,
                            () => new MockDeviceService(),
                            () => new MockUserService(),
+                           () => new MSGraphMailService(tokenOperations), // Replace with MockService
                            () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
                            (config) => new CachedMeetingService(environment.domain, config.roomService));

@@ -15,6 +15,7 @@ import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingServi
 import {ROOM_COLORS, generateMSGroup, generateRomanNYCRoomList, generateRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
+import {MSGraphMailService} from '../../services/mail/MSGraphMailService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
@@ -60,6 +61,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              jwtTokenProvider,
                              () => new MSGraphDeviceService(tokenOperations),
                              () => new MSGraphUserService(tokenOperations),
+                             () => new MSGraphMailService(tokenOperations),
                              groupServiceFactory,
                              (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
@@ -67,6 +69,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
                              });
   } else {
+    const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain, false);
 
     const config = new RuntimeConfig(env.port,
                                      env.domain,
@@ -75,6 +78,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      jwtTokenProvider,
                                      () => new MockDeviceService(),
                                      () => new MockUserService(),
+                                     () => new MSGraphMailService(tokenOperations),
                                      () => {
                                        return generateMockGroup(env.domain.domainName);
                                      },
