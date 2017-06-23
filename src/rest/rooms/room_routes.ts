@@ -7,7 +7,7 @@ import {listRooms} from './room_functions';
 export function configureRoomRoutes(app: Express,
                                        roomSvc: RoomService): Express {
   app.get('/rooms/:listName', (request: Request, response: Response) => {
-    const listName = request.get('listName');
+    const listName = request.param('listName');
     listRooms(roomSvc, listName).then(roomList => {
       response.json(roomList.rooms);
     });

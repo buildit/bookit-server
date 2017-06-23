@@ -10,17 +10,46 @@ import {RoomService} from '../../services/rooms/RoomService';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {extractAsMoment} from '../../utils/validation';
 
-import {checkParam, sendError, sendGatewayError, sendNotFound} from '../rest_support';
+import {checkParam, sendError, sendGatewayError, sendNotFound, sendValidation} from '../rest_support';
 import {credentialedEndpoint, protectedEndpoint} from '../filters';
 import {TokenInfo} from '../auth_routes';
 import {createMeeting} from './meeting_functions';
 import {Credentials} from '../../model/Credentials';
+import {Meeting} from '../../model/Meeting';
 
 
 export interface MeetingRequest {
   readonly title: string;
   readonly start: string;
   readonly end: string;
+}
+
+
+function validateDate(req: Request, param: string) {
+  const date = extractAsMoment(req, param);
+  if (!date.isValid()) {
+    throw new Error(`${param} is not a valid moment.`);
+  }
+
+  return date;
+}
+
+
+function validateEndDate(req: Request, param: string, startDate: moment.Moment) {
+  const endDate = validateDate(req, param);
+  if (startDate.isAfter(endDate)) {
+    throw new Error('End date must be after start date.');
+  }
+
+  return endDate;
+}
+
+
+function validateDateRange(startDate: moment.Moment, endDate: moment.Moment) {
+  const range = Math.abs(endDate.diff(startDate, 'months'));
+  if (range > 12) {
+    throw new Error('No more than a year\'s worth of meetings can be fetched.');
+  }
 }
 
 
@@ -34,27 +63,22 @@ export function configureMeetingRoutes(app: Express,
     logger.info('Fetching meetings');
     const listName = req.params['listName'];
     const credentials = req.body.credentials as Credentials;
-    const start = extractAsMoment(req, 'start');
-    const end = extractAsMoment(req, 'end');
 
-    const range = end.diff(start, 'months');
-    logger.info(start.format() as string);
-    logger.info(end.format() as string);
+    try {
+      const start = validateDate(req, 'start');
+      const end = validateEndDate(req, 'end', start);
+      validateDateRange(start, end);
 
-
-    if (checkParam(start || end as any, 'At least one of the following must be supplied: start, end', res)
-      && checkParam(start.isValid(), 'Start date is not valid', res)
-      && checkParam(end.isValid(), 'End date is not valid', res)
-      && checkParam(end.isAfter(start), 'End date must be after start date', res)
-      && checkParam(range < 12 && range > -12, 'No more than a year at a time', res)) {
-
+      const meetings = handleMeetingFetch(roomService, meetingsOps, credentials, listName, start, end);
+      meetings.then(roomMeetings => res.json(roomMeetings));
+    } catch (error) {
+      return sendValidation(error, res);
     }
-
-    handleMeetingFetch(roomService, meetingsOps, credentials, listName, start, end).then(roomMeetings => res.json(roomMeetings));
   });
 
 
   protectedEndpoint(app, '/room/:roomEmail/meeting', app.post, (req, res) => {
+    logger.info('About to create meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
     createMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
   });
@@ -64,7 +88,7 @@ export function configureMeetingRoutes(app: Express,
     const roomEmail = req.params['roomEmail'];
     const meetingId = req.params['meetingId'];
 
-    handleMeetingDeletion(meetingsService, roomEmail, meetingId).then(() => res.json)
+    handleMeetingDeletion(meetingsService, roomEmail, meetingId).then(() => res.json())
                                                                 .catch(err => {
                                                                   sendGatewayError(err, res);
                                                                 });
@@ -82,15 +106,7 @@ function handleMeetingFetch(roomService: RoomService,
                             end: moment.Moment): Promise<RoomMeetings[]> {
   return new Promise((resolve, reject) => {
     roomService.getRoomList(listName)
-               .then(room => {
-                 // logger.info('getting meetings', room.rooms);
-                 return room.rooms;
-               })
-               .then(rooms => {
-                 return meetingOps.getRoomListMeetings(rooms, start, end);
-                                  // .then(resolve)
-                                  // .catch((err) => reject(err));
-               })
+               .then(roomList => meetingOps.getRoomListMeetings(roomList.rooms, start, end))
                .then(roomMeetings => {
                  if (!credentials) {
                    logger.info('CREDS', credentials);
@@ -98,8 +114,13 @@ function handleMeetingFetch(roomService: RoomService,
                    return resolve(roomMeetings);
                  }
 
-                 logger.info('-----------------------------------------------------------');
-                 return resolve([]);
+                 const part = new Participant(credentials.user);
+                 meetingOps.getUserMeetings(part, start, end)
+                           .then(userMeetings => {
+                             logger.info('-----------------------------------------------------------');
+                             const merged = mergeMeetings(roomMeetings, userMeetings);
+                             return resolve(merged);
+                           });
                })
                .catch((err) => {
                  reject(err);
@@ -107,6 +128,27 @@ function handleMeetingFetch(roomService: RoomService,
   });
 }
 
+
+function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
+  const userMeetingsMap = userMeetings.reduce((acc, meeting) => {
+    acc.set(meeting.id, meeting);
+    return acc;
+  }, new Map<string, Meeting>());
+
+  logger.info('Merging meetings', roomMeetings);
+  logger.info('Merging meetings', userMeetingsMap);
+
+  return roomMeetings.map(roomNMeetings => {
+    return {
+      room: roomNMeetings.room,
+      meetings: roomNMeetings.meetings.map(meeting => {
+        const userMeeting = userMeetingsMap.get(meeting.id);
+        logger.info('User meeting', meeting.id, userMeeting ? userMeeting.title : 'not found');
+        return userMeeting ? userMeeting : meeting;
+      })
+    };
+  });
+}
 
 function handleMeetingDeletion(meetingService: MeetingsService, roomEmail: string, meetingId: string): Promise<void> {
   return meetingService.deleteMeeting(new Participant(roomEmail), meetingId);

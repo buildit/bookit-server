@@ -15,7 +15,7 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
 
 
   provideToken(credentials: Credentials): string {
-    logger.info('provide token:', this.jwtSecret);
+    logger.trace('provide token:', this.jwtSecret);
     return jwt.sign(credentials, this.jwtSecret, { expiresIn: '60m' });
   }
 

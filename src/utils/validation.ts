@@ -8,7 +8,11 @@ import {RootLog as logger} from './RootLogger';
 
 export const extractAsMoment = (req: Request, param: string) => {
   const paramValue = req.query[param];
-  return moment(paramValue);
+  if (paramValue) {
+    return moment(paramValue);
+  }
+
+  throw new Error(`Required param ${param} is missing`);
 };
 
 

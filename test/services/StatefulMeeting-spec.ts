@@ -9,7 +9,7 @@ chai.should();
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {MeetingsOps} from '../../src/services/meetings/MeetingsOps';
+import {createMeetingOperation, MeetingsOps} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 import {Room} from '../../src/model/Room';
@@ -38,52 +38,54 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('should create a room booking', function testMeetingReturnedAsExpected() {
-      return meetingOps.createMeeting(subject,
-                                      start.clone().add(1, 'minute'),
-                                      moment.duration(10, 'minute'),
-                                      bruceParticipant,
-                                      redRoom)
-                       .then(meeting => {
-                         logger.info('Created the following meeting', meeting);
-                         return meeting;
-                       }).should.eventually.be.not.empty;
+      return createMeetingOperation(meetingService,
+                                    subject,
+                                    start.clone().add(1, 'minute'),
+                                    moment.duration(10, 'minute'),
+                                    bruceParticipant,
+                                    redRoom)
+        .then(meeting => {
+          logger.info('Created the following meeting', meeting);
+          return meeting;
+        }).should.eventually.be.not.empty;
     });
 
 
     describe('will not allow meeting overlaps', function testDoubleBookingBefore() {
       before('wait until the cloud services registers the above initial meeting', function wait() {
         logger.debug('waiting on meeting');
-        return retryUntil(() => meetingOps.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
+        return retryUntil(() => meetingService.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
       });
 
       it('will conflict on before', function theTest() {
         logger.debug('about to create duplicate');
-        return meetingOps.createMeeting('double booking before',
-                                        start.clone().subtract(5, 'minutes'),
-                                        moment.duration(10, 'minutes'),
-                                        bruceParticipant,
-                                        redRoom)
-                         .then((thing) => {
-                           logger.debug('what is this?', thing);
-                           throw new Error('WCOB should not be here!!!');
-                         })
-                         .catch(err => {
-                           expect(err).to.be.eq('Found conflict');
-                         });
+        return meetingService.createMeeting('double booking before',
+                                            start.clone().subtract(5, 'minutes'),
+                                            moment.duration(10, 'minutes'),
+                                            bruceParticipant,
+                                            redRoom)
+                             .then((thing) => {
+                               logger.debug('what is this?', thing);
+                               throw new Error('WCOB should not be here!!!');
+                             })
+                             .catch(err => {
+                               expect(err).to.be.eq('Found conflict');
+                             });
       });
 
       it('will conflict on after', function theTest() {
-        return meetingOps.createMeeting('double booking after',
-                                        start.clone().add(5, 'minutes'),
-                                        moment.duration(10, 'minutes'),
-                                        bruceParticipant,
-                                        redRoom)
-                         .then(() => {
-                           throw new Error('WCOA Should not be here!!!');
-                         })
-                         .catch(err => {
-                           expect(err).to.be.eq('Found conflict');
-                         });
+        return createMeetingOperation(meetingService,
+                                      'double booking after',
+                                      start.clone().add(5, 'minutes'),
+                                      moment.duration(10, 'minutes'),
+                                      bruceParticipant,
+                                      redRoom)
+          .then(() => {
+            throw new Error('WCOA Should not be here!!!');
+          })
+          .catch(err => {
+            expect(err).to.be.eq('Found conflict');
+          });
       });
     });
 
@@ -95,21 +97,20 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     before('wait until the cloud services registers the above initial meeting', function wait() {
-      return retryUntil(() => meetingOps.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
+      return retryUntil(() => meetingService.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
     });
 
     it('`findMeeting` works', function testMeetingsAreEmpty() {
 
-      return meetingOps.getMeetings(redRoom, start, end)
-                       .then(meetings => {
-                         const meeting = meetings[0];
-                         return meetingOps.findMeeting(redRoom, meeting.id, start, end);
-                       })
-                       .should.eventually.be.not.empty;
+      return meetingService.getMeetings(redRoom, start, end)
+                           .then(meetings => {
+                             const meeting = meetings[0];
+                             return meetingService.findMeeting(redRoom, meeting.id, start, end);
+                           }).should.eventually.be.not.empty;
     });
 
     it('`findMeeting` throws on non-existent', function testMeetingsAreEmpty() {
-      return meetingOps.findMeeting(redRoom, 'bogus', start, end).should.be.rejected;
+      return meetingService.findMeeting(redRoom, 'bogus', start, end).should.be.rejected;
     });
 
   });
@@ -119,26 +120,27 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('fails to delete non-existent room', function testDeleteOfNonexistent() {
-      meetingOps.deleteMeeting(redRoom, 'bogus').should.eventually.be.rejected;
+      meetingService.deleteMeeting(redRoom, 'bogus').should.eventually.be.rejected;
     });
 
     it('has deletes all meetings', function testMeetingsAreEmpty() {
 
       /*
-      This looks a bit off.  Need to ensure that the owner is a user an not a room.
+       This looks a bit off.  Need to ensure that the owner is a user an not a room.
        */
-      return meetingOps.getMeetings(redRoom, start, end)
-                        .then(meetings => {
-                          const deletePromises = meetings.map(meeting => meetingOps.deleteMeeting(redRoom, meeting.id));
-                          return Promise.all(deletePromises);
-                        })
-                        .then(() => meetingOps.getMeetings(redRoom, start, end)).should.eventually.be.empty;
+      return meetingService.getMeetings(redRoom, start, end)
+                           .then(meetings => {
+                             const deletePromises = meetings.map(
+                               meeting => meetingService.deleteMeeting(redRoom, meeting.id));
+                             return Promise.all(deletePromises);
+                           })
+                           .then(() => meetingService.getMeetings(redRoom, start, end)).should.eventually.be.empty;
     });
 
     it('verifies no meetings', function testMeetingsEmpty() {
 
-      return meetingOps.getMeetings(redRoom, start, end)
-                       .should.eventually.be.empty;
+      return meetingService.getMeetings(redRoom, start, end)
+        .should.eventually.be.empty;
     });
 
   });

@@ -49,8 +49,7 @@ export function createMeetingOperation(meetingService: MeetingsService,
 }
 
 
-export interface RoomMeetings
-{
+export interface RoomMeetings {
   room: Room;
   meetings: Meeting[];
 }
@@ -61,7 +60,7 @@ export class MeetingsOps {
   };
 
 
-  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment, owner?: Participant): Promise<RoomMeetings[]> {
+  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment): Promise<RoomMeetings[]> {
     const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room, start, end)
@@ -74,6 +73,11 @@ export class MeetingsOps {
     };
 
     return Promise.all(rooms.map(mapRoom));
+  }
+
+
+  getUserMeetings(owner: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
+    return this.meetingsService.getUserMeetings(owner, start, end);
   }
 
 
