@@ -1,8 +1,11 @@
+import * as request from 'superagent';
+
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {MSGraphBase} from '../MSGraphBase';
 import {Mail, MailService} from './MailService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+
 
 export class MSGraphMailService extends MSGraphBase implements MailService {
 
@@ -28,13 +31,23 @@ export class MSGraphMailService extends MSGraphBase implements MailService {
     };
 
     return new Promise((resolve, reject) => {
-      this.client
-        .api('/users/me/sendMail')
-        .post({message: mail}, (err, res) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(res);
+      const url = 'https://graph.microsoft.com/v1.0/users/' + 'roodmin@designitcontoso.onmicrosoft.com' + '/calendar/calendarView';
+
+      this.tokenOperations.withToken()
+        .then(token => {
+          request.post(url)
+            .set('Authorization', `Bearer ${token}`)
+            .send(mail)
+            .end((error, response) => {
+              if (error) {
+                console.log('=====');
+                console.log(error.message);
+                console.log('=====');
+                reject(new Error(error));
+              }
+
+              resolve(response);
+            });
         });
     });
   }
