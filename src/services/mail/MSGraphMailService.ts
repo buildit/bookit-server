@@ -18,37 +18,46 @@ export class MSGraphMailService extends MSGraphBase implements MailService {
     logger.info('Calling MS mail service ');
 
     const mail = {
-      subject: 'Microsoft Graph JavaScript Sample',
-      toRecipients: [{
-        emailAddress: {
-          address: 'bruce@designitcontoso.onmicrosoft.com'
+      message: {
+        subject: 'Microsoft Graph JavaScript Sample',
+        toRecipients: [
+          {
+            emailAddress: {
+              address: 'bruce@designitcontoso.onmicrosoft.com'
+            }
+          },
+          // {
+          //   emailAddress: {
+          //     address: 'defpearlpilot@yahoo.com'
+          //   }
+          // }
+        ],
+        body: {
+          content: `<h1>MicrosoftGraph JavaScript Sample</h1>Check out https://github.com/microsoftgraph/msgraph-sdk-javascript`,
+          contentType: 'html'
         }
-      }],
-      body: {
-        content: `<h1>MicrosoftGraph JavaScript Sample</h1>Check out https://github.com/microsoftgraph/msgraph-sdk-javascript`,
-        contentType: 'html'
       }
     };
 
     return new Promise((resolve, reject) => {
-      const url = 'https://graph.microsoft.com/v1.0/users/' + 'roodmin@designitcontoso.onmicrosoft.com' + '/calendar/calendarView';
+      const url = 'https://graph.microsoft.com/v1.0/users/' + 'roodmin@designitcontoso.onmicrosoft.com' + '/sendMail';
 
       this.tokenOperations.withToken()
-        .then(token => {
-          request.post(url)
-            .set('Authorization', `Bearer ${token}`)
-            .send(mail)
-            .end((error, response) => {
-              if (error) {
-                console.log('=====');
-                console.log(error.message);
-                console.log('=====');
-                reject(new Error(error));
-              }
+          .then(token => {
+            request.post(url)
+                   .set('Authorization', `Bearer ${token}`)
+                   .send(mail)
+                   .end((error, response) => {
+                     if (error) {
+                       console.log('=====');
+                       console.log(error);
+                       console.log('=====');
+                       reject(new Error(error));
+                     }
 
-              resolve(response);
-            });
-        });
+                     resolve(response);
+                   });
+          });
     });
   }
 
