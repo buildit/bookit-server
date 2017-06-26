@@ -17,5 +17,6 @@ export const testAppADusers = {
   'bruce@designitcontoso.onmicrosoft.com': 'Xoju09274',
   'roo@designitcontoso.onmicrosoft.com': 'Kuxa60135',
   'red-room@designitcontoso.onmicrosoft.com': 'Qofu46604',
-  'roboto@designitcontoso.onmicrosoft.com': 'Toko5038'
+  'roboto@designitcontoso.onmicrosoft.com': 'Toko5038',
+  'bookit@designitcontoso.onmicrosoft.com': 'Doco7181',
 };
