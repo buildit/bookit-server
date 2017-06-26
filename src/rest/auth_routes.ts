@@ -32,24 +32,22 @@ export function configureAuthenticationRoutes(app: Express,
   app.post('/authenticate', (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
 
-    const username = credentials.user;
-    if (!passwordStore.validateUser(username)) {
-      sendUnauthorized(res, 'Unrecognized user');
-      return;
+    const credentialToken = credentials.code;
+    const decoded = jwtTokenProvider.decode(credentialToken);
+    if (!passwordStore.validateUser(decoded.unique_name)) {
+        sendUnauthorized(res, 'Unrecognized user');
+        return;
     }
 
-    if (!passwordStore.validatePassword(username, credentials.password)) {
-      sendUnauthorized(res, 'Incorrect user/password combination');
-      return;
-    }
-
-    const token = jwtTokenProvider.provideToken(credentials);
-    logger.info('Successfully authenticated: ', username);
+    const token = jwtTokenProvider.provideToken({
+      user: decoded.unique_name,
+    });
+    logger.info('Successfully authenticated: ', decoded.unique_name);
     res.json({
                token: token,
-               email: username,
-               name: username.split('@')[0],
-               id: passwordStore.getUserId(username)
+               email: decoded.unique_name,
+               name: decoded.name,
+               id: passwordStore.getUserId(decoded.unique_name)
     });
   });
 
