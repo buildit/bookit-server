@@ -20,7 +20,7 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
   }
 
 
-  verify(token: string): Promise<TokenInfo> {
+  verify(token: string): Promise<Credentials> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
         if (err) {
@@ -33,6 +33,10 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
       });
     });
 
+  }
+
+  decode(token: string): any {
+    return jwt.decode(token);
   }
 
 }

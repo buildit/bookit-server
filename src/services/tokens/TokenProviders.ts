@@ -14,4 +14,5 @@ export interface GraphTokenProvider {
 export interface JWTTokenProvider {
   provideToken(credentials: Credentials): string;
   verify(token: string): Promise<Credentials>;
+  decode(token: string): any;
 }
