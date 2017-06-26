@@ -105,14 +105,14 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
+    const searchStart = '2013-02-08 08:55:00';
+    const searchEnd = '2013-02-08 09:35:00';
+
     const meetingReq: MeetingRequest = {
       title: 'meeting 0',
       start: meetingStart,
       end: meetingEnd,
     };
-
-    const searchStart = moment(meetingStart).subtract(5, 'minutes');
-    const searchEnd = moment(meetingEnd).add(5, 'minutes');
 
     const expected = {
       title: 'meeting 0',
@@ -130,7 +130,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
-                             .get(`/rooms/nyc/meetings?start=${searchStart.format()}&&end=${searchEnd.format()}`)
+                             .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
                              .then(query => {
                                const roomMeetings = query.body as RoomMeetings[];
                                const allMeetings = roomMeetings.reduce((acc, room) => {
@@ -150,14 +150,14 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
+    const searchStart = '2013-02-08 08:55:00';
+    const searchEnd = '2013-02-08 09:35:00';
+
     const meetingReq: MeetingRequest = {
       title: 'meeting 0',
       start: meetingStart,
       end: meetingEnd,
     };
-
-    const searchStart = moment(meetingStart).subtract(5, 'minutes');
-    const searchEnd = moment(meetingEnd).add(5, 'minutes');
 
     const expected = {
       title: 'meeting 0',
@@ -179,7 +179,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
-                             .get(`/rooms/nyc/meetings?start=${searchStart.format()}&&end=${searchEnd.format()}`)
+                             .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
                              .set('x-access-token', token)
                              .then(query => {
                                const roomMeetings = query.body as RoomMeetings[];
