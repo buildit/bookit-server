@@ -14,21 +14,3 @@ export interface Mail {
     }
   };
 }
-
-
-// {
-//   message: {
-//     subject,
-//       toRecipients: [
-//       {
-//         emailAddress: {
-//           address: recipientEmail,
-//         }
-//       },
-//     ],
-//       body: {
-//       content,
-//         contentType: 'html'
-//     }
-//   }
-// };

@@ -15,7 +15,7 @@ export class MSGraphMailService extends MSGraphBase implements MailService {
     logger.info('Constructing MSGraphMailService');
   }
 
-  sendMail(senderEmail: string, recipientEmail: string, messageType: string): Promise<any> {
+  sendMail(senderEmail: string, recipientEmail: string, messageType: string): Promise<string> {
     logger.info('Calling MS mail service ');
 
     const mail = createMail(recipientEmail, messageType);

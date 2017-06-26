@@ -3,5 +3,5 @@ export interface MailService {
     senderEmail: string,
     recipientEmail: string,
     messageType: string,
-  ): Promise<any>;
+  ): Promise<string>;
 }
