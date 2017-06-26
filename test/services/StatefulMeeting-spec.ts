@@ -59,18 +59,19 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
 
       it('will conflict on before', function theTest() {
         logger.debug('about to create duplicate');
-        return meetingService.createMeeting('double booking before',
-                                            start.clone().subtract(5, 'minutes'),
-                                            moment.duration(10, 'minutes'),
-                                            bruceParticipant,
-                                            redRoom)
-                             .then((thing) => {
-                               logger.debug('what is this?', thing);
-                               throw new Error('WCOB should not be here!!!');
-                             })
-                             .catch(err => {
-                               expect(err).to.be.eq('Found conflict');
-                             });
+        return createMeetingOperation(meetingService,
+                                      'double booking before',
+                                      start.clone().subtract(5, 'minutes'),
+                                      moment.duration(10, 'minutes'),
+                                      bruceParticipant,
+                                      redRoom)
+          .then((thing) => {
+            logger.debug('what is this?', thing);
+            throw new Error('WCOB should not be here!!!');
+          })
+          .catch(err => {
+            expect(err).to.be.eq('Found conflict');
+          });
       });
 
       it('will conflict on after', function theTest() {
