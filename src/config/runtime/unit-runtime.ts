@@ -12,8 +12,8 @@ import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperat
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
 import {MSUser} from '../../services/users/UserService';
+import {MockMailService} from '../../services/mail/MockMailService';
 import {MSGroup} from '../../services/groups/GroupService';
-
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
   const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
@@ -25,6 +25,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            jwtTokenProvider,
                            () => new MockDeviceService(),
                            () => new MockUserService(),
+                           () => new MockMailService(),
                            () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
                            (config) => new CachedMeetingService(environment.domain, config.roomService));

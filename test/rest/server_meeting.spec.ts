@@ -30,6 +30,7 @@ const app = configureRoutes(express(),
                             Runtime.jwtTokenProvider,
                             Runtime.roomService,
                             Runtime.userService,
+                            Runtime.mailService,
                             meetingService);
 
 const owner = generateMSUserResource('romans', Runtime.meetingService.domain());

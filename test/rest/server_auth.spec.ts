@@ -19,7 +19,14 @@ import {UserDetail} from '../../src/rest/auth_routes';
 const meetingService = Runtime.meetingService;
 
 
-const app = configureRoutes(express(), Runtime.passwordStore, Runtime.jwtTokenProvider, Runtime.roomService, Runtime.userService, meetingService);
+const app = configureRoutes(
+  express(),
+  Runtime.passwordStore,
+  Runtime.jwtTokenProvider,
+  Runtime.roomService,
+  Runtime.userService,
+  Runtime.mailService,
+  meetingService);
 
 
 describe('tests authentication', () => {
