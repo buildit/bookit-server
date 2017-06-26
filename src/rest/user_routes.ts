@@ -12,5 +12,15 @@ export function configureUsersRoutes(app: Express,
     res.json(users);
   });
 
+  app.post('/users', (req, res) => {
+    const mockResponse = {
+      id: 12345,
+      firstName: 'Jo',
+      lastName: 'Schmoe'
+    };
+
+    res.json(mockResponse);
+  });
+
   return app;
 }
