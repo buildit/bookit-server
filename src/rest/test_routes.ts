@@ -13,13 +13,16 @@ export function configureTestRoutes(app: Express,  mailSvc: MailService) {
   });
 
   app.get('/testSendMail', (req: Request, res: Response) => {
-    mailSvc.sendMail()
-      .then(response => {
-        console.log(response);
+    const senderEmail = 'bookit@designitcontoso.onmicrosoft.com';
+    const recipientEmail = 'bruce@designitcontoso.onmicrosoft.com';
+    const messageType = 'test';
+
+    mailSvc.sendMail(senderEmail, recipientEmail, messageType)
+      .then(() => {
         res.send('successfully sent mail');
       })
       .catch(err => {
-        console.error(err);
+        console.error(err.message);
         res.send('failed to send mail');
       });
   });

@@ -16,6 +16,7 @@ import {ROOM_COLORS, generateMSGroup, generateRomanNYCRoomList, generateRoomList
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MSGraphMailService} from '../../services/mail/MSGraphMailService';
+import {MockMailService} from '../../services/mail/MockMailService';
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockJWTTokenProvider} from '../../services/tokens/MockJWTTokenProvider';
 import {MockPasswordStore} from '../../services/authorization/MockPasswordStore';
@@ -78,7 +79,7 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                                      jwtTokenProvider,
                                      () => new MockDeviceService(),
                                      () => new MockUserService(),
-                                     () => new MSGraphMailService(tokenOperations),
+                                     () => new MockMailService(),
                                      () => {
                                        return generateMockGroup(env.domain.domainName);
                                      },
