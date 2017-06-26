@@ -197,8 +197,8 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
 
   it('it deletes the meeting', function testDeletingAMeeting() {
-    const meetingStart = '2013-02-08 09:00';
-    const meetingEnd = '2013-02-08 09:30';
+    const meetingStart = '2013-02-08 09:00:00';
+    const meetingEnd = '2013-02-08 09:30:00';
 
     const momentStart = moment(meetingStart);
     const momentEnd = moment(meetingEnd);
@@ -236,16 +236,16 @@ describe('meeting routes operations', function testMeetingRoutes() {
         message: 'End date must be after start date',
         data: {
           title: 'meeting 0',
-          start: '2013-02-08 09:00',
-          end: '2013-02-08 08:00',
+          start: '2013-02-08 09:00:00',
+          end: '2013-02-08 08:00:00',
         }
       },
       {
         message: 'Title must be provided',
         data: {
           title: '',
-          start: '2013-02-08 08:00',
-          end: '2013-02-08 09:00'
+          start: '2013-02-08 08:00:00',
+          end: '2013-02-08 09:00:00'
         }
       },
       {
@@ -253,7 +253,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
         data: {
           title: 'baaad meeting',
           start: 'baad date',
-          end: '2013-02-08 09:00'
+          end: '2013-02-08 09:00:00'
         }
       },
     ];
