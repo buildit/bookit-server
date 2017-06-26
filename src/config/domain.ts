@@ -2,7 +2,8 @@ import {roman, contoso, test, digital, defaultIdentity} from './identities';
 import {Domain} from '../model/EnvironmentConfig';
 
 
-export function getDomain(env: string): Domain {
+export function getDomain(_env: string): Domain {
+  const env = _env.toLowerCase();
   switch (env) {
     case 'roman': {
       return roman.domain;

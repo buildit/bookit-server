@@ -33,7 +33,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .query({startDateTime, endDateTime})
                    .end((error, response) => {
                      if (error) {
-                       reject(new Error(error));
+                       return reject(new Error(error));
                      }
 
                      const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
