@@ -28,7 +28,8 @@ export interface MeetingRequest {
 function validateDate(req: Request, param: string) {
   const date = extractAsMoment(req, param);
   if (!date.isValid()) {
-    throw new Error(`${param} is not a valid moment.`);
+    const paramValue = req.query[param];
+    throw new Error(`${param} is not a valid moment('${paramValue}').`);
   }
 
   return date;
