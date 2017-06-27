@@ -12,13 +12,10 @@ import * as request from 'supertest';
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
 
-import {Participant} from '../../src/model/Participant';
 import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
-import {UserDetail} from '../../src/rest/auth_routes';
-import {Room} from '../../src/model/Room';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
 
