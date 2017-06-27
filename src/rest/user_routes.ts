@@ -15,9 +15,8 @@ export function configureUsersRoutes(app: Express,
   app.post('/users', (req, res) => {
     const mockUser= {
       id: 777,
-      firstName: 'Zac',
-      lastName: 'Smith',
-      email: 'william.smith1@wipro.com'
+      name: 'Barbara Streisand',
+      email: req.body.email,
     };
 
     const senderEmail = 'bookit@designitcontoso.onmicrosoft.com';
