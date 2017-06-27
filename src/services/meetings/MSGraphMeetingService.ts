@@ -25,34 +25,13 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
 
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    const startDateTime = start.toISOString();
-    const endDateTime = end.toISOString();
-
-
-    return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
-          .then(token => {
-            request.get('https://graph.microsoft.com/v1.0/users/' + room.email + '/calendar/calendarView')
-                   .set('Authorization', `Bearer ${token}`)
-                   .query({startDateTime, endDateTime})
-                   .end((error, response) => {
-                     if (error) {
-                       reject(new Error(error));
-                     }
-
-                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
-
-                     resolve(meetings);
-                   });
-          });
-    });
+    return this._getMeetings(room.email, start, end);
   }
 
 
   getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
-    return Promise.reject('Method not implemented.');
+    return this._getMeetings(user.email, start, end);
   }
-
 
 
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
@@ -113,6 +92,29 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     return this.client.api(URL)
                .post(eventData)
                .then(meeting => MSGraphMeetingService._mapMeeting(meeting)) as Promise<Meeting>;
+  }
+
+
+  private _getMeetings(user: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    const startDateTime = start.toISOString();
+    const endDateTime = end.toISOString();
+
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get('https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView')
+                   .set('Authorization', `Bearer ${token}`)
+                   .query({startDateTime, endDateTime})
+                   .end((error, response) => {
+                     if (error) {
+                       reject(new Error(error));
+                     }
+
+                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
+                     resolve(meetings);
+                   });
+          });
+    });
   }
 
 
