@@ -61,7 +61,7 @@ export class MeetingsOps {
 
 
   getRoomListMeetings(rooms: Room[], start: Moment, end: Moment): Promise<RoomMeetings[]> {
-    const mapRoom = (room: Room) => {
+    const mapRoom = (room: Room): Promise<RoomMeetings> => {
       return this.meetingsService
                  .getMeetings(room, start, end)
                  .then(m => {
