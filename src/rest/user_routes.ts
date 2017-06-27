@@ -13,7 +13,7 @@ export function configureUsersRoutes(app: Express,
   });
 
   app.post('/users', (req, res) => {
-    const mockUser= {
+    const mockUser = {
       id: 777,
       name: 'Barbara Streisand',
       email: req.body.email,
