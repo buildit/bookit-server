@@ -38,7 +38,7 @@ export function configureRoutes(app: Express,
 
   configureAuthenticationRoutes(app, passwordStore, jwtTokenProvider);
   configureTestRoutes(app, mailService);
-  configureUsersRoutes(app, userService);
+  configureUsersRoutes(app, userService, mailService);
   configureMeetingRoutes(app, roomService, meetingsService);
 
   return app;
