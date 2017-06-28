@@ -23,4 +23,3 @@ export class MockUserService implements UserService {
     return Promise.reject('Unimplemented: MockUserService:postUser');
   }
 }
-
