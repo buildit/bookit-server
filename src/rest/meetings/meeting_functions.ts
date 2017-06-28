@@ -82,11 +82,11 @@ export function createMeeting(req: Request,
 
 
 export function handleMeetingFetch(roomService: RoomService,
-                            meetingOps: MeetingsOps,
-                            credentials: Credentials,
-                            listName: string,
-                            start: moment.Moment,
-                            end: moment.Moment): Promise<RoomMeetings[]> {
+                                   meetingOps: MeetingsOps,
+                                   credentials: Credentials,
+                                   listName: string,
+                                   start: moment.Moment,
+                                   end: moment.Moment): Promise<RoomMeetings[]> {
   return new Promise((resolve, reject) => {
     roomService.getRoomList(listName)
                .then(roomList => meetingOps.getRoomListMeetings(roomList.rooms, start, end))

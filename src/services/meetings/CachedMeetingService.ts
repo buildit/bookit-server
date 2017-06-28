@@ -174,14 +174,16 @@ export class CachedMeetingService implements MeetingsService {
     return new Promise((resolve) => {
       const owner = room.email;
       const roomName = room.name;
-      const participantMeetings = this.participantCache.get(owner);
+      const participantMeetings = this.participantCache.get(owner) || [];
       logger.debug('RoomCache:: for participant:', owner, 'found:', participantMeetings.map(m => m.id));
-      logger.debug('RoomCache:: for participant:', owner, 'found:', participantMeetings);
-      const roomMeetings = this.roomCache.get(roomName);
+      const roomMeetings = this.roomCache.get(roomName) || [];
       logger.debug('RoomCache:: for room:', roomName, 'found:', roomMeetings);
 
-      const allMeetings = [...(participantMeetings || []), ...(roomMeetings || [])];
-      const meetings =  allMeetings || [];
+      const meetingIdMap = new Map<string, Meeting>();
+      participantMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
+      roomMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
+
+      const meetings =  Array.from(meetingIdMap.values()) || [];
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
       logger.debug('RoomCache:: filtered to:', filtered.map(m => m.id));
 
