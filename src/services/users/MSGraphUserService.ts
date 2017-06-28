@@ -28,5 +28,9 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
+  postUser(userEmail: string): Promise<any> {
+    return Promise.reject('Unimplemented: MockUserService:postUser');
+  }
+
 }
 
