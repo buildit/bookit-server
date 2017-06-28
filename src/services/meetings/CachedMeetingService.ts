@@ -209,8 +209,18 @@ export class CachedMeetingService implements MeetingsService {
       roomMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
 
       const meetings =  Array.from(meetingIdMap.values()) || [];
+      logger.info('CachedMeetingService::getCachedRoomMeetings() - filter is:', start, end);
+      logger.info('CachedMeetingService::getCachedRoomMeetings() - meetings are', meetings.map(m => {
+        return {
+          id: m.id,
+          start: m.start,
+          end: m.end
+        };
+      }));
+
+
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.debug('RoomCache:: filtered to:', filtered.map(m => m.id));
+      logger.info('CachedMeetingService::getCachedRoomMeetings() filtered to:', filtered.map(m => m.id));
 
       return resolve(filtered);
     });
@@ -224,7 +234,7 @@ export class CachedMeetingService implements MeetingsService {
       const ownerMeetings = this.entitledOwnerCache.get(owner);
       const meetings = ownerMeetings || [];
       const filtered = meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.info('UserCache:: Filtered to:', filtered.map(m => m.id));
+      logger.info('CachedMeetingService::getUserCachedMeetings() - Filtered to:', filtered.map(m => m.id));
 
       return resolve(filtered);
     });
@@ -253,8 +263,6 @@ export class CachedMeetingService implements MeetingsService {
                                  const meetingIds = meetings.map(meeting => meeting.id);
                                  meetings.forEach(this.cacheMeeting.bind(this));
                                  this.reconcileAndUncache(meetingIds);
-                                 this.fetched = true;
-                                 return true;
                                })
                                .catch(error => {
                                  logger.error('Failed to cache meetings for');
@@ -368,7 +376,7 @@ class PassThroughMeetingService implements MeetingsService {
       return copy;
     });
 
-    logger.info('getMeetings::', mappedMeetings);
+    logger.info('PassThroughMeetingService::getMeetings() - resolving', mappedMeetings.map(m => m.id));
     return Promise.resolve(this.meetings);
   }
 
