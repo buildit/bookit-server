@@ -1,4 +1,5 @@
 import {UserService} from '../services/users/UserService';
+import {MailService} from '../services/mail/MailService';
 import {RoomService} from '../services/rooms/RoomService';
 import {MeetingsService} from '../services/meetings/MeetingService';
 import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
@@ -11,6 +12,7 @@ import {Domain} from './EnvironmentConfig';
 
 export type DeviceServiceFactory = (config: RuntimeConfig) => DeviceService;
 export type UserServiceFactory = (config: RuntimeConfig) => UserService;
+export type MailServiceFactory = (config: RuntimeConfig) => MailService;
 export type GroupServiceFactory = (config: RuntimeConfig) => GroupService;
 export type MeetingServiceFactory = (config: RuntimeConfig) => MeetingsService;
 export type RoomServiceFactory = (config: RuntimeConfig) => RoomService;
@@ -22,6 +24,7 @@ export class RuntimeConfig {
   private _port: number;
   private _deviceService: DeviceService;
   private _userService: UserService;
+  private _mailService: MailService;
   private _groupService: GroupService;
   private _roomService: RoomService;
   private _meetingService: MeetingsService;
@@ -37,6 +40,7 @@ export class RuntimeConfig {
               private _jwtTokenProvider: JWTTokenProvider,
               private _deviceServiceFactory: DeviceServiceFactory,
               private _userServiceFactory: UserServiceFactory,
+              private _mailServiceFactory: MailServiceFactory,
               private _groupServiceFactory: GroupServiceFactory,
               private _roomServiceFactory: RoomServiceFactory,
               private _meetingServiceFactory: MeetingServiceFactory) {
@@ -78,6 +82,11 @@ export class RuntimeConfig {
   get userService() {
     this._userService = invokeIfUnset(this._userService, this._userServiceFactory.bind(undefined, this));
     return this._userService;
+  }
+
+  get mailService() {
+    this._mailService = invokeIfUnset(this._mailService, this._mailServiceFactory.bind(undefined, this));
+    return this._mailService;
   }
 
 

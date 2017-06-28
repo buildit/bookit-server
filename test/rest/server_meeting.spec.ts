@@ -29,6 +29,7 @@ const app = configureRoutes(express(),
                             jwtTokenProvider,
                             Runtime.roomService,
                             Runtime.userService,
+                            Runtime.mailService,
                             meetingService);
 
 

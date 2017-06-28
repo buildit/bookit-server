@@ -14,6 +14,7 @@ import {configureAuthenticationRoutes} from './auth_routes';
 import {initializeCredentialsFilter, initializeTokenFilter} from './filters';
 import {configureUsersRoutes} from './user_routes';
 import {UserService} from '../services/users/UserService';
+import {MailService} from '../services/mail/MailService';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {configureRoomRoutes} from './rooms/room_routes';
 
@@ -31,14 +32,15 @@ export function configureRoutes(app: Express,
                                 jwtTokenProvider: JWTTokenProvider,
                                 roomService: RoomService,
                                 userService: UserService,
+                                mailService: MailService,
                                 meetingsService: MeetingsService): Express {
   initializeTokenFilter(jwtTokenProvider);
   initializeCredentialsFilter(jwtTokenProvider);
   configureExpress(app);
 
   configureAuthenticationRoutes(app, passwordStore, jwtTokenProvider);
-  configureTestRoutes(app);
-  configureUsersRoutes(app, userService);
+  configureTestRoutes(app, mailService);
+  configureUsersRoutes(app, userService, mailService);
   configureRoomRoutes(app, roomService);
   configureMeetingRoutes(app, roomService, meetingsService);
 
