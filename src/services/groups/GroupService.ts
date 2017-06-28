@@ -9,7 +9,13 @@ export interface MSGroup {
 }
 
 export interface GroupService {
+
   getGroups(): Promise<Array<MSGroup>>;
+
+  getGroupMembers(name: string): Promise<Array<MSUser>>;
+
+
+  addMemberToGroup(id: string, name: string): Promise<{}>;
 
   getGroupMembers(name: string): Promise<Array<MSUser>>;
 }
