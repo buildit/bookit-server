@@ -61,14 +61,11 @@ export class MeetingsOps {
 
 
   getRoomListMeetings(rooms: Room[], start: Moment, end: Moment): Promise<RoomMeetings[]> {
-    const mapRoom = (room: Room): Promise<RoomMeetings> => {
+    const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room, start, end)
                  .then(m => {
                    return {room, meetings: m};
-                 })
-                 .catch(error => {
-                   logger.error(error);
                  });
     };
 
