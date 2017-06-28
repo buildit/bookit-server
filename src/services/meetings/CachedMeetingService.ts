@@ -82,10 +82,15 @@ export class CachedMeetingService implements MeetingsService {
   private entitledIdCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
   private entitledOwnerCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new OwnerCachingStrategy());
 
+  private cacheStart: moment.Moment;
+  private cacheEnd: moment.Moment;
 
   constructor(private _domain: Domain,
               private roomService: RoomService,
               private delegatedMeetingsService?: MeetingsService) {
+
+    this.cacheStart = moment().subtract(1, 'day').startOf('day');
+    this.cacheEnd = moment().add(1, 'week').endOf('day');
 
     const _internalRefresh = () => {
       this.refreshCache();
@@ -117,8 +122,9 @@ export class CachedMeetingService implements MeetingsService {
 
 
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    const fetchMeetings = this.fetched ? Promise.resolve() : this.refreshCache();
-    return fetchMeetings.then(() => {
+    const anyUpdated = this.updateCacheStart(start) || this.updateCacheEnd(end);
+
+    return this.refreshCache().then(() => {
       return this.getCachedRoomMeetings(room, start, end);
     });
   }
@@ -168,6 +174,25 @@ export class CachedMeetingService implements MeetingsService {
     return this.delegatedMeetingsService.doSomeShiznit(test);
   }
 
+  private updateCacheStart(_start: moment.Moment): boolean {
+    const start = _start.startOf('day');
+    if (start.isBefore(this.cacheStart)) {
+      this.cacheStart = start;
+      return true;
+    }
+
+    return false;
+  }
+
+  private updateCacheEnd(_end: moment.Moment): boolean {
+    const end = _end.endOf('day');
+    if (end.isAfter(this.cacheEnd)) {
+      this.cacheEnd = end;
+      return true;
+    }
+
+    return false;
+  }
 
   private getCachedRoomMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     // logger.info('searching meetings:', room, start, end);
@@ -206,8 +231,13 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  private refreshCache(start: Moment = moment().subtract(1, 'day'),
-                       end: Moment = moment().add(1, 'week')): Promise<void> {
+  // private refreshCache(start: Moment = moment().subtract(1, 'day').startOf('day'),
+  //                      end: Moment = moment().add(1, 'week').startOf('day')): Promise<void> {
+  private refreshCache(): Promise<void> {
+
+    const start = this.cacheStart;
+    const end = this.cacheEnd;
+
     logger.info('refreshCache:: refreshing meetings');
     const meetingSvc = this.delegatedMeetingsService;
     return this.roomService.getRoomList('nyc')

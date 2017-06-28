@@ -100,7 +100,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     const endDateTime = end.toISOString();
 
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
-    logger.debug(URL);
+    logger.debug(URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
       this.tokenOperations.withToken()
           .then(token => {
@@ -112,6 +112,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                        return reject(new Error(error));
                      }
 
+                     // logger.info('Response', response);
                      const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
                      resolve(meetings);
                    });

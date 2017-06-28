@@ -118,8 +118,8 @@ function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): R
     return acc;
   }, new Map<string, Meeting>());
 
-  logger.info('Merging meetings', roomMeetings);
-  logger.info('Merging meetings', userMeetingsMap);
+  logger.debug('Merging meetings', roomMeetings);
+  logger.debug('Merging meetings', userMeetingsMap);
 
   return roomMeetings.map(roomNMeetings => {
     return {
