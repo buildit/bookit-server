@@ -61,7 +61,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        });
   });
 
-  it\('it creates the meeting', function testCreateMeeting() {
+  it('it creates the meeting', function testCreateMeeting() {
     const meetingStart = '2013-02-08 10:00:00';
     const meetingEnd = '2013-02-08 10:45:00';
 
