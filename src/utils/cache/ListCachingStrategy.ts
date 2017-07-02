@@ -11,6 +11,11 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
   abstract getIdentityMapper(item: Type): string;
 
 
+  hasKey(cache: Map<string, Type[]>, key: string): boolean {
+    return cache.has(key);
+  }
+
+
   put(cache: Map<string, Type[]>, toCache: Type): Type[] {
     const key = this.getKey(toCache);
     return this.putKey(cache, key, toCache);

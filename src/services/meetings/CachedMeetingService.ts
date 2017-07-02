@@ -16,6 +16,8 @@ import {Room} from '../../model/Room';
 import {Domain} from '../../model/EnvironmentConfig';
 import {ListCachingStrategy} from '../../utils/cache/ListCachingStrategy';
 import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy';
+import {StartDateCachingStrategy} from './StartDateCachingStrategy';
+import {EndDateCachingStrategy} from './EndDateCachingStrategy';
 
 
 const DEFAULT_REFRESH_IN_MILLIS = 300 * 1000;
@@ -77,6 +79,8 @@ export class CachedMeetingService implements MeetingsService {
   private ownerCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new OwnerCachingStrategy());
   private participantCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new ParticipantsCachingStrategy());
   private roomCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new RoomCachingStrategy());
+  private startDateCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new StartDateCachingStrategy());
+  private endDateCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new EndDateCachingStrategy());
 
 
   private entitledIdCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
@@ -93,7 +97,7 @@ export class CachedMeetingService implements MeetingsService {
     this.cacheEnd = moment().add(1, 'week').endOf('day');
 
     const _internalRefresh = () => {
-      this.refreshCache();
+      this.refreshCache(this.cacheStart, this.cacheEnd);
     };
 
     if (!delegatedMeetingsService) {
@@ -122,9 +126,14 @@ export class CachedMeetingService implements MeetingsService {
 
 
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    const anyUpdated = this.updateCacheStart(start) || this.updateCacheEnd(end);
+    const updatedStart = this.updateCacheStart(start);
+    const updatedEnd = this.updateCacheEnd(end);
 
-    return this.refreshCache().then(() => {
+    logger.error('ANY UPDATED', updatedStart, updatedEnd);
+
+    const refresh = (updatedStart || updatedEnd) ? this.refreshCache(this.cacheStart, this.cacheEnd) : Promise.resolve();
+
+    return refresh.then(() => {
       return this.getCachedRoomMeetings(room, start, end);
     });
   }
@@ -174,8 +183,10 @@ export class CachedMeetingService implements MeetingsService {
     return this.delegatedMeetingsService.doSomeShiznit(test);
   }
 
+
   private updateCacheStart(_start: moment.Moment): boolean {
     const start = _start.startOf('day');
+    logger.info('Starts', this.cacheStart, start);
     if (start.isBefore(this.cacheStart)) {
       this.cacheStart = start;
       return true;
@@ -184,8 +195,10 @@ export class CachedMeetingService implements MeetingsService {
     return false;
   }
 
+
   private updateCacheEnd(_end: moment.Moment): boolean {
     const end = _end.endOf('day');
+    logger.info('Ends', this.cacheEnd, end);
     if (end.isAfter(this.cacheEnd)) {
       this.cacheEnd = end;
       return true;
@@ -193,6 +206,7 @@ export class CachedMeetingService implements MeetingsService {
 
     return false;
   }
+
 
   private getCachedRoomMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     // logger.info('searching meetings:', room, start, end);
@@ -210,7 +224,7 @@ export class CachedMeetingService implements MeetingsService {
 
       const meetings =  Array.from(meetingIdMap.values()) || [];
       logger.info('CachedMeetingService::getCachedRoomMeetings() - filter is:', start, end);
-      logger.info('CachedMeetingService::getCachedRoomMeetings() - meetings are', meetings.map(m => {
+      logger.info(`CachedMeetingService::getCachedRoomMeetings() - meetings(${owner}) are`, meetings.map(m => {
         return {
           id: m.id,
           start: m.start,
@@ -243,12 +257,9 @@ export class CachedMeetingService implements MeetingsService {
 
   // private refreshCache(start: Moment = moment().subtract(1, 'day').startOf('day'),
   //                      end: Moment = moment().add(1, 'week').startOf('day')): Promise<void> {
-  private refreshCache(): Promise<void> {
+  private refreshCache(start: Moment, end: Moment): Promise<void> {
 
-    const start = this.cacheStart;
-    const end = this.cacheEnd;
-
-    logger.info('refreshCache:: refreshing meetings');
+    logger.info('refreshCache:: refreshing meetings', start, end);
     const meetingSvc = this.delegatedMeetingsService;
     return this.roomService.getRoomList('nyc')
                .then(roomList => {
@@ -294,11 +305,14 @@ export class CachedMeetingService implements MeetingsService {
     existingMeetingIds.forEach(id => this.evictMeeting(id));
   }
 
+
   private cacheMeeting(meeting: Meeting) {
     this.idCache.put(meeting);
     this.ownerCache.put(meeting);
     this.participantCache.put(meeting);
     this.roomCache.put(meeting);
+    this.startDateCache.put(meeting);
+    this.endDateCache.put(meeting);
 
     logger.info('Caching meeting', meeting.id);
     logger.debug('id keys', this.idCache.keys());
@@ -317,6 +331,8 @@ export class CachedMeetingService implements MeetingsService {
     this.ownerCache.remove(meeting);
     this.participantCache.remove(meeting);
     this.roomCache.remove(meeting);
+    this.startDateCache.remove(meeting);
+    this.endDateCache.remove(meeting);
 
     return meeting;
   }

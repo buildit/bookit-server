@@ -26,6 +26,7 @@ describe('Validation', () => {
   const overlapAfterStart = moment('2016-03-12 13:30:00');
   const overlapAfterEnd = moment('2016-03-12 14:30:00');
 
+
   it('enclosing meeting shows a conflict', function testEnclosedMeeting() {
     const isBetween = isMeetingOverlapping(meetingsStart, meetingsEnd, enclosingStart, enclosingEnd);
     expect(isBetween).to.be.true;
