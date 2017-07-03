@@ -74,7 +74,8 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
     }
 
     logger.trace('Filtered key', key, 'to list zero');
-    cache.delete(key);
+    cache.set(key, filtered);
+    // cache.delete(key);
     return true;
   }
 

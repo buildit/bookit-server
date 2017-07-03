@@ -32,7 +32,7 @@ const redRoom = {displayName: 'Red'};
 const blueRoom = {displayName: 'Blue'};
 
 
-describe('start date caching suite', function startDateCachingSuite() {
+describe('date caching suite', function startDateCachingSuite() {
 
   const first: Meeting = {
     id: '1',
@@ -110,7 +110,7 @@ describe('start date caching suite', function startDateCachingSuite() {
     expect(startDateCacher.get(cache, '20170701').length).to.be.equal(1);
 
     startDateCacher.remove(cache, first);
-    expect(startDateCacher.get(cache, '20170701')).to.be.undefined;
+    expect(startDateCacher.get(cache, '20170701').length).to.be.equal(0);
 
     expect(startDateCacher.get(cache, '20170702').length).to.be.equal(2);
 
@@ -118,12 +118,12 @@ describe('start date caching suite', function startDateCachingSuite() {
     expect(startDateCacher.get(cache, '20170702').length).to.be.equal(1);
 
     startDateCacher.remove(cache, fourth);
-    expect(startDateCacher.get(cache, '20170702')).to.be.undefined;
+    expect(startDateCacher.get(cache, '20170702').length).to.be.equal(0);
 
     expect(startDateCacher.get(cache, '20170703').length).to.be.equal(1);
 
     startDateCacher.remove(cache, third);
-    expect(startDateCacher.get(cache, '20170703')).to.be.undefined;
+    expect(startDateCacher.get(cache, '20170703').length).to.be.equal(0);
   });
 
   it('caches by end date', function testCachingByStartDate() {
@@ -153,7 +153,7 @@ describe('start date caching suite', function startDateCachingSuite() {
 
   });
 
-  it('evicts by start date', function testEvictionByStartDate() {
+  it('evicts by end date', function testEvictionByStartDate() {
 
     const cache = new Map<string, Meeting[]>();
     const endDateCacher = new EndDateCachingStrategy();
@@ -166,19 +166,19 @@ describe('start date caching suite', function startDateCachingSuite() {
     expect(endDateCacher.get(cache, '20170702').length).to.be.equal(1);
 
     endDateCacher.remove(cache, fourth);
-    expect(endDateCacher.get(cache, '20170702')).to.be.undefined;
+    expect(endDateCacher.get(cache, '20170702').length).to.be.equal(0);
 
 
     expect(endDateCacher.get(cache, '20170703').length).to.be.equal(1);
 
     endDateCacher.remove(cache, third);
-    expect(endDateCacher.get(cache, '20170703')).to.be.undefined;
+    expect(endDateCacher.get(cache, '20170703').length).to.be.equal(0);
 
 
     expect(endDateCacher.get(cache, '20170704').length).to.be.equal(1);
 
     endDateCacher.remove(cache, second);
-    expect(endDateCacher.get(cache, '20170704')).to.be.undefined;
+    expect(endDateCacher.get(cache, '20170704').length).to.be.equal(0);
   });
 
 });
