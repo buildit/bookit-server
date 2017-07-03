@@ -29,11 +29,21 @@ export function configureAuthenticationRoutes(app: Express,
                                               passwordStore: PasswordStore,
                                               jwtTokenProvider: JWTTokenProvider) {
 
-  app.post('/authenticate', (req: Request, res: Response) => {
+  app.post('/authenticate', async (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
 
     const credentialToken = credentials.code;
-    const decoded = jwtTokenProvider.decode(credentialToken);
+    let decoded;
+    try {
+      decoded = await jwtTokenProvider.verifyAzure(credentialToken);
+    }
+    catch (error) {
+      sendUnauthorized(res, 'Unrecognized user');
+    }
+
+    // TODO: Once we have a better idea how to filter users, like being able to
+    // say "you have a valid login, but you're not actually a bookit user", we should
+    // replace this with that.
     if (!passwordStore.validateUser(decoded.unique_name)) {
         sendUnauthorized(res, 'Unrecognized user');
         return;
