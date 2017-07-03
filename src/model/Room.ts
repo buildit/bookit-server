@@ -1,4 +1,6 @@
-export class Room {
+import {Attendee} from './Attendee';
+
+export class Room implements Attendee {
   id: string;
   name: string;
   mail: string;

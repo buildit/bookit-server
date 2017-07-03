@@ -106,25 +106,19 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const meetingReq: MeetingRequest = {
-      title: 'meeting 0',
-      start: meetingStart,
-      end: meetingEnd,
-    };
-
-    const expected = {
-      title: 'meeting 0',
-      start: moment(meetingReq.start),
-      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+    const meetingToCreate = {
+      title: 'meeting without a token',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
       room
     };
 
-    return meetingService.createMeeting(expected.title,
-                                        expected.start,
-                                        expected.duration,
-                                        expected.bruceOwner,
-                                        expected.room)
+    return meetingService.createMeeting(meetingToCreate.title,
+                                        meetingToCreate.start,
+                                        meetingToCreate.duration,
+                                        meetingToCreate.bruceOwner,
+                                        meetingToCreate.room)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -151,16 +145,10 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const meetingReq: MeetingRequest = {
-      title: 'meeting 0',
-      start: meetingStart,
-      end: meetingEnd,
-    };
-
     const expected = {
-      title: 'meeting 0',
-      start: moment(meetingReq.start),
-      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      title: 'meeting with token',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingEnd), 'minutes'), 'minutes'),
       bruceOwner,
       room
     };
@@ -188,7 +176,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
                                const meetings = allMeetings.filter(m => m.id === meetingId);
                                expect(meetings.length).to.be.at.least(1);
-                               return expect(meetings[0].title).to.be.equal('meeting 0');
+                               return expect(meetings[0].title).to.be.equal('meeting with token');
                              });
                          });
   });
