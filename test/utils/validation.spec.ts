@@ -1,10 +1,9 @@
 import {expect} from 'chai';
 import * as moment from 'moment';
-import {Moment} from 'moment';
 import {isMeetingOverlapping} from '../../src/utils/validation';
 
 
-describe('Validation', () => {
+describe('Validation', function testValidationSuite() {
   const dateStart = new Date('2016-03-12 13:00:00');
   const dateEnd = new Date('2016-03-12 14:00:00');
 
@@ -51,14 +50,5 @@ describe('Validation', () => {
     const isBetween = isMeetingOverlapping(meetingsStart, meetingsEnd, afterStart, afterEnd);
     expect(isBetween).to.be.false;
   });
-
-  // it('converts JS date to moment back to original', function testDataMomentConversion() {
-  //   const initialDate = new Date('2016-03-12 13:00:00');
-  //   const momentStart = moment(initialDate);
-  //   const dateFromMoment = momentStart.toDate();
-  //
-  //   expect(initialDate).to.be.equal(dateFromMoment);
-  // });
-
 
 });
