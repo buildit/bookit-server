@@ -15,7 +15,7 @@ userPasswords.set('babs@myews.onmicrosoft.com', {password: 'call me barbra', id:
 userPasswords.set('romans@myews.onmicrosoft.com', {password: 'enterprise: engage', id: counter++});
 userPasswords.set('rasmus@designit.com', {password: 'hey', id: 4});
 userPasswords.set('z', {password: 'z', id: 5});
-userPasswords.set('roodmin@designitcontoso.onmicrosoft.com', {password: 'yo', id: 6});
+userPasswords.set('roodmin@designitcontoso.onmicrosoft.com', {password: 'yo', id: counter++});
 
 Object.keys(testAppADusers).forEach(user => {
   const userMap = testAppADusers as any;

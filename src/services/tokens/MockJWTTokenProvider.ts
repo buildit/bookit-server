@@ -1,4 +1,5 @@
 import * as jwt from 'jsonwebtoken';
+import * as request from 'superagent';
 
 import {JWTTokenProvider} from './TokenProviders';
 import {Credentials} from '../../model/Credentials';
@@ -37,6 +38,37 @@ export class MockJWTTokenProvider implements JWTTokenProvider {
 
   decode(token: string): any {
     return jwt.decode(token);
+  }
+
+  formatRSPublicKey(rawKey: string): string {
+    return [
+      '-----BEGIN CERTIFICATE-----',
+      ...rawKey.match(/.{1,64}/g),
+      '-----END CERTIFICATE-----'
+    ].join('\n');
+  }
+
+  async verifyAzure(token: string): Promise<any> {
+    const wellKnownConfig = await request.get('https://login.microsoftonline.com/common/.well-known/openid-configuration');
+    const keysResponse = await request.get(wellKnownConfig.body.jwks_uri);
+    const keys = keysResponse.body.keys;
+
+    return new Promise((resolve, reject) => {
+      for (let thisKey of keys) {
+        try {
+          resolve(jwt.verify(token.toString(), this.formatRSPublicKey(thisKey.x5c[0]), {
+            algorithms: ['RS256'],
+          }));
+        }
+        catch (error) {
+          // We don't want to reject here, because there's an array of keys provided, and the correct
+          // one might be in the middle.
+        }
+      }
+
+      reject(false);
+    });
+
   }
 
 }
