@@ -30,6 +30,10 @@ export class CachedMeetingService implements MeetingsService {
               private delegatedMeetingsService?: MeetingsService) {
 
     const _internalRefresh = () => {
+      /*
+      Do a refresh of the caches based on their bounds or a computed default window.  I would like to eventually
+      tie the user cache refreshes against user participants from the rooms.
+       */
       this.refreshCaches()
           .then(() => this.refreshUserCaches())
           .then(() => logger.info('Caches refreshed'));
@@ -59,6 +63,18 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
+  /**
+   * This gets the meetings for a particular date bound against a particular room resource.
+   *
+   * We will consult if the date bound is contained within the room's cache.  If not, we will refresh with
+   * a larger window and allow the fetch from cache to proceed.
+   *
+   * NB: This can be further optimized but we'll leave it as is for now.
+   * @param room
+   * @param start
+   * @param end
+   * @returns {Promise<TResult2|Meeting[]>}
+   */
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     const roomCache = this.getCacheForRoom(room);
     const fetch = roomCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshCache(room, start, end);

@@ -13,7 +13,13 @@ import {IdentityCache, ListCache} from '../../utils/cache/caches';
 import {Attendee} from '../../model/Attendee';
 
 
-
+/**
+ * This is a dedicated cache against the an attendee of the meeting.
+ *
+ *
+ * NB: Since the access pattern against the Graph API is on an attendee basis, the previous caching scheme
+ * on a per service basis was faulty.
+ */
 export class SubCache<T extends Attendee> {
 
   private idCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
@@ -26,6 +32,10 @@ export class SubCache<T extends Attendee> {
   private cacheEnd: moment.Moment;
 
   constructor(private attendee: T) {
+    /*
+    Initially, caches will be empty.  Don't set arbitrary bounds here.  Eventually, date boundary checks should
+    go against the date caches (or not, maybe the caches will be removed).
+     */
     this.cacheStart = undefined;
     this.cacheEnd = undefined;
 
@@ -38,6 +48,13 @@ export class SubCache<T extends Attendee> {
   }
 
 
+  /**
+   * Determines what the fetch start for the service calls should be.  This consults the cache whether the passed
+   * in start date is contained within the cache.
+   *
+   * @param start the date to check against the cache
+   * @returns {Moment}
+   */
   getFetchStart(start: Moment): Moment {
     if (!this.cacheStart) {
       return start;
@@ -47,6 +64,12 @@ export class SubCache<T extends Attendee> {
   }
 
 
+  /**
+   * Determines what the fetch end for the service calls should be.  This consults the cache whether the passed
+   * in end date is contained within the cache.
+   * @param end
+   * @returns {Moment}
+   */
   getFetchEnd(end: Moment): Moment {
     if (!this.cacheEnd) {
       return end;
@@ -93,7 +116,6 @@ export class SubCache<T extends Attendee> {
 
       const meetings =  Array.from(meetingIdMap.values()) || [];
       logger.info('SubCache::getMeetings() - filter is:', start, end);
-      // logger.info(`SubCache::getCachedRoomMeetings() - meetings (${owner}) are`, meetings);
 
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
       logger.info(`SubCache::getCachedRoomMeetings() filtered to (${owner}):`, filtered.map(m => m.id));
@@ -150,7 +172,7 @@ export class SubCache<T extends Attendee> {
     this.updateCacheEnd(meeting.end);
 
     logger.info(`Caching meeting(${this.attendee.email}) :`, meeting.id);
-    logger.info('id keys', this.idCache.keys());
+    logger.debug('id keys', this.idCache.keys());
     logger.debug('participant keys', this.participantCache.keys());
     logger.debug('room keys', this.roomCache.keys());
     return meeting;
@@ -159,11 +181,11 @@ export class SubCache<T extends Attendee> {
 
   private evictMeeting(id: string) {
     const meeting = this.idCache.get(id);
-    logger.info(`Evicting meeting ${this.attendee.email}`, id, meeting);
     if (!meeting) {
       return;
     }
 
+    logger.info(`Evicting meeting ${this.attendee.email}`, id, meeting);
     this.idCache.remove(meeting);
     this.participantCache.remove(meeting);
     this.roomCache.remove(meeting);

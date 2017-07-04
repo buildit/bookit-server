@@ -54,6 +54,12 @@ export interface RoomMeetings {
   meetings: Meeting[];
 }
 
+
+/**
+ * TODO: deprecate
+ *
+ * This shouldn't be a class but a series of functions as there is no state being contained within the class.
+ */
 export class MeetingsOps {
 
   constructor(private meetingsService: MeetingsService) {
