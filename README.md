@@ -14,6 +14,20 @@ npm run build
 npm run server
 ```
 
+Alternatively, when developing, you may want to have run the install then in one window:
+```
+npm run watch
+```
+And in another:
+```
+npm run server
+```
+When testing, it's useful to have yet another:
+```
+npm run watch:unit
+```
+
+
 See room list at [http://localhost:8888/rooms/nyc/](http://localhost:8888/rooms/nyc/)
 
 See meeting list at [http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12](http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12)
@@ -29,7 +43,7 @@ The back end is heavily geared towards testing and stand-alone operation at the 
 
 ### Accessing additional modes
 
-To work with additional modes, you will need to create a plaintext file named '.env' in the root of your checkout.
+To work with additional modes, you will need to create a plaintext file named '.env' in the root of your checkout.  
 
 ##### Toggle usage of the Graph API backend
 ```
@@ -40,12 +54,13 @@ USE_CLOUD=true
 These settings represent the identity that the application will use to access MS Graph API services.  The variable
 that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'roman' as the value.
 ```
-CLOUD_CONFIG=roman
+CLOUD_CONFIG=test
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use ROMAN_SECRET.
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use ROMAN_SECRET. Please
+ obtain these and other secrets from your fellow developers.
 ```
-ROMAN_SECRET=your-client-secret
+TEST_SECRET=your-client-secret
 ```
 
 ## Authentication
@@ -108,7 +123,7 @@ This is a class the provides two types of tokens.  The first are JWT tokens for 
 are cloud tokens for MS Graph calls.
 
 #### RoomService
-This service provides room lists for a particular site.
+This service provides room lists for a particular site.  Microsoft groups are used as the backend for room lists in a cloud connected environment.
 
 #### UserService
 This service provides a user list.
