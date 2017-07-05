@@ -6,6 +6,9 @@ import {Room, RoomList} from './model/Room';
 import {Participant} from './model/Participant';
 import {generateMSRoomResource, generateMSUserResource} from './config/bootstrap/rooms';
 import {Meeting} from './model/Meeting';
+import {handleMeetingFetch} from './rest/meetings/meeting_functions';
+import {MeetingsOps} from './services/meetings/MeetingsOps';
+import {Credentials} from './model/Credentials';
 
 logger.info('Spring: starting up');
 
@@ -13,6 +16,8 @@ const userService = Runtime.userService;
 const groupService = Runtime.groupService;
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
+
+const meetingOps = new MeetingsOps(meetingService);
 
 function testGetUsers() {
   return userService.getUsers()
@@ -89,13 +94,29 @@ async function testMeetingDelete(meeting: Meeting) {
   return meetingService.deleteMeeting(owner, meeting.id);
 }
 
-testMeetingCreate().then(meeting => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      testMeetingDelete(meeting).then(resolve);
-    }, 7500);
-  });
-}).then(() => {
-  logger.info('Done');
-});
+// testMeetingCreate().then(meeting => {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       testMeetingDelete(meeting).then(resolve);
+//     }, 7500);
+//   });
+// }).then(() => {
+//   logger.info('Done');
+// });
 // testGetUsers();
+
+const bruceCreds: Credentials = {
+  user: 'bruce@designitcontoso.onmicrosoft.com',
+  password: 'it aint like that anymore'
+};
+
+const searchStart = '2017-06-27 03:55:00';
+const searchEnd = '2017-07-01 09:35:00';
+
+const start = moment(searchStart);
+const end = moment(searchEnd);
+
+
+handleMeetingFetch(roomService, meetingOps, undefined, 'nyc', start, end).then(roomMeetings => {
+  logger.info('M', roomMeetings);
+});

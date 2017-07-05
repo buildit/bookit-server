@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-- '7'
 env:
   global:
   - USE_CLOUD=true
@@ -17,7 +16,7 @@ services:
 
 script:
 - npm test
-- if [ "$TRAVIS_BRANCH" == "master" ]; then
+- if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
     echo "Building $IMG_VERSION";
     npm prune --production;

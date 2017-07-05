@@ -31,7 +31,28 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
 }
 
 
+export function createMeetingOperation(meetingService: MeetingsService,
+                                       subj: string,
+                                       start: Moment,
+                                       duration: Duration,
+                                       owner: Participant,
+                                       room: Room): Promise<Meeting> {
 
+  return new Promise((resolve, reject) => {
+    const ifAvailable = checkTimeIsAvailable(meetingService, room, start, duration);
+
+    ifAvailable.then(() => meetingService.createMeeting(subj, start, duration, owner, room)
+                                         .then(resolve)
+                                         .catch(reject))
+               .catch(reject);
+  });
+}
+
+
+export interface RoomMeetings {
+  room: Room;
+  meetings: Meeting[];
+}
 
 export class MeetingsOps {
 
@@ -39,15 +60,12 @@ export class MeetingsOps {
   };
 
 
-  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment) {
+  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment): Promise<RoomMeetings[]> {
     const mapRoom = (room: Room) => {
       return this.meetingsService
                  .getMeetings(room, start, end)
                  .then(m => {
                    return {room, meetings: m};
-                 })
-                 .catch(error => {
-                   logger.error(error);
                  });
     };
 
@@ -55,33 +73,30 @@ export class MeetingsOps {
   }
 
 
-  getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    logger.debug('Getting meetings', this.meetingsService);
-    return this.meetingsService.getMeetings(room, start, end);
+  getUserMeetings(owner: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
+    return this.meetingsService.getUserMeetings(owner, start, end);
   }
 
 
-  findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
-    return this.meetingsService.findMeeting(room, meetingId, start, end);
-  }
+  // getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
+  //   logger.debug('Getting meetings', this.meetingsService);
+  //   return this.meetingsService.getMeetings(room, start, end);
+  // }
+  //
+  //
+  // findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
+  //   return this.meetingsService.findMeeting(room, meetingId, start, end);
+  // }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-    return new Promise((resolve, reject) => {
-      const promisedCheck = checkTimeIsAvailable(this.meetingsService, room, start, duration);
-
-      promisedCheck.then(() => this.meetingsService
-                                   .createMeeting(subj, start, duration, owner, room)
-                                   .then(resolve)
-                                   .catch(reject))
-                   .catch(reject);
-    });
-  }
+  // createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+  //   return promiseCreateMeeting(this.meetingsService, subj, start, duration, owner, room);
+  // }
 
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
-    return this.meetingsService.deleteMeeting(owner, id);
-  }
+  // deleteMeeting(owner: Participant, id: string): Promise<any> {
+  //   return this.meetingsService.deleteMeeting(owner, id);
+  // }
 
 
 }

@@ -10,9 +10,13 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {MSUser} from '../users/UserService';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
+  domain(): string {
+    return this.tokenOperations.domain();
+  }
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
@@ -21,27 +25,12 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
 
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    const startDateTime = start.toISOString();
-    const endDateTime = end.toISOString();
+    return this._getMeetings(room.email, start, end);
+  }
 
 
-    return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
-          .then(token => {
-            request.get('https://graph.microsoft.com/v1.0/users/' + room.email + '/calendar/calendarView')
-                   .set('Authorization', `Bearer ${token}`)
-                   .query({startDateTime, endDateTime})
-                   .end((error, response) => {
-                     if (error) {
-                       return reject(new Error(error));
-                     }
-
-                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
-
-                     resolve(meetings);
-                   });
-          });
-    });
+  getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    return this._getMeetings(user.email, start, end);
   }
 
 
@@ -103,6 +92,32 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     return this.client.api(URL)
                .post(eventData)
                .then(meeting => MSGraphMeetingService._mapMeeting(meeting)) as Promise<Meeting>;
+  }
+
+
+  private _getMeetings(user: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    const startDateTime = start.toISOString();
+    const endDateTime = end.toISOString();
+
+    const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
+    logger.debug(URL, startDateTime, endDateTime);
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .query({startDateTime, endDateTime})
+                   .end((error, response) => {
+                     if (error) {
+                       return reject(new Error(error));
+                     }
+
+                     // logger.info('Response', response);
+                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
+                     resolve(meetings);
+                   });
+          });
+    });
   }
 
 
@@ -230,7 +245,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }

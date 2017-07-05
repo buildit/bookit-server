@@ -9,6 +9,8 @@
     "outDir": "./lib",
     "preserveConstEnums": true,
     "removeComments": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
     "typeRoots": [
       "./node_modules/@types"
     ]

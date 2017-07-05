@@ -9,13 +9,14 @@ import {MeetingsService} from '../services/meetings/MeetingService';
 import {RoomService} from '../services/rooms/RoomService';
 
 import {configureTestRoutes} from './test_routes';
-import {configureMeetingRoutes} from './meeting_routes';
+import {configureMeetingRoutes} from './meetings/meeting_routes';
 import {configureAuthenticationRoutes} from './auth_routes';
-import {initializeTokenFilter} from './filters';
+import {initializeCredentialsFilter, initializeTokenFilter} from './filters';
 import {configureUsersRoutes} from './user_routes';
 import {UserService} from '../services/users/UserService';
 import {MailService} from '../services/mail/MailService';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
+import {configureRoomRoutes} from './rooms/room_routes';
 
 
 
@@ -34,11 +35,13 @@ export function configureRoutes(app: Express,
                                 mailService: MailService,
                                 meetingsService: MeetingsService): Express {
   initializeTokenFilter(jwtTokenProvider);
+  initializeCredentialsFilter(jwtTokenProvider);
   configureExpress(app);
 
   configureAuthenticationRoutes(app, passwordStore, jwtTokenProvider);
   configureTestRoutes(app, mailService);
   configureUsersRoutes(app, userService, mailService);
+  configureRoomRoutes(app, roomService);
   configureMeetingRoutes(app, roomService, meetingsService);
 
   return app;

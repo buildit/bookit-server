@@ -3,8 +3,10 @@ import {Domain} from '../model/EnvironmentConfig';
 
 
 export function getDomain(_env: string): Domain {
-  const env = _env.toLowerCase();
-  switch (env) {
+  if (!_env) {
+    return defaultIdentity.domain;
+  }
+  switch (_env.toLowerCase()) {
     case 'roman': {
       return roman.domain;
     }
