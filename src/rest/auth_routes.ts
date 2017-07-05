@@ -35,7 +35,7 @@ export function configureAuthenticationRoutes(app: Express,
     const credentialToken = credentials.code;
     let decoded;
     try {
-      decoded = await jwtTokenProvider.verifyAzure(credentialToken);
+      decoded = await jwtTokenProvider.verifyOpenId(credentialToken);
     }
     catch (error) {
       sendUnauthorized(res, 'Unrecognized user');
