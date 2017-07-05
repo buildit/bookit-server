@@ -10,7 +10,7 @@ export class AzureAuthTokenProvider implements AzureTokenProvider {
   async retrieveKeys(): Promise<any> {
     const config = await request.get(wellKnownConfigUrl);
     const keysResponse = await request.get(config.body.jwks_uri);
-    return keysResponse.body.keys
+    return keysResponse.body.keys;
   }
 
   formatRSPublicKey(rawKey: string): string {
