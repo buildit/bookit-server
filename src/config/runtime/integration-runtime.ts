@@ -1,5 +1,7 @@
 import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 
+import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
+
 import {MSGraphTokenProvider} from '../../services/tokens/MSGraphTokenProvider';
 
 import {RuntimeConfig} from '../../model/RuntimeConfig';
