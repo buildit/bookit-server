@@ -1,7 +1,13 @@
 
 import {ListCachingStrategy} from './ListCachingStrategy';
 
-
+/**
+ * An abstract implementation of a strategy that caches a particular object via multiple keys.  Since by definition,
+ * we have multiple keys, that item will appear in multiple lists.
+ *
+ * The use case here is when caching meetings according to the participant.  A participant can be the owner, a room,
+ * or another user.
+ */
 export abstract class MultiListCachingStrategy<Type> extends ListCachingStrategy<Type> {
 
 

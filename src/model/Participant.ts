@@ -1,6 +1,7 @@
+import {Attendee} from './Attendee';
 let counter = 1;
 
-export class Participant {
+export class Participant implements Attendee {
   id: string;
   name: string;
   mail: string;
