@@ -14,4 +14,10 @@ export interface GraphTokenProvider {
 export interface JWTTokenProvider {
   provideToken(credentials: Credentials): string;
   verify(token: string): Promise<Credentials>;
+  decode(token: string): any;
+  verifyOpenId(token: string): Promise<any>;
+}
+
+export interface AzureTokenProvider {
+  verifyOpenIdToken(token: string): Promise<any>;
 }

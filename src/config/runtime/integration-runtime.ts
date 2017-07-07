@@ -1,5 +1,7 @@
 import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 
+import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
+
 import {MSGraphTokenProvider} from '../../services/tokens/MSGraphTokenProvider';
 
 import {RuntimeConfig} from '../../model/RuntimeConfig';
@@ -15,7 +17,7 @@ import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 
 
 export function provideIntegrationRuntime(environment: EnvironmentConfig): RuntimeConfig {
-  const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
+  const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret, new MockAzureAuthTokenProvider());
   const graphAPIParameters = environment.graphAPIParameters;
   const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, environment.domain, false);
 

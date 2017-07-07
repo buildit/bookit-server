@@ -29,27 +29,35 @@ export function configureAuthenticationRoutes(app: Express,
                                               passwordStore: PasswordStore,
                                               jwtTokenProvider: JWTTokenProvider) {
 
-  app.post('/authenticate', (req: Request, res: Response) => {
+  app.post('/authenticate', async (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
 
-    const username = credentials.user;
-    if (!passwordStore.validateUser(username)) {
+    const credentialToken = credentials.code;
+    let decoded;
+    try {
+      decoded = await jwtTokenProvider.verifyOpenId(credentialToken);
+    }
+    catch (error) {
       sendUnauthorized(res, 'Unrecognized user');
-      return;
     }
 
-    if (!passwordStore.validatePassword(username, credentials.password)) {
-      sendUnauthorized(res, 'Incorrect user/password combination');
-      return;
+    // TODO: Once we have a better idea how to filter users, like being able to
+    // say "you have a valid login, but you're not actually a bookit user", we should
+    // replace this with that.
+    if (!passwordStore.validateUser(decoded.unique_name)) {
+        sendUnauthorized(res, 'Unrecognized user');
+        return;
     }
 
-    const token = jwtTokenProvider.provideToken(credentials);
-    logger.info('Successfully authenticated: ', username);
+    const token = jwtTokenProvider.provideToken({
+      user: decoded.unique_name,
+    });
+    logger.info('Successfully authenticated: ', decoded.unique_name);
     res.json({
                token: token,
-               email: username,
-               name: username.split('@')[0],
-               id: passwordStore.getUserId(username)
+               email: decoded.unique_name,
+               name: decoded.name,
+               id: passwordStore.getUserId(decoded.unique_name)
     });
   });
 
