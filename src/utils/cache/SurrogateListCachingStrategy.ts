@@ -3,11 +3,10 @@ import {RootLog as logger} from '../RootLogger';
 import {CachingStrategy, SurrogateCachingStrategy} from './CachingStrategy';
 
 /**
- * An abstract implementation of a list mapping strategy.  That is, a strategy that will have multiple
- * values per key.  The store here is a map of key to a list of the stored type.
+ * An abstract implementation of a list mapping strategy with a surrogate key provider.  That is, a strategy
+ * that will have multiple values per key but based on another object.
  *
- * This is useful for example when caching the meetings by owner.  Each owner will almost certainly have
- * multiple meetings, definitely the case when the meeting owner is a room.
+ * This is useful for example when caching group members by a group id.
  */
 export abstract class SurrogateListCachingStrategy<Surrogate, Type> implements SurrogateCachingStrategy<Surrogate, Type, Map<string, Type>, Type[]> {
 
