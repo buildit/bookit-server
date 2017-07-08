@@ -56,7 +56,7 @@ export function configureMeetingRoutes(app: Express,
 
 
   protectedEndpoint(app, '/room/:roomEmail/meeting', app.post, (req: Request, res: Response) => {
-    logger.info('About to create meeting', req.body);
+    logger.debug('About to create meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
     createMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
   });

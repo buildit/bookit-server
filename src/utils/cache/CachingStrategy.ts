@@ -16,3 +16,11 @@ export interface CachingStrategy<Type, Store, Return> {
   get(cache: Map<string, Store>, key: string): Return;
   remove(cache: Map<string, Store>, item: Type): boolean;
 }
+
+
+export interface SurrogateCachingStrategy<Surrogate, Type, Store, Return> {
+  hasSurrogateKey(cache: Map<string, Store>, surrogate: Surrogate): boolean;
+  put(cache: Map<string, Store>, surrogate: Surrogate, item: Type): Return;
+  get(cache: Map<string, Store>, surrogate: Surrogate): Return;
+  remove(cache: Map<string, Store>, surrogate: Surrogate, item: Type): boolean;
+}

@@ -27,6 +27,7 @@ import {MSGraphRoomService} from '../../services/rooms/MSGraphRoomService';
 import {MSUser} from '../../services/users/UserService';
 import {GroupService, MSGroup} from '../../services/groups/GroupService';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
+import {CachedGroupService} from '../../services/groups/CachedGroupService';
 
 
 function generateMockGroup(domain: string): GroupService {
@@ -47,7 +48,9 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
   if (graphAPIParameters) {
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain);
 
-    const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
+    const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => {
+      return new CachedGroupService(new MSGraphGroupService(tokenOperations));
+    };
 
     const createMockGroupService = (runtime: RuntimeConfig) => {
       return generateMockGroup(env.domain.domainName);

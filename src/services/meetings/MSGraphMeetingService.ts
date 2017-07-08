@@ -10,7 +10,6 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
-import {MSUser} from '../users/UserService';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {

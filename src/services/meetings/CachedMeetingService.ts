@@ -6,7 +6,6 @@ import {Meeting} from '../../model/Meeting';
 import {MeetingsService} from './MeetingService';
 import {Participant} from '../../model/Participant';
 import {RootLog as logger} from '../../utils/RootLogger';
-import {isMeetingWithinRange} from '../../utils/validation';
 import {RoomService} from '../rooms/RoomService';
 import {Room} from '../../model/Room';
 import {Domain} from '../../model/EnvironmentConfig';
@@ -46,6 +45,7 @@ export class CachedMeetingService implements MeetingsService {
     logger.info('Constructing CachedMeetingService');
     _internalRefresh();
     this.jobId = setInterval(_internalRefresh, DEFAULT_REFRESH_IN_MILLIS);
+
     this.roomSubCaches = new Map<string, SubCache<Room>>();
     this.ownerSubCaches = new Map<string, SubCache<Participant>>();
   }
@@ -111,7 +111,7 @@ export class CachedMeetingService implements MeetingsService {
         throw new Error(`Unable to find meeting id: ${id}`);
       }
 
-      logger.info('Will delete meeting from owner', owner);
+      logger.info('Will delete meeting from owner', owner.email);
       return this.delegatedMeetingsService
                  .deleteMeeting(owner, id)
                  .then(() => {

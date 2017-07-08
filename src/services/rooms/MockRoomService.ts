@@ -5,11 +5,11 @@ import {RootLog as logger} from '../../utils/RootLogger';
 
 export class MockRoomService implements RoomService, MutableRoomService {
   constructor(private _roomLists: RoomList[]) {
-    logger.info('MockRoomService: initializing with lists', _roomLists);
+    logger.info('MockRoomService: initializing with lists', _roomLists.map(rl => rl.name));
     logger.info('MockRoomService: initializing with rooms', _roomLists.reduce((acc, list) => {
       acc.push.apply(acc, list.rooms);
       return acc;
-    }, []));
+    }, []).map(r => r.name));
   }
 
 

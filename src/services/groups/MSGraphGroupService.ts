@@ -1,3 +1,5 @@
+import * as request from 'superagent';
+
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {MSGraphBase} from '../MSGraphBase';
@@ -14,21 +16,49 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
 
 
   getGroups(): Promise<MSGroup[]> {
-    logger.debug('getting groups');
-    return this.client
-               .api('/groups')
-               // .select('id,displayName,mail')
-               .get()
-               .then(response => { return response.value; }) as Promise<MSGroup[]>;
+    const URL = 'https://graph.microsoft.com/v1.0/groups';
+    logger.info('MSGraphGroupService::getGroups() - ', URL);
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .end((error, response) => {
+                     if (error) {
+                       logger.error(error);
+                       return reject(new Error(error));
+                     }
+
+                     // logger.info('Response', response);
+                     const groups = response.body.value;
+                     resolve(groups);
+                   });
+          });
+    });
+
   }
 
 
   getGroupMembers(id: string): Promise<MSUser[]> {
-    logger.debug('getting group members', id);
-    return this.client
-               .api(`/groups/${id}/members`)
-               .get()
-               .then(response => { return response.value; }) as Promise<MSUser[]>;
+    const URL = `https://graph.microsoft.com/v1.0/groups/${id}/members`;
+    logger.info('MSGraphGroupService::getGroupMembers() - ', URL);
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .end((error, response) => {
+                     if (error) {
+                       logger.error(error);
+                       return reject(new Error(error));
+                     }
+
+                     // logger.info('Response', response.body.value);
+                     const groups = response.body.value;
+                     resolve(groups);
+                   });
+          });
+    });
   }
 
 }

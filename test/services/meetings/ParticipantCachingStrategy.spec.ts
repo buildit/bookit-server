@@ -1,7 +1,8 @@
+import * as moment from 'moment';
 import {expect} from 'chai';
+
 import {Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
-import * as moment from 'moment';
 import {ParticipantsCachingStrategy} from '../../../src/services/meetings/ParticipantsCachingStrategy';
 
 
@@ -65,7 +66,7 @@ const fifth: Meeting = {
 
 
 describe('participant caching suite', function filterSuite() {
-  const cache = new Map<string, Meeting[]>();
+  const cache = new Map<string, Map<string, Meeting>>();
   const participantCacher = new ParticipantsCachingStrategy();
 
   [first, second, third, fourth, fifth].forEach(meeting => participantCacher.put(cache, meeting));
@@ -112,7 +113,7 @@ describe('participant caching suite', function filterSuite() {
       return new Set(meetings.map(m => m.id));
     }
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const participantCacher = new ParticipantsCachingStrategy();
 
     [first, second, third, fourth, fifth].forEach(meeting => participantCacher.put(cache, meeting));

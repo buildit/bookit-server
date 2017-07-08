@@ -11,12 +11,12 @@ import {ListCachingStrategy} from './ListCachingStrategy';
 export abstract class MultiListCachingStrategy<Type> extends ListCachingStrategy<Type> {
 
 
-  put(cache: Map<string, Type[]>, item: Type): Type[] {
-    const cacheKeys = (keys: string[], cache: Map<string, Type[]>, item: Type) => {
+  put(cache: Map<string, Map<string, Type>>, item: Type): Type[] {
+    const cacheKeys = (keys: string[], cache: Map<string, Map<string, Type>>, item: Type) => {
       keys.forEach(key => super.putKey(cache, key, item));
     };
 
-    const toParticipantsList = (keys: string[], cache: Map<string, Type[]>) => {
+    const toParticipantsList = (keys: string[], cache: Map<string, Map<string, Type>>) => {
       const participantMap = keys.reduce((accumulator, key) => {
         const existing = cache.get(key);
         if (!existing) {
@@ -40,12 +40,17 @@ export abstract class MultiListCachingStrategy<Type> extends ListCachingStrategy
   }
 
 
-  get(cache: Map<string, Type[]>, key: string): Type[] {
-    return cache.get(key) || [];
+  get(cache: Map<string, Map<string, Type>>, key: string): Type[] {
+    const subCache = cache.get(key);
+    if (!subCache) {
+      return [];
+    }
+
+    return Array.from(subCache.values());
   }
 
 
-  remove(cache: Map<string, Type[]>, toRemove: Type): boolean {
+  remove(cache: Map<string, Map<string, Type>>, toRemove: Type): boolean {
     this.getKeys(toRemove)
         .forEach(key => super.removeKey(cache, key, toRemove));
 

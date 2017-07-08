@@ -46,14 +46,14 @@ function testGetDevices() {
 function testGetGroups() {
   groupService.getGroups()
               .then(groups => {
-                logger.info('', groups);
+                logger.info('Groups', groups);
                 return groups;
               })
               .then(groups => {
-                return Promise.all(groups.map(group => groupService.getGroupMembers(group.displayName)));
+                return Promise.all(groups.map(group => groupService.getGroupMembers(group.id)));
               })
               .then(members => {
-                logger.info('Members', members);
+                logger.info('Group members', members);
               });
 }
 
@@ -110,13 +110,17 @@ const bruceCreds: Credentials = {
   password: 'it aint like that anymore'
 };
 
-const searchStart = '2017-06-27 03:55:00';
-const searchEnd = '2017-07-01 09:35:00';
+function testX() {
+  const searchStart = '2017-06-27 03:55:00';
+  const searchEnd = '2017-07-01 09:35:00';
 
-const start = moment(searchStart);
-const end = moment(searchEnd);
+  const start = moment(searchStart);
+  const end = moment(searchEnd);
 
 
-handleMeetingFetch(roomService, meetingOps, undefined, 'nyc', start, end).then(roomMeetings => {
-  logger.info('M', roomMeetings);
-});
+  handleMeetingFetch(roomService, meetingOps, undefined, 'nyc', start, end).then(roomMeetings => {
+    logger.info('M', roomMeetings);
+  });
+}
+
+testGetGroups();
