@@ -52,12 +52,12 @@ USE_CLOUD=true
 
 ##### MICROSOFT GRAPH SETTINGS
 These settings represent the identity that the application will use to access MS Graph API services.  The variable
-that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'roman' as the value.
+that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'test' as the value.
 ```
 CLOUD_CONFIG=test
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use ROMAN_SECRET. Please
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use TEST_SECRET. Please
  obtain these and other secrets from your fellow developers.
 ```
 TEST_SECRET=your-client-secret
@@ -123,7 +123,9 @@ This is a class the provides two types of tokens.  The first are JWT tokens for 
 are cloud tokens for MS Graph calls.
 
 #### RoomService
-This service provides room lists for a particular site.  Microsoft groups are used as the backend for room lists in a cloud connected environment.
+This service provides room lists for a particular location (e.g. for NYC or Copenhagen).
+
+Our data store, Microsoft Azure AD, has no notion of a "room" or a "room list", so we decided to store the room list as a "Group" in Microsoft Azure. When setting up a new location, the Bookit administrator works with the Azure AD administrator to create a new group, populated with a list of rooms for that location.
 
 #### UserService
 This service provides a user list.

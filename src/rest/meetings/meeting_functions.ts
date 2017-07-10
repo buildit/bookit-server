@@ -97,10 +97,10 @@ export function handleMeetingFetch(roomService: RoomService,
                    return resolve(roomMeetings);
                  }
 
-                 const part = new Participant(credentials.user);
-                 meetingOps.getUserMeetings(part, start, end)
+                 const participant = new Participant(credentials.user);
+                 meetingOps.getUserMeetings(participant, start, end)
                            .then(userMeetings => {
-                             logger.info(`------------${part.email}-----------`);
+                             logger.info(`------------${participant.email}-----------`);
                              const merged = mergeMeetings(roomMeetings, userMeetings);
                              return resolve(merged);
                            });
@@ -116,7 +116,7 @@ export function handleMeetingFetch(roomService: RoomService,
 Can't match by meeting id when using different user perspectives
 Don't match by location since bookings by BookIt and Outlook are different
  */
-function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
+export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
   function meetingsMatch(some: Meeting, other: Meeting): boolean {
     const areStartsMismatching = () => !some.start.isSame(other.start);
     const areEndsMismatching = () => !some.end.isSame(other.end);
