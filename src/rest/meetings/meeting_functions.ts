@@ -97,10 +97,10 @@ export function handleMeetingFetch(roomService: RoomService,
                    return resolve(roomMeetings);
                  }
 
-                 const part = new Participant(credentials.user);
-                 meetingOps.getUserMeetings(part, start, end)
+                 const participant = new Participant(credentials.user);
+                 meetingOps.getUserMeetings(participant, start, end)
                            .then(userMeetings => {
-                             logger.info(`------------${part.email}-----------`);
+                             logger.info(`------------${participant.email}-----------`);
                              const merged = mergeMeetings(roomMeetings, userMeetings);
                              return resolve(merged);
                            });
