@@ -33,8 +33,7 @@ describe('tests authentication', () => {
 
   it('validates an unknown user is rejected', function testUnknownUser() {
     const unknownUser = {
-      user: 'Doppleganger',
-      password: ''
+      code: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMjM5OTljNS03NzFkLTQxMzYtOWQ4Ny1iNWZjMDNmMzI2NmUiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUvIiwiaWF0IjoxNDk4MjM3NzYzLCJuYmYiOjE0OTgyMzc3NjMsImV4cCI6MTQ5ODUwNDM5OSwiYWlvIjoiWTJaZ1lFaDVPelBsOVBiU0JtYW5vNlpQQmVTazkyMytYblpRVHFIRk55V3pxcVY1NDNZQSIsImFtciI6WyJwd2QiXSwiaXBhZGRyIjoiNjkuMTEyLjIzLjg0IiwibmFtZSI6IkZha2V5IE1jRmFrZVVzZXJGYWNlIiwibm9uY2UiOiIxMjM0NSIsIm9pZCI6ImFhZTQ2NzA0LWI0MjgtNDJlNy1iOWI4LWNlZjQ3MDVhNTgzZCIsInBsYXRmIjoiNSIsInN1YiI6IjFmZ212bmptZ2N0UndUcC1XeG1vaWhiZ3A0eFZhemtkUl9kbFFjR2VBbFEiLCJ0aWQiOiI1NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUiLCJ1bmlxdWVfbmFtZSI6ImlhbUBmYWtlLmNvbSIsInVwbiI6ImlhbUBmYWtlLmNvbSIsInV0aSI6Ik1sd1V0bHc1bjB5Q25TTFBSeXdXQUEiLCJ2ZXIiOiIxLjAiLCJqdGkiOiI3NjcyNTczNC00OTViLTQ3NzYtYWExYi02NTJjZWY3OGI0ZjQifQ.7UAdQmc31rp5cexLDc3hsrPE-Xn357lnMVftnUnhhQs'
     };
 
     return request(app).post(`/authenticate`)
@@ -48,27 +47,9 @@ describe('tests authentication', () => {
   });
 
 
-  it('validates an incorrect password is rejected', function testIncorrectPassword() {
-    const userWithIncorrectPassword = {
-      user: 'bruce@myews.onmicrosoft.com',
-      password: 'i think this is what it was'
-    };
-
-    return request(app).post(`/authenticate`)
-                       .set('Content-Type', 'application/json')
-                       .send(userWithIncorrectPassword)
-                       .expect(403)
-                       .then(res => {
-                         expect(JSON.parse(res.text).message).to.be.equal('Incorrect user/password combination');
-                       });
-
-  });
-
-
   it('validates a token operations', function testValidCredentials() {
     const totallyBruce = {
-      user: 'bruce@myews.onmicrosoft.com',
-      password: 'who da boss?'
+      code: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMjM5OTljNS03NzFkLTQxMzYtOWQ4Ny1iNWZjMDNmMzI2NmUiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUvIiwiaWF0IjoxNDk4MjM3NzYzLCJuYmYiOjE0OTgyMzc3NjMsImV4cCI6MTQ5ODUwNDIxOCwiYWlvIjoiWTJaZ1lFaDVPelBsOVBiU0JtYW5vNlpQQmVTazkyMytYblpRVHFIRk55V3pxcVY1NDNZQSIsImFtciI6WyJwd2QiXSwiaXBhZGRyIjoiNjkuMTEyLjIzLjg0IiwibmFtZSI6ImJydWNlIiwibm9uY2UiOiIxMjM0NSIsIm9pZCI6ImFhZTQ2NzA0LWI0MjgtNDJlNy1iOWI4LWNlZjQ3MDVhNTgzZCIsInBsYXRmIjoiNSIsInN1YiI6IjFmZ212bmptZ2N0UndUcC1XeG1vaWhiZ3A0eFZhemtkUl9kbFFjR2VBbFEiLCJ0aWQiOiI1NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUiLCJ1bmlxdWVfbmFtZSI6ImJydWNlQG15ZXdzLm9ubWljcm9zb2Z0LmNvbSIsInVwbiI6ImJydWNlQG15ZXdzLm9ubWljcm9zb2Z0LmNvbSIsInV0aSI6Ik1sd1V0bHc1bjB5Q25TTFBSeXdXQUEiLCJ2ZXIiOiIxLjAiLCJqdGkiOiI2NzQxMGQ4Ny1kODY2LTQyOTUtOTJkOC0yNzEyNDBmZTUyZjgifQ.LS7Ruw7-bOm2gwV36zhuJ90BpwA-hiftSPs0XLRuduo'
     };
 
     return request(app).post(`/authenticate`)
@@ -87,6 +68,9 @@ describe('tests authentication', () => {
                          return details.token;
                        })
                        .then(token => {
+                         console.log('========================================');
+                         console.log(token);
+                         console.log('========================================');
                          return request(app).get('/backdoor')
                                             .set('x-access-token', token)
                                             .expect(200)

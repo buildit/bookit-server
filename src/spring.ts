@@ -105,11 +105,6 @@ async function testMeetingDelete(meeting: Meeting) {
 // });
 // testGetUsers();
 
-const bruceCreds: Credentials = {
-  user: 'bruce@designitcontoso.onmicrosoft.com',
-  password: 'it aint like that anymore'
-};
-
 const searchStart = '2017-06-27 03:55:00';
 const searchEnd = '2017-07-01 09:35:00';
 
