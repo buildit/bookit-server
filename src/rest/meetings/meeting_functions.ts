@@ -116,7 +116,7 @@ export function handleMeetingFetch(roomService: RoomService,
 Can't match by meeting id when using different user perspectives
 Don't match by location since bookings by BookIt and Outlook are different
  */
-function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
+export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
   function meetingsMatch(some: Meeting, other: Meeting): boolean {
     const areStartsMismatching = () => !some.start.isSame(other.start);
     const areEndsMismatching = () => !some.end.isSame(other.end);
