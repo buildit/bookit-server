@@ -5,6 +5,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 import {generateMeetings} from '../../utils/data/EventGenerator';
 
+import {AzureAuthTokenProvider} from '../../services/tokens/AzureAuthTokenProvider';
 import {MSGraphTokenProvider} from '../../services/tokens/MSGraphTokenProvider';
 
 import {MockUserService} from '../../services/users/MockUserService';
@@ -42,7 +43,7 @@ function generateMockGroup(domain: string): GroupService {
 }
 
 export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig {
-  const jwtTokenProvider = new MockJWTTokenProvider(env.jwtTokenSecret);
+  const jwtTokenProvider = new MockJWTTokenProvider(env.jwtTokenSecret, new AzureAuthTokenProvider());
   const graphAPIParameters = env.graphAPIParameters;
 
   if (graphAPIParameters) {
