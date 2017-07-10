@@ -2,6 +2,13 @@ import {RootLog as logger} from '../RootLogger';
 
 import {CachingStrategy} from './CachingStrategy';
 
+/**
+ * An abstract implementation of a list mapping strategy.  That is, a strategy that will have multiple
+ * values per key.  The store here is a map of key to a list of the stored type.
+ *
+ * This is useful for example when caching the meetings by owner.  Each owner will almost certainly have
+ * multiple meetings, definitely the case when the meeting owner is a room.
+ */
 export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type, Type[], Type[]> {
 
 
@@ -9,6 +16,11 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
 
 
   abstract getIdentityMapper(item: Type): string;
+
+
+  hasKey(cache: Map<string, Type[]>, key: string): boolean {
+    return cache.has(key);
+  }
 
 
   put(cache: Map<string, Type[]>, toCache: Type): Type[] {
@@ -69,7 +81,8 @@ export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type,
     }
 
     logger.trace('Filtered key', key, 'to list zero');
-    cache.delete(key);
+    cache.set(key, filtered);
+    // cache.delete(key);
     return true;
   }
 

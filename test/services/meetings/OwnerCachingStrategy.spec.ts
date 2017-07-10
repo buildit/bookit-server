@@ -98,16 +98,16 @@ describe('owner caching suite', function filterSuite() {
 
     ownerCacher.remove(cache, andrewFirst);
 
-    expect(ownerCacher.get(cache, 'andrew@wipro.com')).to.be.undefined;
+    expect(ownerCacher.get(cache, 'andrew@wipro.com').length).to.be.equal(0);
 
     ownerCacher.remove(cache, alexFirst);
     expect(ownerCacher.get(cache, 'alex@wipro.com').length).to.be.equal(1);
 
     ownerCacher.remove(cache, alexSecond);
-    expect(ownerCacher.get(cache, 'alex@wipro.com')).to.be.undefined;
+    expect(ownerCacher.get(cache, 'alex@wipro.com').length).to.be.equal(0);
 
     ownerCacher.remove(cache, paulFirst);
-    expect(ownerCacher.get(cache, 'paul@wipro.com')).to.be.undefined;
+    expect(ownerCacher.get(cache, 'paul@wipro.com').length).to.be.equal(0);
   });
 
 });

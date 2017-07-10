@@ -36,7 +36,7 @@ export const isMeetingWithinRange = (meeting: Meeting, start: Moment, end: Momen
 
 
 export const isMomentWithinRange = (meetingStart: moment.Moment, meetingEnd: moment.Moment, start: moment.Moment, end: moment.Moment) => {
-  return meetingStart.isAfter(start) && meetingEnd.isBefore(end);
+  return meetingStart.isSameOrAfter(start) && meetingEnd.isSameOrBefore(end);
 };
 
 
