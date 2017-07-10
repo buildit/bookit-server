@@ -52,12 +52,12 @@ USE_CLOUD=true
 
 ##### MICROSOFT GRAPH SETTINGS
 These settings represent the identity that the application will use to access MS Graph API services.  The variable
-that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'roman' as the value.
+that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'test' as the value.
 ```
 CLOUD_CONFIG=test
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use ROMAN_SECRET. Please
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use TEST_SECRET. Please
  obtain these and other secrets from your fellow developers.
 ```
 TEST_SECRET=your-client-secret
