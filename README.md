@@ -123,7 +123,9 @@ This is a class the provides two types of tokens.  The first are JWT tokens for 
 are cloud tokens for MS Graph calls.
 
 #### RoomService
-This service provides room lists for a particular site.  Microsoft groups are used as the backend for room lists in a cloud connected environment.
+This service provides room lists for a particular location (e.g. for NYC or Copenhagen).
+
+Our data store, Microsoft Azure AD, has no notion of a "room" or a "room list", so we decided to store the room list as a "Group" in Microsoft Azure. When setting up a new location, the Bookit administrator works with the Azure AD administrator to create a new group, populated with a list of rooms for that location.
 
 #### UserService
 This service provides a user list.
