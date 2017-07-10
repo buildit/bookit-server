@@ -60,7 +60,6 @@ export class SurrogateListCache<KType, RType> {
 
   put(surrogate: KType, item: RType) {
     this.strategy.put(this.cache, surrogate, item);
-    console.info('Surrogate', this.cache.keys());
   }
 
 

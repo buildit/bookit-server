@@ -106,8 +106,7 @@ async function testMeetingDelete(meeting: Meeting) {
 // testGetUsers();
 
 const bruceCreds: Credentials = {
-  user: 'bruce@designitcontoso.onmicrosoft.com',
-  password: 'it aint like that anymore'
+  user: 'bruce@designitcontoso.onmicrosoft.com'
 };
 
 function testX() {

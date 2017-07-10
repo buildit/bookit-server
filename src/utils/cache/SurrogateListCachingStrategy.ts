@@ -1,6 +1,6 @@
 import {RootLog as logger} from '../RootLogger';
 
-import {CachingStrategy, SurrogateCachingStrategy} from './CachingStrategy';
+import {SurrogateCachingStrategy} from './CachingStrategy';
 
 /**
  * An abstract implementation of a list mapping strategy with a surrogate key provider.  That is, a strategy

@@ -50,7 +50,8 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain);
 
     const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => {
-      return new CachedGroupService(new MSGraphGroupService(tokenOperations));
+      const msGroupService = new MSGraphGroupService(tokenOperations);
+      return env.useGroupCache ? new CachedGroupService(msGroupService) : msGroupService;
     };
 
     const createMockGroupService = (runtime: RuntimeConfig) => {
@@ -70,8 +71,8 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              groupServiceFactory,
                              (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
-                               const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
-                               return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
+                               const msMeetingService = new MSGraphMeetingService(tokenOperations);
+                               return env.useMeetingCache ? new CachedMeetingService(env.domain, runtime.roomService, msMeetingService) : msMeetingService;
                              });
   } else {
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain, false);
