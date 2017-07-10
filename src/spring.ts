@@ -57,6 +57,18 @@ function testGetGroups() {
               });
 }
 
+function testAddGroupMember() {
+  groupService.getGroup('wipro-bookit')
+              .then(group => {
+                logger.info('Group', group);
+                return groupService.addGroupMember(group.displayName, 'andrew@differentdomain.com');
+              })
+              .then(status => {
+                logger.info('Status', status);
+              });
+}
+
+
 function testGetRooms() {
   roomService.getRoomLists()
              .then(roomLists => {
@@ -122,4 +134,4 @@ function testX() {
   });
 }
 
-testGetGroups();
+testAddGroupMember();

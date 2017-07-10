@@ -11,7 +11,6 @@ import {CachingStrategy} from './CachingStrategy';
  */
 export abstract class ListCachingStrategy<Type> implements CachingStrategy<Type, Map<string, Type>, Type[]> {
 
-
   abstract getKey(item: Type): string;
 
 

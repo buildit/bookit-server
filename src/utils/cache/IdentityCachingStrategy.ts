@@ -8,6 +8,9 @@ import {CachingStrategy} from './CachingStrategy';
  */
 export abstract class IdentityCachingStrategy<Type> implements CachingStrategy<Type, Type, Type> {
 
+  abstract getKey(item: Type): string;
+
+
   hasKey(cache: Map<string, Type>, key: string): boolean {
     return cache.has(key);
   }
@@ -27,7 +30,4 @@ export abstract class IdentityCachingStrategy<Type> implements CachingStrategy<T
   remove(cache: Map<string, Type>, item: Type): boolean {
     return cache.delete(this.getKey(item));
   }
-
-
-  abstract getKey(item: Type): string;
 }

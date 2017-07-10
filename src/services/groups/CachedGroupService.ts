@@ -14,6 +14,7 @@ const DEFAULT_REFRESH_IN_MILLIS = 300 * 1000;
  * This class is meant primarily for testing purposes against a mock set of data.
  */
 export class CachedGroupService implements GroupService {
+
   private fetched: boolean;
 
   private jobId: NodeJS.Timer;
@@ -38,6 +39,12 @@ export class CachedGroupService implements GroupService {
   }
 
 
+  getGroup(name: string): Promise<MSGroup> {
+    const refresh = this.fetched ? Promise.resolve() : this.refreshCache();
+    return refresh.then(() => this.nameCache.get(name));
+  }
+
+
   getGroups(): Promise<Array<MSGroup>> {
     const refresh = this.fetched ? Promise.resolve() : this.refreshCache();
     return refresh.then(() => Array.from(this.idCache.values()));
@@ -51,6 +58,15 @@ export class CachedGroupService implements GroupService {
       const members = group ? this.memberCache.get(group) : [];
       return members || [];
     });
+  }
+
+
+  addGroupMember(groupName: string, memberName: string): Promise<boolean> {
+    return this._groupService
+               .addGroupMember(groupName, memberName)
+               .then(() => {
+                 return true;
+               });
   }
 
 
