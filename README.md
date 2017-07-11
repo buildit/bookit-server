@@ -14,23 +14,26 @@ npm run build
 npm run server
 ```
 
-Alternatively, when developing, you may want to have run the install then in one window:
+Alternatively, to watch for changes when developing, do the following:
+
+In one terminal:
 ```
 npm run watch
 ```
+
 And in another:
 ```
 npm run server
 ```
-When testing, it's useful to have yet another:
+
+To watch unit tests while developing, open yet another terminal and run:
 ```
 npm run watch:unit
 ```
 
-
-See room list at [http://localhost:8888/rooms/nyc/](http://localhost:8888/rooms/nyc/)
-
-See meeting list at [http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12](http://localhost:8888/rooms/nyc/meetings?start=2017-03-08?end=2017-03-12)
+You can check these endpoints, just to make sure everything's working:
+Room list: http://localhost:8888/rooms/nyc
+Meeting list: http://localhost:8888/rooms/nyc/meetings?start=2017-03-08&end=2017-03-12
 
 ## Modes of operation
 
