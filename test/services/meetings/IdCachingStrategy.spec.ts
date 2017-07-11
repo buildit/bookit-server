@@ -1,21 +1,10 @@
-import {expect} from 'chai';
-import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
-import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
+import {expect} from 'chai';
+
+import {Meeting} from '../../../src/model/Meeting';
+import {Participant} from '../../../src/model/Participant';
 import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 
-/*
- export class Meeting {
- id: string;
- title: string;
- location?: string;
- owner: Participant;
- participants: Participant[];
- start: moment.Moment;
- end: moment.Moment;
- }
-
- */
 
 const andrew = new Participant('andrew@wipro.com');
 const karsten = new Participant('karsten@wipro.com');

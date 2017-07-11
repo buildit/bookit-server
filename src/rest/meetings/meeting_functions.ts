@@ -132,14 +132,11 @@ export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
 
 
 function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
-  logger.info('Merging meetings', userMeetings);
-
   return roomMeetings.map(roomNMeetings => {
     return {
       room: roomNMeetings.room,
       meetings: roomNMeetings.meetings.map(meeting => {
         const userMeeting = matchMeeting(meeting, userMeetings);
-        logger.info('User meeting', meeting.id, userMeeting ? userMeeting.title : 'not found');
         return userMeeting ? userMeeting : meeting;
       })
     };

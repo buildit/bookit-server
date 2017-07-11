@@ -1,23 +1,10 @@
-import {expect} from 'chai';
-import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
-import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
-import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
+import {expect} from 'chai';
+
+import {Meeting} from '../../../src/model/Meeting';
+import {Participant} from '../../../src/model/Participant';
 import {RoomCachingStrategy} from '../../../src/services/meetings/RoomCachingStrategy';
 
-/*
- export class Meeting {
- id: string;
- title: string;
- location?: string;
- owner: Participant;
- participants: Participant[];
- start: moment.Moment;
- end: moment.Moment;
- }
-
- */
 
 const andrew = new Participant('andrew@wipro.com');
 const paul = new Participant('paul@wipro.com');
@@ -70,7 +57,7 @@ const fourth: Meeting = {
 describe('room caching suite', function filterSuite() {
   it('caches by room', function testFilterById() {
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const roomCacher = new RoomCachingStrategy();
 
     [first, second, third, fourth].forEach(meeting => roomCacher.put(cache, meeting));

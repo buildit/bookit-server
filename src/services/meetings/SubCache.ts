@@ -23,10 +23,11 @@ import {Attendee} from '../../model/Attendee';
 export class SubCache<T extends Attendee> {
 
   private idCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
-  private participantCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new ParticipantsCachingStrategy());
-  private roomCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new RoomCachingStrategy());
-  private startDateCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new StartDateCachingStrategy());
-  private endDateCache = new ListCache<Meeting>(new Map<string, Meeting[]>(), new EndDateCachingStrategy());
+  private participantCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(),
+                                                    new ParticipantsCachingStrategy());
+  private roomCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new RoomCachingStrategy());
+  private startDateCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new StartDateCachingStrategy());
+  private endDateCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new EndDateCachingStrategy());
 
   private cacheStart: moment.Moment;
   private cacheEnd: moment.Moment;
@@ -185,7 +186,7 @@ export class SubCache<T extends Attendee> {
       return;
     }
 
-    logger.info(`Evicting meeting ${this.attendee.email}`, id, meeting);
+    logger.info(`Evicting meeting ${this.attendee.email}`, id);
     this.idCache.remove(meeting);
     this.participantCache.remove(meeting);
     this.roomCache.remove(meeting);

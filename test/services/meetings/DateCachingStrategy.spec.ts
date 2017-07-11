@@ -3,26 +3,10 @@ import {expect} from 'chai';
 
 import {RootLog as logger} from '../../../src/utils/RootLogger';
 
-import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
+import {Meeting} from '../../../src/model/Meeting';
 import {Participant} from '../../../src/model/Participant';
-import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
-import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
-import {RoomCachingStrategy} from '../../../src/services/meetings/RoomCachingStrategy';
 import {StartDateCachingStrategy} from '../../../src/services/meetings/StartDateCachingStrategy';
 import {EndDateCachingStrategy} from '../../../src/services/meetings/EndDateCachingStrategy';
-
-/*
- export class Meeting {
- id: string;
- title: string;
- location?: string;
- owner: Participant;
- participants: Participant[];
- start: moment.Moment;
- end: moment.Moment;
- }
-
- */
 
 const andrew = new Participant('andrew@wipro.com');
 const paul = new Participant('paul@wipro.com');
@@ -76,8 +60,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   it('caches by start date', function testCachingByStartDate() {
 
-    logger.info('First', first);
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const startDateCacher = new StartDateCachingStrategy();
 
     [first, second, third, fourth].forEach(meeting => startDateCacher.put(cache, meeting));
@@ -102,7 +85,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   it('evicts by start date', function testEvictionByStartDate() {
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const startDateCacher = new StartDateCachingStrategy();
 
     [first, second, third, fourth].forEach(meeting => startDateCacher.put(cache, meeting));
@@ -128,8 +111,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   it('caches by end date', function testCachingByStartDate() {
 
-    logger.info('First', first);
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const endDateCacher = new EndDateCachingStrategy();
 
     [first, second, third, fourth].forEach(meeting => endDateCacher.put(cache, meeting));
@@ -155,7 +137,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   it('evicts by end date', function testEvictionByStartDate() {
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const endDateCacher = new EndDateCachingStrategy();
 
     [first, second, third, fourth].forEach(meeting => endDateCacher.put(cache, meeting));

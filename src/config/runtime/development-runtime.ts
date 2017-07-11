@@ -28,6 +28,7 @@ import {MSGraphRoomService} from '../../services/rooms/MSGraphRoomService';
 import {MSUser} from '../../services/users/UserService';
 import {GroupService, MSGroup} from '../../services/groups/GroupService';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
+import {CachedGroupService} from '../../services/groups/CachedGroupService';
 
 
 function generateMockGroup(domain: string): GroupService {
@@ -48,7 +49,10 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
   if (graphAPIParameters) {
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain);
 
-    const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
+    const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => {
+      const msGroupService = new MSGraphGroupService(tokenOperations);
+      return env.useGroupCache ? new CachedGroupService(msGroupService) : msGroupService;
+    };
 
     const createMockGroupService = (runtime: RuntimeConfig) => {
       return generateMockGroup(env.domain.domainName);
@@ -67,8 +71,8 @@ export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig
                              groupServiceFactory,
                              (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                              (runtime) => {
-                               const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
-                               return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
+                               const msMeetingService = new MSGraphMeetingService(tokenOperations);
+                               return env.useMeetingCache ? new CachedMeetingService(env.domain, runtime.roomService, msMeetingService) : msMeetingService;
                              });
   } else {
     const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, env.domain, false);

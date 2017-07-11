@@ -1,10 +1,9 @@
-import {expect} from 'chai';
-import {filterOutMeetingById, filterOutMeetingByOwner, Meeting} from '../../../src/model/Meeting';
-import {Participant} from '../../../src/model/Participant';
 import * as moment from 'moment';
-import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
+import {expect} from 'chai';
+
+import {Meeting} from '../../../src/model/Meeting';
+import {Participant} from '../../../src/model/Participant';
 import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingStrategy';
-import {RootLog as logger} from '../../../src/utils/RootLogger';
 
 /*
  export class Meeting {
@@ -69,7 +68,7 @@ const alexSecond: Meeting = {
 describe('owner caching suite', function filterSuite() {
   it('caches by owner', function testCacheByOwner() {
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const ownerCacher = new OwnerCachingStrategy();
 
     [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
@@ -91,7 +90,7 @@ describe('owner caching suite', function filterSuite() {
 
   it('un-caches by owner', function testUnCacheByOwner() {
 
-    const cache = new Map<string, Meeting[]>();
+    const cache = new Map<string, Map<string, Meeting>>();
     const ownerCacher = new OwnerCachingStrategy();
 
     [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));

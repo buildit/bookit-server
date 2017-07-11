@@ -1,5 +1,4 @@
 import * as jwt from 'jsonwebtoken';
-import * as request from 'superagent';
 
 import {JWTTokenProvider, AzureTokenProvider} from './TokenProviders';
 import {Credentials} from '../../model/Credentials';
