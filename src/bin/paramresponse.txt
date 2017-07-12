@@ -1,0 +1,15 @@
+{
+    "InvalidParameters": [],
+    "Parameters": [
+        {
+            "Type": "SecureString",
+            "Name": "CLOUD_CONFIG",
+            "Value": "test"
+        },
+        {
+            "Type": "SecureString",
+            "Name": "TEST_SECRET",
+            "Value": "yuqsRL6HQ3Zl99UT5cJ5zLMRiO6CVm2DfgeNuRwhSOI="
+        }
+    ]
+}
