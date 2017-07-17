@@ -1,8 +1,10 @@
 # Build specification for building project under Amazon CodeBuild
 
-version: 0.1
-#environment_variables:
-#  plaintext:
+version: 0.2
+env:
+  variables:
+    USE_CLOUD: "true"
+    CLOUD_CONFIG: "roman"
 phases:
   install:
     commands:
