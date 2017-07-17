@@ -36,7 +36,7 @@ export class MeetingHelper {
     return this.getMeetings(start, end)
                .then(meetings => {
                  const meetPromises = meetings.map(m => wrapDelete(m).then(() => {})
-                                                                     .catch(err => {
+                                                                     .catch((err: any) => {
                                                                        console.error('Failed to delete ', err);
                                                                        return;
                                                                      }));
