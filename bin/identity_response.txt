@@ -1,0 +1,16 @@
+{
+  "privateIp" : "172.31.39.80",
+  "availabilityZone" : "us-east-1c",
+  "devpayProductCodes" : null,
+  "version" : "2010-08-31",
+  "instanceId" : "i-0a1068ab3ac1a9c6a",
+  "billingProducts" : null,
+  "instanceType" : "t2.micro",
+  "accountId" : "006393696278",
+  "architecture" : "x86_64",
+  "kernelId" : null,
+  "ramdiskId" : null,
+  "imageId" : "ami-44a0af52",
+  "pendingTime" : "2017-07-13T13:55:07Z",
+  "region" : "us-east-1"
+}

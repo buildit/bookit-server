@@ -44,4 +44,5 @@ export function assignGraphIdentity(_environment: EnvironmentConfig, _identity: 
   _environment.graphAPIIdentity = identity;
   logger.info('Will access MS Graph using identity:', identity);
   _environment.graphAPIParameters = _assignGraphIdentity(identity);
+  logger.info('Will access MS Graph using parameters:', _environment.graphAPIParameters);
 }

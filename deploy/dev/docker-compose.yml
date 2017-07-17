@@ -12,4 +12,6 @@ services:
     ports:
     - "8888:8888"
     environment:
-    - MICROSOFT_CLIENT_SECRET=setme_for_real_exchange
+    - USE_CLOUD=true
+    - CLOUD_CONFIG
+    - TEST_CONFIG

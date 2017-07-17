@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-import json
 import argparse
-import subprocess
-
+from aws_common import set_aws_ssm_parameter
 
 # aws ssm put-parameter --name a_name --value "a value" --type SecureString
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Set AWS SSM parameters')
     parser.add_argument('parameter', help='The parameter to set')
@@ -15,7 +15,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def extract_aws_params(arg_namespace):
+def extract_cli_aws_params(arg_namespace):
     cli_params = vars(arg_namespace)
 
     return {
@@ -25,13 +25,7 @@ def extract_aws_params(arg_namespace):
     }
 
 
-def set_aws_param(param_object):
-    aws_call_template = 'aws ssm put-parameter --name %(parameter)s --value %(value)s %(overwrite)s --type SecureString'
-    aws_call = aws_call_template % param_object
-    return subprocess.Popen(aws_call, shell=True, stdout=subprocess.PIPE).stdout.read()
-
-
 if __name__ == '__main__':
     args = parse_args()
-    param_to_set = extract_aws_params(args)
-    set_aws_param(param_to_set)
+    param_to_set = extract_cli_aws_params(args)
+    set_aws_ssm_parameter(param_to_set)
