@@ -26,8 +26,9 @@ phases:
       - $(aws ecr get-login)
   build:
     commands:
-      - export CLOUD_CONFIG=`aws ssm get-parameter --name CLOUD_CONFIG --with-decryption --output text | cut -f 4`
-      - export TEST_SECRET=`aws ssm get-parameter --name TEST_SECRET --with-decryption --output text | cut -f 4`
+      - aws --version
+      - CLOUD_CONFIG=`aws ssm get-parameter --name CLOUD_CONFIG --with-decryption --output text | cut -f 4`
+      - TEST_SECRET=`aws ssm get-parameter --name TEST_SECRET --with-decryption --output text | cut -f 4`
       - npm test
       - npm prune --production
       - docker build --tag "$(cat /tmp/build_tag.out)" .
