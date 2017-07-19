@@ -2,7 +2,7 @@ import AppEnv from './env';
 
 import {RootLog as logger} from '../utils/RootLogger';
 
-import {roman, contoso, test, digital} from './identities';
+import {roman, test} from './identities';
 import {EnvironmentConfig, GraphAPIParameters} from '../model/EnvironmentConfig';
 
 
@@ -12,17 +12,9 @@ function _assignGraphIdentity(env: string): GraphAPIParameters {
       roman.credentials.clientSecret = AppEnv.ROMAN_SECRET;
       return roman.credentials;
     }
-    case 'contoso': {
-      contoso.credentials.clientSecret = AppEnv.CONTOSO_SECRET;
-      return contoso.credentials;
-    }
     case 'test': {
       test.credentials.clientSecret = AppEnv.TEST_SECRET;
       return test.credentials;
-    }
-    case 'digital': {
-      digital.credentials.clientSecret = AppEnv.DIGITAL_SECRET;
-      return digital.credentials;
     }
     default: {
       throw new Error('Unknown environment found is CLOUD_CONFIG');
