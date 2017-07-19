@@ -1,0 +1,13 @@
+{
+  "KeyMetadata": {
+    "Origin": "AWS_KMS",
+    "KeyId": "831db950-ea2f-40b2-af19-5e22b5e1b1b4",
+    "Description": "bookit-integration-license",
+    "Enabled": true,
+    "KeyUsage": "ENCRYPT_DECRYPT",
+    "KeyState": "Enabled",
+    "CreationDate": 1500482128.503,
+    "Arn": "arn:aws:kms:us-east-1:006393696278:key/831db950-ea2f-40b2-af19-5e22b5e1b1b4",
+    "AWSAccountId": "006393696278"
+  }
+}

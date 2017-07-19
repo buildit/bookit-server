@@ -1,6 +1,12 @@
 version: '2'
 
 services:
+  web:
+    image: builditdigital/bookit-web:latest
+    ports:
+     - "80:80"
+    environment:
+    - API_BASE_URL=http://bookit.riglet.io:8888
   server:
     image: defpearlpilot/bookit-server:latest
     ports:
