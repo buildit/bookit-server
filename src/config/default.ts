@@ -6,6 +6,14 @@ import {assignGraphIdentity} from './identity';
 import {getDomain} from './domain';
 
 
+const checkFlag = (flag: string): boolean => {
+  if (!flag) {
+    return false;
+  }
+
+  return flag.toLowerCase() === 'true';
+};
+
 /*
 Start creating the environment here
  */
@@ -20,5 +28,11 @@ if (AppEnv.USE_CLOUD && AppEnv.USE_CLOUD === 'true') {
 }
 
 environment.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';
+
+environment.useMeetingCache = !checkFlag(AppEnv.MEETING_CACHE_DISABLED);
+environment.useGroupCache = !checkFlag(AppEnv.GROUP_CACHE_DISABLED);
+
+logger.info('Meeting Cache enabled:', environment.useMeetingCache);
+logger.info('Group Cache enabled:', environment.useGroupCache);
 
 module.exports = environment;

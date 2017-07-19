@@ -61,44 +61,43 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        });
   });
 
-  // XXX - Disabling this "unit test" because I just want this damn thing to build and be done
-  // it('it creates the meeting', function testCreateMeeting() {
-  //   const meetingStart = '2013-02-08 10:00:00';
-  //   const meetingEnd = '2013-02-08 10:45:00';
+  it('it creates the meeting', function testCreateMeeting() {
+    const meetingStart = '2013-02-08 10:00:00';
+    const meetingEnd = '2013-02-08 10:45:00';
 
-  //   const meetingReq: MeetingRequest = {
-  //     title: 'meeting 0',
-  //     start: meetingStart,
-  //     end: meetingEnd,
-  //   };
+    const meetingReq: MeetingRequest = {
+      title: 'meeting 0',
+      start: meetingStart,
+      end: meetingEnd,
+    };
 
-  //   const searchStart = moment(meetingStart).subtract(5, 'minutes');
-  //   const searchEnd = moment(meetingEnd).add(5, 'minutes');
+    const searchStart = moment(meetingStart).subtract(5, 'minutes');
+    const searchEnd = moment(meetingEnd).add(5, 'minutes');
 
-  //   const expected = {
-  //     title: bruceOwner.name,
-  //     start: moment(meetingReq.start),
-  //     duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
-  //     bruceOwner,
-  //     room
-  //   };
+    const expected = {
+      title: bruceOwner.name,
+      start: moment(meetingReq.start),
+      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      bruceOwner,
+      room
+    };
 
-  //   const token = jwtTokenProvider.provideToken(bruceCredentials);
+    const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-  //   return request(app).post(`/room/${room.email}/meeting`)
-  //                      .set('Content-Type', 'application/json')
-  //                      .set('x-access-token', token)
-  //                      .send(meetingReq)
-  //                      .expect(200)
-  //                      .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
-  //                      .then((meetings) => {
-  //                        expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
+    return request(app).post(`/room/${room.email}/meeting`)
+                       .set('Content-Type', 'application/json')
+                       .set('x-access-token', token)
+                       .send(meetingReq)
+                       .expect(200)
+                       .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
+                       .then((meetings) => {
+                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
 
-  //                        const meeting = meetings[0];
+                         const meeting = meetings[0];
 
-  //                        expect(meeting.title).to.be.deep.eq(expected.title);
-  //                      });
-  // });
+                         expect(meeting.title).to.be.deep.eq(expected.title);
+                       });
+  });
 
   it('it tests meeting visibility without a token', function testMeetingVisibilityWithoutToken() {
     const meetingStart = '2013-02-08 09:00:00';
@@ -107,25 +106,19 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const meetingReq: MeetingRequest = {
-      title: 'meeting 0',
-      start: meetingStart,
-      end: meetingEnd,
-    };
-
-    const expected = {
-      title: 'meeting 0',
-      start: moment(meetingReq.start),
-      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+    const meetingToCreate = {
+      title: 'meeting without a token',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
       room
     };
 
-    return meetingService.createMeeting(expected.title,
-                                        expected.start,
-                                        expected.duration,
-                                        expected.bruceOwner,
-                                        expected.room)
+    return meetingService.createMeeting(meetingToCreate.title,
+                                        meetingToCreate.start,
+                                        meetingToCreate.duration,
+                                        meetingToCreate.bruceOwner,
+                                        meetingToCreate.room)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -152,16 +145,10 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const meetingReq: MeetingRequest = {
-      title: 'meeting 0',
-      start: meetingStart,
-      end: meetingEnd,
-    };
-
     const expected = {
-      title: 'meeting 0',
-      start: moment(meetingReq.start),
-      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      title: 'meeting with token',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingEnd), 'minutes'), 'minutes'),
       bruceOwner,
       room
     };
@@ -189,7 +176,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
                                const meetings = allMeetings.filter(m => m.id === meetingId);
                                expect(meetings.length).to.be.at.least(1);
-                               return expect(meetings[0].title).to.be.equal('meeting 0');
+                               return expect(meetings[0].title).to.be.equal('meeting with token');
                              });
                          });
   });

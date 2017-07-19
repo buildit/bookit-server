@@ -10,7 +10,6 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
-import {MSUser} from '../users/UserService';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
@@ -100,7 +99,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     const endDateTime = end.toISOString();
 
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
-    logger.debug(URL, startDateTime, endDateTime);
+    logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
       this.tokenOperations.withToken()
           .then(token => {
@@ -149,7 +148,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   The various cancels/declines/etc will be promoted to proper calls in the interface.  Also, we will be gutting
   the client.api stuff
    */
-
   private _cancelMeeting(owner: Participant, id: string): Promise<any> {
     const URL = `/users/${owner.email}/calendar/events/${id}/cancel`;
     console.info('BOOK IT CANCEL', URL);
@@ -229,7 +227,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       return new Participant(attendee.emailAddress.address, attendee.emailAddress.name);
     };
 
-    // logger.info('Source meeting', meeting);
+    // logger.debug('Source meeting', meeting);
     logger.debug('Meeting attendee', meeting.attendees);
     logger.debug('Meeting location', meeting.location);
 
@@ -245,9 +243,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    // logger.debug('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }
-
-// Created AAMkAGZjOGZiMjkyLWVlZTktNGI4Zi1hZjI3LWU1NmMwZmFmZTQ1NwBGAAAAAAD3xsCQ9StBQriMaPZ40gegBwD-9MwDWgcgSa2XxpJQw3YhAAAAAAENAAD-9MwDWgcgSa2XxpJQw3YhAAAy4t1xAAA=

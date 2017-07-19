@@ -1,6 +1,7 @@
 import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 
+import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
 import {MockUserService} from '../../services/users/MockUserService';
 
 import {generateTestRoomLists} from '../bootstrap/rooms';
@@ -16,7 +17,7 @@ import {MockMailService} from '../../services/mail/MockMailService';
 import {MSGroup} from '../../services/groups/GroupService';
 
 export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfig {
-  const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret);
+  const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret, new MockAzureAuthTokenProvider());
 
   return new RuntimeConfig(environment.port,
                            environment.domain,

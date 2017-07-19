@@ -97,10 +97,10 @@ export function handleMeetingFetch(roomService: RoomService,
                    return resolve(roomMeetings);
                  }
 
-                 const part = new Participant(credentials.user);
-                 meetingOps.getUserMeetings(part, start, end)
+                 const participant = new Participant(credentials.user);
+                 meetingOps.getUserMeetings(participant, start, end)
                            .then(userMeetings => {
-                             logger.info('-----------------------------------------------------------');
+                             logger.info(`------------${participant.email}-----------`);
                              const merged = mergeMeetings(roomMeetings, userMeetings);
                              return resolve(merged);
                            });
@@ -112,21 +112,31 @@ export function handleMeetingFetch(roomService: RoomService,
 }
 
 
+/*
+Can't match by meeting id when using different user perspectives
+Don't match by location since bookings by BookIt and Outlook are different
+ */
+export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
+  function meetingsMatch(some: Meeting, other: Meeting): boolean {
+    const areStartsMismatching = () => !some.start.isSame(other.start);
+    const areEndsMismatching = () => !some.end.isSame(other.end);
+    const areOwnersMismatching = () => some.owner.email !== other.owner.email;
+
+    const predicates = [areEndsMismatching, areStartsMismatching, areOwnersMismatching];
+    const anyFailed = predicates.some(predicate => predicate());
+    return !anyFailed;
+  }
+
+  return userMeetings.find(user => meetingsMatch(user, meeting));
+}
+
+
 function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
-  const userMeetingsMap = userMeetings.reduce((acc, meeting) => {
-    acc.set(meeting.id, meeting);
-    return acc;
-  }, new Map<string, Meeting>());
-
-  logger.debug('Merging meetings', roomMeetings);
-  logger.debug('Merging meetings', userMeetingsMap);
-
   return roomMeetings.map(roomNMeetings => {
     return {
       room: roomNMeetings.room,
       meetings: roomNMeetings.meetings.map(meeting => {
-        const userMeeting = userMeetingsMap.get(meeting.id);
-        logger.info('User meeting', meeting.id, userMeeting ? userMeeting.title : 'not found');
+        const userMeeting = matchMeeting(meeting, userMeetings);
         return userMeeting ? userMeeting : meeting;
       })
     };

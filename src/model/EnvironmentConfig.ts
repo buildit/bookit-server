@@ -12,6 +12,8 @@ export interface Env {
   readonly USE_CLOUD: string;
   readonly CLOUD_CONFIG: string;
   readonly JWT_TOKEN_SECRET: string;
+  readonly MEETING_CACHE_DISABLED: string;
+  readonly GROUP_CACHE_DISABLED: string;
 }
 
 export type CloudConfiguration = 'roman' | 'contoso';
@@ -33,6 +35,8 @@ export interface EnvironmentConfig {
   graphAPIParameters?: GraphAPIParameters;
   testMode?: TestMode;
   jwtTokenSecret?: string;
+  useMeetingCache?: boolean;
+  useGroupCache?: boolean;
 }
 
 export interface Domain {
