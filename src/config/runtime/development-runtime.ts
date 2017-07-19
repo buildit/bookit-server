@@ -28,6 +28,7 @@ import {MSUser} from '../../services/users/UserService';
 import {GroupService} from '../../services/groups/GroupService';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 import {JWTTokenProvider} from '../../services/tokens/TokenProviders';
+import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
 
 
 function generateMockGroup(domain: string): GroupService {
@@ -88,11 +89,11 @@ function provideDevelopmentGraphRuntime(env: EnvironmentConfig, jwtTokenProvider
 
 
 export function provideDevelopmentRuntime(env: EnvironmentConfig): RuntimeConfig {
-  const jwtTokenProvider = new MockJWTTokenProvider(env.jwtTokenSecret);
+  const jwtTokenProvider = new MockJWTTokenProvider(env.jwtTokenSecret, new MockAzureAuthTokenProvider());
   const graphAPIParameters = env.graphAPIParameters;
 
   if (graphAPIParameters) {
-    return provideDevelopmentGraphRuntime(env, jwtTokenProvider)
+    return provideDevelopmentGraphRuntime(env, jwtTokenProvider);
   } else {
     return provideMockRuntime(env, jwtTokenProvider);
   }
