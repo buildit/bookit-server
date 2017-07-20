@@ -2,7 +2,7 @@ import AppEnv from './env';
 
 import {RootLog as logger} from '../utils/RootLogger';
 
-import {roman, test} from './identities';
+import {roman, test, buildit} from './identities';
 import {EnvironmentConfig, GraphAPIParameters} from '../model/EnvironmentConfig';
 
 
@@ -15,6 +15,10 @@ function _assignGraphIdentity(env: string): GraphAPIParameters {
     case 'test': {
       test.credentials.clientSecret = AppEnv.TEST_SECRET;
       return test.credentials;
+    }
+    case 'buildit': {
+      buildit.credentials.clientSecret = AppEnv.BUILDIT_SECRET;
+      return buildit.credentials;
     }
     default: {
       throw new Error('Unknown environment found is CLOUD_CONFIG');

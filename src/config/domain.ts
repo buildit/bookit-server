@@ -1,4 +1,4 @@
-import {roman, test, defaultIdentity} from './identities';
+import {roman, test, defaultIdentity, buildit} from './identities';
 import {Domain} from '../model/EnvironmentConfig';
 
 
@@ -12,6 +12,9 @@ export function getDomain(_env: string): Domain {
     }
     case 'test': {
       return test.domain;
+    }
+    case 'buildit': {
+      return buildit.domain;
     }
     default: {
       return defaultIdentity.domain;
