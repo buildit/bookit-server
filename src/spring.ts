@@ -2,9 +2,9 @@ import * as moment from 'moment';
 import {RootLog as logger} from './utils/RootLogger';
 
 import {Runtime} from './config/runtime/configuration';
-import {Room, RoomList} from './model/Room';
+import {RoomList} from './model/Room';
 import {Participant} from './model/Participant';
-import {generateMSRoomResource, generateMSUserResource} from './config/bootstrap/rooms';
+import {generateMSRoomResource} from './config/bootstrap/rooms';
 import {Meeting} from './model/Meeting';
 import {handleMeetingFetch} from './rest/meetings/meeting_functions';
 import {MeetingsOps} from './services/meetings/MeetingsOps';
@@ -16,6 +16,8 @@ const userService = Runtime.userService;
 const groupService = Runtime.groupService;
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
+
+const domain = meetingService.domain();
 
 const meetingOps = new MeetingsOps(meetingService);
 
@@ -85,8 +87,8 @@ function testGetRooms() {
 
 
 async function testMeetingCreate() {
-  const owner = new Participant('bruce@designitcontoso.onmicrosoft.com');
-  const room = generateMSRoomResource('Red', 'designitcontoso');
+  const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
+  const room = generateMSRoomResource('Red', domain);
   const start = moment().startOf('hour').add(1, 'hour');
   const duration = moment.duration(1, 'hour');
 
@@ -97,8 +99,8 @@ async function testMeetingCreate() {
 
 
 async function testMeetingDelete(meeting: Meeting) {
-  const owner = new Participant('bruce@designitcontoso.onmicrosoft.com');
-  // const room = generateMSRoomResource('Red', 'designitcontoso');
+  const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
+  // const room = generateMSRoomResource('Red', 'builditcontoso');
   // const start = moment().startOf('day').subtract(1, 'day');
   // const end = moment().startOf('day').add(1, 'day');
 
@@ -118,7 +120,7 @@ async function testMeetingDelete(meeting: Meeting) {
 // testGetUsers();
 
 const bruceCreds: Credentials = {
-  user: 'bruce@designitcontoso.onmicrosoft.com'
+  user: `bruce@${domain}.onmicrosoft.com`
 };
 
 function testX() {
@@ -134,4 +136,4 @@ function testX() {
   });
 }
 
-testAddGroupMember();
+testMeetingCreate().then(() => console.log('SUCCESS'));
