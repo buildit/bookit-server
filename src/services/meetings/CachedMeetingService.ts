@@ -56,6 +56,14 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
+  clearCaches() {
+    this.roomSubCaches = new Map<string, SubCache<Room>>();
+    this.ownerSubCaches = new Map<string, SubCache<Participant>>();
+
+    return true;
+  }
+
+
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const userCache = this.getCacheForOwner(user);
     console.log('CMS:getUserMeetings', userCache);
@@ -244,8 +252,7 @@ class PassThroughMeetingService implements MeetingsService {
   userMeetings: Meeting[];
 
   constructor(private _domain: string) {
-    this.meetings = new Array<Meeting>();
-    this.userMeetings = new Array<Meeting>();
+    this.clearCaches();
   }
 
 
@@ -253,6 +260,13 @@ class PassThroughMeetingService implements MeetingsService {
     return this._domain;
   }
 
+
+  clearCaches() {
+    this.meetings = new Array<Meeting>();
+    this.userMeetings = new Array<Meeting>();
+
+    return true;
+  }
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     const mappedMeetings = this.meetings.map(meeting => {

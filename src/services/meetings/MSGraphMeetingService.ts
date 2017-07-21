@@ -23,6 +23,10 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
+  clearCaches() {
+    return true;
+  }
+
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
     return this._getMeetings(room.email, start, end);
   }

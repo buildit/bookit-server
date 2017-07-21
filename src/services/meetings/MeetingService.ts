@@ -7,6 +7,9 @@ export interface MeetingsService {
   domain(): string;
 
 
+  clearCaches(): boolean;
+
+
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]>;
 
 

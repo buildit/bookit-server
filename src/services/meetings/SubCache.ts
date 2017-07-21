@@ -107,19 +107,20 @@ export class SubCache<T extends Attendee> {
       const owner = this.attendee.email;
       const roomName = this.attendee.name;
       const participantMeetings = this.participantCache.get(owner) || [];
-      logger.debug('SubCache:: for participant:', owner, 'found:', participantMeetings.map(m => m.id));
-      const roomMeetings = this.roomCache.get(roomName) || [];
-      logger.debug('SubCache:: for room:', roomName, 'found:', roomMeetings);
+      logger.debug(`SubCache::getMeetings(${owner}) by participant:`, participantMeetings.map(m => m.id));
+      const originalRoomMeetings = this.roomCache.get(roomName) || [];
+      logger.debug(`SubCache::getMeetings(${owner}) by room:`, participantMeetings.map(m => m.id));
+      const roomMeetings = originalRoomMeetings || [];
 
       const meetingIdMap = new Map<string, Meeting>();
       participantMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
       roomMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
 
       const meetings =  Array.from(meetingIdMap.values()) || [];
-      logger.info('SubCache::getMeetings() - filter is:', start, end);
+      logger.info(`SubCache::getMeetings(${owner}) filter is:`, start, end);
 
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.info(`SubCache::getCachedRoomMeetings() filtered to (${owner}):`, filtered.map(m => m.id));
+      logger.info(`SubCache::getMeetings(${owner}) filtered:`, filtered.map(m => m.id));
 
       return resolve(filtered);
     });

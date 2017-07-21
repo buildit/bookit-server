@@ -22,7 +22,6 @@ function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Mom
 
 function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment) {
   const conflict = meetings.find(meeting => {
-    console.log('hasConflicts', meeting.id, originalId, isMeetingOverlapping(meeting.start, meeting.end, start, end))
     return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, start, end);
   });
 

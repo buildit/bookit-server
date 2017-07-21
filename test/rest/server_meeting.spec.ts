@@ -96,6 +96,8 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          const meeting = meetings[0];
 
                          expect(meeting.title).to.be.deep.eq(expected.title);
+
+                         meetingService.clearCaches();
                        });
   });
 
@@ -142,8 +144,9 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                                                                        'Expected to find at least one meeting');
 
                                                 const meeting = meetings[0];
-
                                                 expect(meeting.title).to.be.deep.eq(updatedMeeting.title);
+
+                                                meetingService.clearCaches();
                                               });
                          });
 
@@ -185,7 +188,11 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
                                const meetings = allMeetings.filter(m => m.id === meetingId);
                                expect(meetings.length).to.be.at.least(1);
-                               return expect(meetings[0].title).to.be.equal('bruce');
+                               const expected = expect(meetings[0].title).to.be.equal('bruce');
+
+                               meetingService.clearCaches();
+
+                               return expected;
                              });
                          });
   });
@@ -228,7 +235,11 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                const meetings = allMeetings.filter(m => m.id === meetingId);
                                console.log('TOKEN MEETINGS', meetings);
                                expect(meetings.length).to.be.at.least(1);
-                               return expect(meetings[0].title).to.be.equal('meeting with token');
+                               const expected = expect(meetings[0].title).to.be.equal('meeting with token');
+
+                               meetingService.clearCaches();
+
+                               return expected;
                              });
                          });
   });
