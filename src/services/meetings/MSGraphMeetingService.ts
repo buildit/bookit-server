@@ -58,6 +58,37 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
+  updateMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+    const eventData = MSGraphMeetingService._generateEventPayload(subj,
+                                                                  start,
+                                                                  moment.duration(1, 'minute'),
+                                                                  owner,
+                                                                  room,
+                                                                  id);
+
+    const URL = `https://graph.microsoft.com/v1.0/users/${owner.email}/calendar/events`;
+    console.info('POST', URL, eventData);
+
+    return new Promise((resolve, reject) => {
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.put(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .send(eventData)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(new Error(error));
+                       return;
+                     }
+
+                     resolve(MSGraphMeetingService._mapMeeting(response.body));
+                   });
+          });
+    });
+
+  }
+
+
   findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
     return this.getMeetings(room, start, end)
                .then(meetings => {
@@ -77,20 +108,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
 
   doSomeShiznit(test: any): Promise<any> {
-    const meeting = test as Meeting;
-
-    const eventData = MSGraphMeetingService._generateEventPayload(meeting.title,
-                                                                  meeting.start,
-                                                                  moment.duration(1, 'minute'),
-                                                                  meeting.owner,
-                                                                  meeting.owner);
-    eventData.id = meeting.id;
-    eventData.isCancelled = true;
-
-    const URL = `/users/${meeting.owner.email}/calendar/events`;
-    return this.client.api(URL)
-               .post(eventData)
-               .then(meeting => MSGraphMeetingService._mapMeeting(meeting)) as Promise<Meeting>;
+    return Promise.reject('Error');
   }
 
 
@@ -120,12 +138,17 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  private static _generateEventPayload(subj: string, start: Moment, duration: Duration, owner: Participant,
-                                       room: Room): any {
+  private static _generateEventPayload(subj: string,
+                                       start: Moment,
+                                       duration: Duration,
+                                       owner: Participant,
+                                       room: Room,
+                                       id?: string): any {
     const participants = [room];
     const attendees = participants.map(MSGraphMeetingService._mapToRequiredEmailAddress);
 
     return {
+      id: id,
       originalStartTimeZone: 'UTC',
       originalEndTimeZone: 'UTC',
       subject: subj,
@@ -142,6 +165,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       organizer: MSGraphMeetingService._mapToEmailAddress(owner),
       attendees
     };
+
   }
 
   /*

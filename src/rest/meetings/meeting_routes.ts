@@ -8,20 +8,19 @@ import {MeetingsService} from '../../services/meetings/MeetingService';
 import {MeetingsOps, RoomMeetings} from '../../services/meetings/MeetingsOps';
 import {RoomService} from '../../services/rooms/RoomService';
 import {RootLog as logger} from '../../utils/RootLogger';
-import {extractAsMoment} from '../../utils/validation';
+import {extractQueryParamAsMoment} from '../../utils/validation';
 
 import {sendGatewayError, sendValidation} from '../rest_support';
 import {credentialedEndpoint, protectedEndpoint} from '../filters';
 import {TokenInfo} from '../auth_routes';
 import {
-  createMeeting, handleMeetingDeletion, handleMeetingFetch, validateDate, validateDateRange,
-  validateEndDate
+  createMeeting, handleMeetingDeletion, handleMeetingFetch, updateMeeting, validateTimes, validateTitle
 } from './meeting_functions';
 import {Credentials} from '../../model/Credentials';
-import {Meeting} from '../../model/Meeting';
 
 
 export interface MeetingRequest {
+  readonly id?: string;
   readonly title: string;
   readonly start: string;
   readonly end: string;
@@ -43,9 +42,9 @@ export function configureMeetingRoutes(app: Express,
     const credentials = req.body.credentials as Credentials;
 
     try {
-      const start = validateDate(req, 'start');
-      const end = validateEndDate(req, 'end', start);
-      validateDateRange(start, end);
+      const start = extractQueryParamAsMoment(req, 'start');
+      const end = extractQueryParamAsMoment(req, 'end');
+      validateTimes(start, end);
 
       const meetings = handleMeetingFetch(roomService, meetingsOps, credentials, listName, start, end);
       meetings.then(roomMeetings => res.json(roomMeetings));
@@ -58,7 +57,36 @@ export function configureMeetingRoutes(app: Express,
   protectedEndpoint(app, '/room/:roomEmail/meeting', app.post, (req: Request, res: Response) => {
     logger.debug('About to create meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
-    createMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
+    const event = req.body as MeetingRequest;
+
+    try {
+      validateTitle(event.title);
+      const start = moment(event.start);
+      const end = moment(event.end);
+      validateTimes(start, end);
+
+      createMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
+    } catch (error) {
+      return sendValidation(error, res);
+    }
+  });
+
+
+  protectedEndpoint(app, '/room/:roomEmail/meeting', app.put, (req: Request, res: Response) => {
+    logger.debug('About to update meeting', req.body);
+    const credentials = req.body.credentials as TokenInfo;
+    const event = req.body as MeetingRequest;
+
+    try {
+      validateTitle(event.title);
+      const start = moment(event.start);
+      const end = moment(event.end);
+      validateTimes(start, end);
+
+      updateMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
+    } catch (error) {
+      return sendValidation(error, res);
+    }
   });
 
 

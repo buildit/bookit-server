@@ -6,7 +6,7 @@ import {Meeting} from '../model/Meeting';
 import {RootLog as logger} from './RootLogger';
 
 
-export const extractAsMoment = (req: Request, param: string) => {
+export const extractQueryParamAsMoment = (req: Request, param: string) => {
   const paramValue = req.query[param];
   if (paramValue) {
     return moment(paramValue);

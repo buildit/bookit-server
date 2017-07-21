@@ -44,7 +44,7 @@ const bruceCredentials = {
 
 describe('meeting routes operations', function testMeetingRoutes() {
 
-  it('room list is available on /rooms/nyc', function testRoomList() {
+  it('can query a room list for nyc', function testRoomList() {
     return request(app).get('/rooms/nyc')
                        .expect(200)
                        .then((res) => {
@@ -61,7 +61,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        });
   });
 
-  it('it creates the meeting', function testCreateMeeting() {
+  it('creates the meeting', function testCreateMeeting() {
     const meetingStart = '2013-02-08 10:00:00';
     const meetingEnd = '2013-02-08 10:45:00';
 
@@ -99,7 +99,60 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        });
   });
 
-  it('it tests meeting visibility without a token', function testMeetingVisibilityWithoutToken() {
+  it('updates an existing meeting', function testUpdateMeeting() {
+    const meetingStart = '2013-05-08 10:00:00';
+    const meetingEnd = '2013-05-08 10:45:00';
+
+
+    const searchStart = moment(meetingStart).subtract(5, 'minutes');
+    const searchEnd = moment(meetingEnd).add(5, 'minutes');
+
+    const original = {
+      title: 'original meeting title',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
+      bruceOwner,
+      room
+    };
+
+    const token = jwtTokenProvider.provideToken(bruceCredentials);
+
+    return meetingService.createMeeting(original.title,
+                                        original.start,
+                                        original.duration,
+                                        original.bruceOwner,
+                                        original.room)
+                         .then(created => {
+                           console.log('Original', created);
+                           const updatedMeeting: MeetingRequest = {
+                             id: created.id,
+                             title: 'this is new',
+                             start: meetingStart,
+                             end: meetingEnd,
+                           };
+
+                           return request(app).put(`/room/${room.email}/meeting`)
+                                              .set('Content-Type', 'application/json')
+                                              .set('x-access-token', token)
+                                              .send(updatedMeeting)
+                                              .expect(200)
+                                              .then(() => meetingService.getUserMeetings(bruceOwner, searchStart, searchEnd))
+                                              .then((meetings) => {
+                                                expect(meetings.length).to.be.at.least(1,
+                                                                                       'Expected to find at least one meeting');
+
+                                                const meeting = meetings[0];
+
+                                                expect(meeting.title).to.be.deep.eq(updatedMeeting.title);
+                                              });
+                         });
+
+
+
+  });
+
+
+  it('has expected meeting visibility without a token', function testMeetingVisibilityWithoutToken() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
@@ -137,8 +190,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          });
   });
 
-
-  it('it tests meeting visibility with a token', function testMeetingVisibilityWithToken() {
+  it('has expected meeting visibility with a token', function testMeetingVisibilityWithToken() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
@@ -152,7 +204,6 @@ describe('meeting routes operations', function testMeetingRoutes() {
       bruceOwner,
       room
     };
-
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
     console.info('Token', token);
@@ -175,6 +226,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                }, []);
 
                                const meetings = allMeetings.filter(m => m.id === meetingId);
+                               console.log('TOKEN MEETINGS', meetings);
                                expect(meetings.length).to.be.at.least(1);
                                return expect(meetings[0].title).to.be.equal('meeting with token');
                              });
@@ -182,7 +234,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
   });
 
 
-  it('it deletes the meeting', function testDeletingAMeeting() {
+  it('deletes the meeting', function testDeletingAMeeting() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
