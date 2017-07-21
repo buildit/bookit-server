@@ -1,9 +1,8 @@
 import {Domain, GraphAPIParameters} from '../../model/EnvironmentConfig';
 
 import {creds as romanCreds, domain as romanDomain} from './roman/credentials';
-import {creds as contosoCreds, domain as contosoDomain} from './contoso/credentials';
 import {creds as testCreds, domain as testDomain} from './test/credentials';
-import {creds as buildCreds, domain as buildDomain} from './digitalbuildit/credentials';
+import {creds as builditCreds, domain as builditDomain} from './builditcontoso/credentials';
 import {domain as defaultDomain} from './default/credentials';
 
 export interface Identity {
@@ -16,9 +15,9 @@ export const roman: Identity = {
   credentials: romanCreds
 };
 
-export const contoso: Identity = {
-  domain: contosoDomain,
-  credentials: contosoCreds
+export const buildit: Identity = {
+  domain: builditDomain,
+  credentials: builditCreds
 };
 
 export const test: Identity = {
@@ -26,10 +25,6 @@ export const test: Identity = {
   credentials: testCreds
 };
 
-export const digital: Identity = {
-  domain: buildDomain,
-  credentials: buildCreds
-};
 
 export const defaultIdentity: Identity = {
   domain: defaultDomain

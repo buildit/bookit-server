@@ -3,14 +3,11 @@ Expected environment variables from the .env file
  */
 
 export interface Env {
-  // readonly MICROSOFT_TENANT_ID: string;
-  // readonly MICROSOFT_APP_ID: string;
-  readonly ROMAN_SECRET?: string;
-  readonly CONTOSO_SECRET?: string;
-  readonly TEST_SECRET?: string;
-  readonly DIGITAL_SECRET?: string;
   readonly USE_CLOUD: string;
   readonly CLOUD_CONFIG: string;
+  readonly ROMAN_SECRET?: string;
+  readonly TEST_SECRET?: string;
+  readonly BUILDIT_SECRET?: string;
   readonly JWT_TOKEN_SECRET: string;
   readonly MEETING_CACHE_DISABLED: string;
   readonly GROUP_CACHE_DISABLED: string;
