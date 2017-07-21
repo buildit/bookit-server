@@ -9,6 +9,7 @@ import {Meeting} from './model/Meeting';
 import {handleMeetingFetch} from './rest/meetings/meeting_functions';
 import {MeetingsOps} from './services/meetings/MeetingsOps';
 import {Credentials} from './model/Credentials';
+import {log} from 'util';
 
 logger.info('Spring: starting up');
 
@@ -20,6 +21,8 @@ const meetingService = Runtime.meetingService;
 const domain = meetingService.domain();
 
 const meetingOps = new MeetingsOps(meetingService);
+const room = generateMSRoomResource('Red', domain);
+
 
 function testGetUsers() {
   return userService.getUsers()
@@ -88,7 +91,6 @@ function testGetRooms() {
 
 async function testMeetingCreate() {
   const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
-  const room = generateMSRoomResource('Red', domain);
   const start = moment().startOf('hour').add(1, 'hour');
   const duration = moment.duration(1, 'hour');
 
@@ -136,4 +138,19 @@ function testX() {
   });
 }
 
-testMeetingCreate().then(() => console.log('SUCCESS'));
+testMeetingCreate().then((meeting) => {
+  logger.info('Created', meeting);
+  const startMoment = meeting.start;
+  const endMoment = meeting.end;
+
+  const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
+  meetingService.updateMeeting(meeting.id,
+                               'new meeting',
+                               meeting.start,
+                               duration,
+                               meeting.owner,
+                               room)
+                .then(meeting => {
+                  logger.info('Updated', meeting);
+                });
+});
