@@ -9,9 +9,20 @@ import {Meeting} from '../../model/Meeting';
 import {isMeetingOverlapping} from '../../utils/validation';
 
 
-function hasConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
+function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
   const conflict = meetings.find(meeting => {
     return isMeetingOverlapping(moment(meeting.start), moment(meeting.end), newMeetingStart, newMeetingEnd);
+  });
+
+  if (conflict) {
+    throw 'Found conflict';
+  }
+}
+
+
+function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment) {
+  const conflict = meetings.find(meeting => {
+    return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, start, end);
   });
 
   if (conflict) {
@@ -27,7 +38,18 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
   const end = start.clone().add(duration);
 
   return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasConflicts(meetings, start, end));
+                        .then(meetings => hasAnyMeetingConflicts(meetings, start, end));
+}
+
+
+function checkMeetingTimeIsAvailable(meetingsService: MeetingsService,
+                                     room: Room,
+                                     id: string,
+                                     start: Moment,
+                                     duration: Duration): Promise<any> {
+  const end = start.clone().add(duration);
+  return meetingsService.getMeetings(room, start, end)
+                        .then(meetings => hasConflicts(meetings, id, start, end));
 }
 
 
@@ -42,6 +64,24 @@ export function createMeetingOperation(meetingService: MeetingsService,
     const ifAvailable = checkTimeIsAvailable(meetingService, room, start, duration);
 
     ifAvailable.then(() => meetingService.createMeeting(subj, start, duration, owner, room)
+                                         .then(resolve)
+                                         .catch(reject))
+               .catch(reject);
+  });
+}
+
+export function updateMeetingOperation(meetingService: MeetingsService,
+                                       id: string,
+                                       subj: string,
+                                       start: Moment,
+                                       duration: Duration,
+                                       owner: Participant,
+                                       room: Room): Promise<Meeting> {
+
+  return new Promise((resolve, reject) => {
+    const ifAvailable = checkMeetingTimeIsAvailable(meetingService, room, id, start, duration);
+
+    ifAvailable.then(() => meetingService.updateMeeting(id, subj, start, duration, owner, room)
                                          .then(resolve)
                                          .catch(reject))
                .catch(reject);

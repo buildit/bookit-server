@@ -10,25 +10,18 @@ import {Room} from '../../model/Room';
 import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
-import {createMeetingOperation, MeetingsOps, RoomMeetings} from '../../services/meetings/MeetingsOps';
-import {extractAsMoment} from '../../utils/validation';
+import {
+  createMeetingOperation, MeetingsOps, RoomMeetings,
+  updateMeetingOperation
+} from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
+import {Moment} from 'moment';
 
 
-export function validateDate(req: Request, param: string) {
-  const date = extractAsMoment(req, param);
-  if (!date.isValid()) {
-    const paramValue = req.query[param];
-    throw new Error(`${param} is not a valid moment('${paramValue}').`);
-  }
-
-  return date;
-}
 
 
-export function validateEndDate(req: Request, param: string, startDate: moment.Moment) {
-  const endDate = validateDate(req, param);
+export function validateEndDate(startDate: Moment, endDate: Moment) {
   if (startDate.isAfter(endDate)) {
     throw new Error('End date must be after start date.');
   }
@@ -44,6 +37,20 @@ export function validateDateRange(startDate: moment.Moment, endDate: moment.Mome
   }
 }
 
+
+export function validateTitle(title: string) {
+  if (!title || title.trim().length === 0) {
+    throw new Error('Title must be provided');
+  }
+}
+
+
+export function validateTimes(start: Moment, end: Moment) {
+  validateEndDate(start, end);
+  validateDateRange(start, end);
+
+  return {start, end};
+}
 
 
 export function createMeeting(req: Request,
@@ -67,17 +74,42 @@ export function createMeeting(req: Request,
       .catch(err => sendError(err, res));
   };
 
-  if (checkParam(event.title && event.title.trim().length > 0, 'Title must be provided', res)
-    && checkParam(startMoment.isValid(), 'Start date must be provided', res)
-    && checkParam(endMoment.isValid(), 'End date must be provided', res)
-    && checkParam(endMoment.isAfter(startMoment), 'End date must be after start date', res)) {
+  roomService.getRoomByName(roomId)
+             .then(createRoomMeeting)
+             .catch(() => roomService.getRoomByMail(roomId))
+             .then(createRoomMeeting)
+             .catch(err => sendError(err, res));
+}
 
-    roomService.getRoomByName(roomId)
-               .then(createRoomMeeting)
-               .catch(() => roomService.getRoomByMail(roomId))
-               .then(createRoomMeeting)
-               .catch(err => sendError(err, res));
-  }
+
+export function updateMeeting(req: Request,
+                              res: Response,
+                              roomService: RoomService,
+                              meetingService: MeetingsService,
+                              owner: Participant) {
+  const event = req.body as MeetingRequest;
+  const startMoment = moment(event.start);
+  const endMoment = moment(event.end);
+  const roomId = req.params.roomEmail;
+
+  logger.info('Want to create meeting:', event);
+  const updateRoomMeeting = (room: Room) => {
+    updateMeetingOperation(meetingService,
+                           event.id,
+                           event.title,
+                           startMoment,
+                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
+                           owner,
+                           room)
+      .then(meeting => res.json(meeting))
+      .catch(err => sendError(err, res));
+  };
+
+  roomService.getRoomByName(roomId)
+             .then(updateRoomMeeting)
+             .catch(() => roomService.getRoomByMail(roomId))
+             .then(updateRoomMeeting)
+             .catch(err => sendError(err, res));
 }
 
 

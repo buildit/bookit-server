@@ -56,8 +56,17 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
+  clearCaches() {
+    this.roomSubCaches = new Map<string, SubCache<Room>>();
+    this.ownerSubCaches = new Map<string, SubCache<Participant>>();
+
+    return true;
+  }
+
+
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const userCache = this.getCacheForOwner(user);
+    console.log('CMS:getUserMeetings', userCache);
     const fetch = userCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshUserCache(user, start, end);
     return fetch.then(() => userCache.getMeetings(start, end));
   }
@@ -85,6 +94,17 @@ export class CachedMeetingService implements MeetingsService {
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     return this.delegatedMeetingsService
                .createMeeting(subj, start, duration, owner, room)
+               .then(meeting => this.cacheMeeting(room, meeting))
+               .catch(error => {
+                 logger.error(error);
+                 throw new Error(error);
+               });
+  }
+
+
+  updateMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+    return this.delegatedMeetingsService
+               .updateMeeting(id, subj, start, duration, owner, room)
                .then(meeting => this.cacheMeeting(room, meeting))
                .catch(error => {
                  logger.error(error);
@@ -232,8 +252,7 @@ class PassThroughMeetingService implements MeetingsService {
   userMeetings: Meeting[];
 
   constructor(private _domain: string) {
-    this.meetings = new Array<Meeting>();
-    this.userMeetings = new Array<Meeting>();
+    this.clearCaches();
   }
 
 
@@ -241,6 +260,13 @@ class PassThroughMeetingService implements MeetingsService {
     return this._domain;
   }
 
+
+  clearCaches() {
+    this.meetings = new Array<Meeting>();
+    this.userMeetings = new Array<Meeting>();
+
+    return true;
+  }
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     const mappedMeetings = this.meetings.map(meeting => {
@@ -256,7 +282,8 @@ class PassThroughMeetingService implements MeetingsService {
 
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
-    return Promise.resolve(this.userMeetings.filter(meeting => meeting.owner.email === user.email));
+    const filtered = this.userMeetings.filter(meeting => meeting.owner.email === user.email);
+    return Promise.resolve(filtered);
   }
 
 
@@ -286,6 +313,33 @@ class PassThroughMeetingService implements MeetingsService {
       };
 
       this.userMeetings.push(userMeeting);
+
+      resolve(roomMeeting);
+    });
+  }
+
+
+  updateMeeting(id: string, subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
+    function update(meetings: Meeting[], start: moment.Moment, duration: moment.Duration, subj?: string) {
+      const roomMeeting = meetings.find(meeting => meeting.id === id);
+
+      if (!roomMeeting) {
+        return null;
+      }
+
+      roomMeeting.start = start;
+      roomMeeting.end = start.clone().add(duration);
+
+      if (subj) {
+        roomMeeting.title = subj;
+      }
+
+      return roomMeeting;
+    }
+
+    return new Promise((resolve) => {
+      const roomMeeting = update(this.meetings, start, duration);
+      update(this.userMeetings, start, duration, subj);
 
       resolve(roomMeeting);
     });
