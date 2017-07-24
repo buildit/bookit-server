@@ -66,7 +66,6 @@ export class CachedMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const userCache = this.getCacheForOwner(user);
-    console.log('CMS:getUserMeetings', userCache);
     const fetch = userCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshUserCache(user, start, end);
     return fetch.then(() => userCache.getMeetings(start, end));
   }
@@ -295,6 +294,7 @@ class PassThroughMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings.filter(meeting => meeting.owner.email === user.email);
+    console.info('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 
@@ -316,7 +316,7 @@ class PassThroughMeetingService implements MeetingsService {
       this.userMeetings.push(userMeeting);
 
       const roomMeeting: Meeting = {
-        id: uuid(),
+        id: userMeeting.id,
         userMeetingId: userMeeting.id,
         owner: owner,
         title: owner.name, // simulates microsoft's behavior
@@ -353,9 +353,9 @@ class PassThroughMeetingService implements MeetingsService {
 
     return new Promise((resolve) => {
       const roomMeeting = update(this.meetings, start, duration);
-      update(this.userMeetings, start, duration, subj);
+      const userMeeting = update(this.userMeetings, start, duration, subj);
 
-      resolve(roomMeeting);
+      resolve(userMeeting);
     });
   }
 

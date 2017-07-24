@@ -92,7 +92,7 @@ export function updateMeeting(req: Request,
   const endMoment = moment(event.end);
   const roomId = req.params.roomEmail;
 
-  logger.info('Want to create meeting:', event);
+  logger.info('Want to update meeting:', event);
   const updateRoomMeeting = (room: Room) => {
     updateMeetingOperation(meetingService,
                            id,
