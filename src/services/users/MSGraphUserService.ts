@@ -4,6 +4,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {MSGraphBase} from '../MSGraphBase';
 import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {BookitUser} from '../../model/BookitUser';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
@@ -20,7 +21,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   getUsers(): Promise<any> {
-    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com'
+    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com';
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
@@ -38,41 +39,38 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                    });
           })
           .catch(error => {
-            reject(error)
+            reject(error);
           });
     });
   }
 
-  postUser(userEmail: string): Promise<any> {
-    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com'
-    const newUser = {
-      "givenName": "Pavel",
-      "surname": "Bansky",
-      "emailAddresses": [
-        {
-          "address": userEmail,
-          "name": "Pavel Bansky"
-        }
-      ],
-      "businessPhones": [
-        "+1 732 555 0102"
-      ]
-    }
+  postUser(user: BookitUser): Promise<MSUser> {
+    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com';
+
+    const userObjectThatMSLikesWAntsNEEDz = {
+      givenName: user.email,
+      emailAddresses: [{ address: user.email }],
+      companyName: 'Wipro', // Assuming all external users work for Wipro
+    };
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
-      console.info('POST', URL, userEmail);
+      console.info('POST', URL, user.email);
       this.tokenOperations.withToken()
           .then(token => {
             request.post(URL)
                    .set('Authorization', `Bearer ${token}`)
-                   .send(newUser)
+                   .send(userObjectThatMSLikesWAntsNEEDz)
                    .end((error, response) => {
                      if (error) {
                        reject(error);
                        return;
                      }
-                     resolve(response.body);
+                     const user = {
+                       name: response.body.givenName,
+                       email: response.body.emailAddresses[0].address,
+                     };
+                     resolve(user);
                    });
           });
     });

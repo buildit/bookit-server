@@ -135,14 +135,19 @@ function testGetUsers() {
 }
 
 function testPostUser() {
-  userService.postUser('boo@tar.com')
+  const newUser = {
+    email: 'goo@tar.com',
+    company: 'Buildit',
+    role: 'user',
+  };
+  userService.postUser(newUser)
     .then(blurg => {
-      logger.warn(blurg)
+      logger.warn(blurg);
     })
     .catch(err => {
-      logger.warn(err)
-    })
+      logger.warn(err);
+    });
 }
 
-// testPostUser();
-testGetUsers();
+testPostUser();
+// testGetUsers();
