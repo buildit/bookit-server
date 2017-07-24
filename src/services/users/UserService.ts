@@ -1,3 +1,5 @@
+import {BookitUser} from '../../model/BookitUser';
+
 export class MSUser {
   id: string;
   description: string;
@@ -21,6 +23,5 @@ export interface UserService {
 
   getDevices(userId: string): Promise<Array<any>>;
 
-  postUser(userEmail: string): Promise<any>;
+  postUser(user: BookitUser): Promise<MSUser>;
 }
-

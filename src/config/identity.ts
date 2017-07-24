@@ -42,3 +42,14 @@ export function assignGraphIdentity(_environment: EnvironmentConfig, _identity: 
   _environment.graphAPIParameters = _assignGraphIdentity(identity);
   logger.info('Will access MS Graph using parameters:', _environment.graphAPIParameters);
 }
+
+export function getServiceUser(env: string) {
+  switch (env) {
+    case 'buildit': {
+      return buildit.serviceUserEmail;
+    }
+    default: {
+      throw new Error(`No service user defined for this environment: ${env}`);
+    }
+  }
+}
