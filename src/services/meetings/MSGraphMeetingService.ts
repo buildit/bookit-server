@@ -62,7 +62,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  updateMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+  updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     const eventData = MSGraphMeetingService._generateEventPayload(subj,
                                                                   start,
                                                                   moment.duration(1, 'minute'),
@@ -263,6 +263,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
     const mappedMeeting = {
       id: meeting.id as string,
+      userMeetingId: meeting.userMeetingId as string,
       title: meeting.subject as string,
       owner: mapToParticipant(meeting.organizer),
       location: meeting.location,

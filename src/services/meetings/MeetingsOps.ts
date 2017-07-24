@@ -22,11 +22,12 @@ function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Mom
 
 function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment) {
   const conflict = meetings.find(meeting => {
+    logger.info(`Checking conflict: ${meeting.id} against ${originalId}`);
     return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, start, end);
   });
 
   if (conflict) {
-    throw 'Found conflict';
+    throw 'Found other meeting conflict';
   }
 }
 
@@ -72,6 +73,7 @@ export function createMeetingOperation(meetingService: MeetingsService,
 
 export function updateMeetingOperation(meetingService: MeetingsService,
                                        id: string,
+                                       userMeetingId: string,
                                        subj: string,
                                        start: Moment,
                                        duration: Duration,
@@ -81,7 +83,7 @@ export function updateMeetingOperation(meetingService: MeetingsService,
   return new Promise((resolve, reject) => {
     const ifAvailable = checkMeetingTimeIsAvailable(meetingService, room, id, start, duration);
 
-    ifAvailable.then(() => meetingService.updateMeeting(id, subj, start, duration, owner, room)
+    ifAvailable.then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room)
                                          .then(resolve)
                                          .catch(reject))
                .catch(reject);

@@ -11,8 +11,7 @@ import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, MeetingsOps, RoomMeetings,
-  updateMeetingOperation
+  createMeetingOperation, updateMeetingOperation, MeetingsOps, RoomMeetings
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -86,6 +85,7 @@ export function updateMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,
                               meetingService: MeetingsService,
+                              id: string,
                               owner: Participant) {
   const event = req.body as MeetingRequest;
   const startMoment = moment(event.start);
@@ -95,7 +95,8 @@ export function updateMeeting(req: Request,
   logger.info('Want to create meeting:', event);
   const updateRoomMeeting = (room: Room) => {
     updateMeetingOperation(meetingService,
-                           event.id,
+                           id,
+                           event.userMeetingId,
                            event.title,
                            startMoment,
                            moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
@@ -169,7 +170,14 @@ function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): R
       room: roomNMeetings.room,
       meetings: roomNMeetings.meetings.map(meeting => {
         const userMeeting = matchMeeting(meeting, userMeetings);
-        return userMeeting ? userMeeting : meeting;
+        if (!userMeeting) {
+          return meeting;
+        }
+
+        const toReturn = Object.assign({}, meeting);
+        toReturn.title = userMeeting.title;
+        toReturn.userMeetingId = userMeeting.id;
+        return toReturn;
       })
     };
   });

@@ -101,7 +101,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        });
   });
 
-  it('updates an existing meeting', function testUpdateMeeting() {
+  it.only('updates an existing meeting', function testUpdateMeeting() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -128,12 +128,13 @@ describe('meeting routes operations', function testMeetingRoutes() {
                            console.log('Original', created);
                            const updatedMeeting: MeetingRequest = {
                              id: created.id,
+                             userMeetingId: created.id,
                              title: 'this is new',
                              start: meetingStart,
                              end: meetingEnd,
                            };
 
-                           return request(app).put(`/room/${room.email}/meeting`)
+                           return request(app).put(`/room/${room.email}/meeting/${updatedMeeting.id}`)
                                               .set('Content-Type', 'application/json')
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
@@ -144,7 +145,8 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                                                                        'Expected to find at least one meeting');
 
                                                 const meeting = meetings[0];
-                                                expect(meeting.title).to.be.deep.eq(updatedMeeting.title);
+                                                console.log(meeting);
+                                                expect(meeting.title).to.be.eq(updatedMeeting.title);
 
                                                 meetingService.clearCaches();
                                               });

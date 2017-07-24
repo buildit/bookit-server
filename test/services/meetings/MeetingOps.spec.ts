@@ -23,6 +23,7 @@ const karsten = new Participant('karsten@wipro.com');
 
 const first: Meeting = {
   id: '1',
+  userMeetingId: '1',
   title: 'My first meeting',
   owner: andrew,
   location: redRoom,
@@ -33,6 +34,7 @@ const first: Meeting = {
 
 const second: Meeting = {
   id: '2',
+  userMeetingId: '2',
   title: 'My second meeting',
   owner: andrew,
   location: redRoom,
@@ -43,6 +45,7 @@ const second: Meeting = {
 
 const third: Meeting = {
   id: '3',
+  userMeetingId: '3',
   title: 'My third meeting',
   owner: karsten,
   location: redRoom,

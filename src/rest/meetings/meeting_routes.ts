@@ -21,6 +21,7 @@ import {Credentials} from '../../model/Credentials';
 
 export interface MeetingRequest {
   readonly id?: string;
+  readonly userMeetingId?: string;
   readonly title: string;
   readonly start: string;
   readonly end: string;
@@ -72,18 +73,25 @@ export function configureMeetingRoutes(app: Express,
   });
 
 
-  protectedEndpoint(app, '/room/:roomEmail/meeting', app.put, (req: Request, res: Response) => {
+  protectedEndpoint(app, '/room/:roomEmail/meeting/:meetingId', app.put, (req: Request, res: Response) => {
     logger.debug('About to update meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
-    const event = req.body as MeetingRequest;
+    const meeting = req.body as MeetingRequest;
+    const meetingId = req.params['meetingId'];
 
     try {
-      validateTitle(event.title);
-      const start = moment(event.start);
-      const end = moment(event.end);
+      validateTitle(meeting.title);
+      const start = moment(meeting.start);
+      const end = moment(meeting.end);
       validateTimes(start, end);
 
-      updateMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
+      const userMeetingId = meeting.userMeetingId;
+
+      if (!userMeetingId) {
+        sendValidation('Expected a user meeting id in the payload', res);
+      }
+
+      updateMeeting(req, res, roomService, meetingsService, meetingId, new Participant(credentials.user));
     } catch (error) {
       return sendValidation(error, res);
     }

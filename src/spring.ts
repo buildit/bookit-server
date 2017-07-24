@@ -144,7 +144,7 @@ testMeetingCreate().then((meeting) => {
   const endMoment = meeting.end;
 
   const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
-  meetingService.updateMeeting(meeting.id,
+  meetingService.updateUserMeeting(meeting.id,
                                'new meeting',
                                meeting.start,
                                duration,

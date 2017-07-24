@@ -8,6 +8,7 @@ export class Location {
 
 export class Meeting {
   id: string;
+  userMeetingId: string;
   title: string;
   location: Location;
   owner: Participant;
