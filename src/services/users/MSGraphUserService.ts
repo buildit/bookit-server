@@ -30,14 +30,11 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
             request.get(URL)
                    .set('Authorization', `Bearer ${token}`)
                    .end((error, response) => {
-                     console.log(error)
-                     console.log(response.body)
                      if (error) {
                        reject(error);
                        return;
                      }
                      resolve(response.body);
-                     return;
                    });
           })
           .catch(error => {

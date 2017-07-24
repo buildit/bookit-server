@@ -144,5 +144,5 @@ function testPostUser() {
     })
 }
 
-testPostUser();
-// testGetUsers();
+// testPostUser();
+testGetUsers();
