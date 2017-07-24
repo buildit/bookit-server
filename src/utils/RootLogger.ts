@@ -11,5 +11,5 @@ export const RootLog = log4js.getLogger();
 //                    },
 //                  });
 
-RootLog.setLevel(log4js.levels.WARN);
-// RootLog.setLevel(log4js.levels.INFO);
+// RootLog.setLevel(log4js.levels.WARN);
+RootLog.setLevel(log4js.levels.INFO);

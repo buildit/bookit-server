@@ -23,5 +23,5 @@ export interface UserService {
 
   getDevices(userId: string): Promise<Array<any>>;
 
-  postUser(user: BookitUser): Promise<any>;
+  postUser(user: BookitUser): Promise<MSUser>;
 }
