@@ -4,6 +4,7 @@ import {UserService} from '../services/users/UserService';
 import {MailService} from '../services/mail/MailService';
 import {RootLog as logger} from '../utils/RootLogger';
 import {BookitUser} from '../model/BookitUser';
+import {getServiceUser} from '../config/identity';
 
 export function configureUsersRoutes(app: Express,
                                      userSvc: UserService,
@@ -25,7 +26,7 @@ export function configureUsersRoutes(app: Express,
       .then(user => {
         logger.info('Created a new user:', user);
 
-        const senderEmail = 'roodmin@builditcontoso.onmicrosoft.com';
+        const senderEmail = getServiceUser('buildit'); // How to get the environment/mode?
         mailSvc.sendMail(senderEmail, user.email, 'wipro_user_invitation')
           .then(() => {
             logger.info('Sent invitation to:', user.email);

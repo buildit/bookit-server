@@ -142,10 +142,10 @@ function testPostUser() {
   };
   userService.postUser(newUser)
     .then(blurg => {
-      logger.warn(blurg);
+      logger.info('Added a user:', blurg.name);
     })
     .catch(err => {
-      logger.warn(err);
+      logger.error(err);
     });
 }
 

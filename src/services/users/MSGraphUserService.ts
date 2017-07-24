@@ -5,6 +5,7 @@ import {MSGraphBase} from '../MSGraphBase';
 import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {BookitUser} from '../../model/BookitUser';
+import {getServiceUser} from '../../config/identity';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
@@ -45,7 +46,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   postUser(user: BookitUser): Promise<MSUser> {
-    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com';
+    const bookitServiceUserId = getServiceUser('buildit'); // How to get the environment/mode?
 
     const userObjectThatMSLikesWAntsNEEDz = {
       givenName: user.email,
