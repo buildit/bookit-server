@@ -16,7 +16,7 @@ export function configureUsersRoutes(app: Express,
   app.post('/users', (req, res) => {
     const newUser = {
       email: req.body.email,
-      company: req.body.company,
+      team: req.body.team,
       role: 'user',
     };
 

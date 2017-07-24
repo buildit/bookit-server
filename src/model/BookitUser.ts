@@ -1,5 +1,5 @@
 export interface BookitUser {
   email: string;
-  company: string;
+  team: string;
   role: string;
 }

@@ -137,7 +137,7 @@ function testGetUsers() {
 function testPostUser() {
   const newUser = {
     email: 'goo@tar.com',
-    company: 'Buildit',
+    team: 'Buildit',
     role: 'user',
   };
   userService.postUser(newUser)

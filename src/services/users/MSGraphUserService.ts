@@ -50,7 +50,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
     const userObjectThatMSLikesWAntsNEEDz = {
       givenName: user.email,
       emailAddresses: [{ address: user.email }],
-      companyName: 'Wipro', // Assuming all external users work for Wipro
+      companyName: user.team,
     };
 
     return new Promise((resolve, reject) => {
