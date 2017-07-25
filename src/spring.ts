@@ -123,31 +123,3 @@ function testX() {
   });
 }
 
-
-function testGetUsers() {
-  userService.getUsers()
-                    .then(users => {
-                      logger.warn('', users);
-                    })
-                    .catch(error => {
-                      logger.error(error);
-                    });
-}
-
-function testPostUser() {
-  const newUser = {
-    email: 'goo@tar.com',
-    team: 'Buildit',
-    role: 'user',
-  };
-  userService.postUser(newUser)
-    .then(blurg => {
-      logger.info('Added a user:', blurg.name);
-    })
-    .catch(err => {
-      logger.error(err);
-    });
-}
-
-testPostUser();
-// testGetUsers();

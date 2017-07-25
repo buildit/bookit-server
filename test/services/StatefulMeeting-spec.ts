@@ -22,8 +22,6 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
   const bruceParticipant = new Participant(BRUCE_ID);
   const redRoom = new Room('1', 'Red', redRoomId);
 
-  console.log('participants are:', bruceParticipant, redRoom);
-
   /* why do we have these three? */
   const meetingOps = new MeetingsOps(meetingService);
 
