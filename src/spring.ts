@@ -75,7 +75,7 @@ function testGetRooms() {
 
 
 async function testMeetingCreate() {
-  const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
+  const owner = new Participant(`bruce@${domain.domainName}.onmicrosoft.com`);
   const start = moment().startOf('hour').add(1, 'hour');
   const duration = moment.duration(1, 'hour');
 
@@ -149,5 +149,10 @@ function testPostUser() {
     });
 }
 
-testPostUser();
-// testGetUsers();
+testMeetingCreate()
+  .then(meeting => {
+    console.log(meeting)
+  })
+  .catch(err => {
+    console.log(err)
+  });

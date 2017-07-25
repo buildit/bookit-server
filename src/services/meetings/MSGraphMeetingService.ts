@@ -44,7 +44,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     const eventData = MSGraphMeetingService._generateEventPayload(subj, start, duration, owner, room);
 
     const URL = `https://graph.microsoft.com/v1.0/users/${owner.email}/calendar/events`;
-    console.info('POST', URL, eventData);
+    logger.info('POST', URL, eventData);
 
     return new Promise((resolve, reject) => {
       this.tokenOperations.withToken()
@@ -54,7 +54,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .send(eventData)
                    .end((error, response) => {
                      if (error) {
-                       reject(new Error(error));
+                       reject(error);
                        return;
                      }
 

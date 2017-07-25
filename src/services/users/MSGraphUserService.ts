@@ -23,27 +23,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   getUsers(): Promise<any> {
-    const bookitServiceUserId = 'roodmin@builditcontoso.onmicrosoft.com';
-
-    return new Promise((resolve, reject) => {
-      const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
-      console.info('GET', URL);
-      this.tokenOperations.withToken()
-          .then(token => {
-            request.get(URL)
-                   .set('Authorization', `Bearer ${token}`)
-                   .end((error, response) => {
-                     if (error) {
-                       reject(error);
-                       return;
-                     }
-                     resolve(response.body);
-                   });
-          })
-          .catch(error => {
-            reject(error);
-          });
-    });
+    return Promise.reject('Not yet implemented.')
   }
 
   postUser(user: BookitUser): Promise<MSUser> {
@@ -76,7 +56,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                    });
           });
     });
-
   }
 
 }
