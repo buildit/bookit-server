@@ -35,6 +35,10 @@ You can check these endpoints, just to make sure everything's working:
 Room list: http://localhost:8888/rooms/nyc
 Meeting list: http://localhost:8888/rooms/nyc/meetings?start=2017-03-08&end=2017-03-12
 
+## Microsoft Azure Setup
+
+[Setting up Microsoft services for Bookit](./docs/setting-up-azure.md)
+
 ## Modes of operation
 
 The back end is heavily geared towards testing and stand-alone operation at the moment.  It has a dev mode against an
