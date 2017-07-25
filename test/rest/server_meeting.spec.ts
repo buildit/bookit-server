@@ -106,8 +106,8 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const meetingEnd = '2013-05-08 10:45:00';
 
 
-    const searchStart = moment(meetingStart).subtract(5, 'minutes');
-    const searchEnd = moment(meetingEnd).add(5, 'minutes');
+    const searchStart = '2013-05-08 09:00:00';
+    const searchEnd = '2013-05-08 12:00:00';
 
     const original = {
       title: 'original meeting title',
@@ -125,29 +125,34 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                         original.bruceOwner,
                                         original.room)
                          .then(created => {
-                           console.log('Original', created);
                            const updatedMeeting: MeetingRequest = {
                              id: created.id,
+                             userMeetingId: created.id,
                              title: 'this is new',
                              start: meetingStart,
                              end: meetingEnd,
                            };
 
-                           return request(app).put(`/room/${room.email}/meeting`)
+                           return request(app).put(`/room/${room.email}/meeting/${updatedMeeting.id}`)
                                               .set('Content-Type', 'application/json')
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
                                               .expect(200)
-                                              .then(() => meetingService.getUserMeetings(bruceOwner, searchStart, searchEnd))
-                                              .then((meetings) => {
-                                                expect(meetings.length).to.be.at.least(1,
-                                                                                       'Expected to find at least one meeting');
+                                              .then(() => {
+                             return request(app).get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
+                                                .set('x-access-token', token)
+                                                .then(response => {
+                                                  const roomMeetings = response.body as RoomMeetings[];
+                                                  const allMeetings = roomMeetings.reduce((acc, room) => {
+                                                    acc.push.apply(acc, room.meetings);
+                                                    return acc;
+                                                  }, []);
 
-                                                const meeting = meetings[0];
-                                                expect(meeting.title).to.be.deep.eq(updatedMeeting.title);
+                                                  const meeting = allMeetings[0];
+                                                  return expect(meeting.title).to.be.eq(updatedMeeting.title);
+                                                });
+                           });
 
-                                                meetingService.clearCaches();
-                                              });
                          });
 
 
@@ -233,7 +238,6 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                }, []);
 
                                const meetings = allMeetings.filter(m => m.id === meetingId);
-                               console.log('TOKEN MEETINGS', meetings);
                                expect(meetings.length).to.be.at.least(1);
                                const expected = expect(meetings[0].title).to.be.equal('meeting with token');
 

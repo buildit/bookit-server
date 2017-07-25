@@ -26,6 +26,7 @@ const redRoom = {displayName: 'Red'};
 
 const andrewFirst: Meeting = {
   id: '1',
+  userMeetingId: '1',
   title: 'My first meeting',
   owner: andrew,
   location: redRoom,
@@ -36,6 +37,7 @@ const andrewFirst: Meeting = {
 
 const alexFirst: Meeting = {
   id: '2',
+  userMeetingId: '2',
   title: 'My second meeting',
   owner: alex,
   location: redRoom,
@@ -46,6 +48,7 @@ const alexFirst: Meeting = {
 
 const paulFirst: Meeting = {
   id: '3',
+  userMeetingId: '3',
   title: 'My third meeting',
   owner: paul,
   location: redRoom,
@@ -56,6 +59,7 @@ const paulFirst: Meeting = {
 
 const alexSecond: Meeting = {
   id: '4',
+  userMeetingId: '2',
   title: 'My fourth meeting',
   owner: alex,
   location: redRoom,
