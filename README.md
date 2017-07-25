@@ -55,15 +55,15 @@ USE_CLOUD=true
 
 ##### MICROSOFT GRAPH SETTINGS
 These settings represent the identity that the application will use to access MS Graph API services.  The variable
-that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'test' as the value.
+that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'buildit' as the value.
 ```
-CLOUD_CONFIG=test
+CLOUD_CONFIG=buildit
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use TEST_SECRET. Please
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use BUILDIT_SECRET. Please
  obtain these and other secrets from your fellow developers.
 ```
-TEST_SECRET=your-client-secret
+BUILDIT_SECRET=your-client-secret
 ```
 
 ## Authentication
@@ -110,7 +110,7 @@ One is Mock and the other is MSGraph.
 There are a small set of services under which the code is organized under src/services.  
 
 ##### Mock
-A version that implements the interface and has basic or pass-through functionality.
+A version that implements the interface and has basic or pass-through functionality.  Sometimes these implementations imitate Microsoft's idiosyncracies like the PassthroughMeetingService in CachedMeetingService.
 
 ##### MS Graph
 These are the services that connect to Microsoft.
@@ -118,7 +118,7 @@ These are the services that connect to Microsoft.
 ##### Cached
 Wraps the service and caches data from the underlying service.  This is typically used with the cloud connected
 services.  However, for testing purposes, there is a use case where a cached service functions as
-the actual service and delegates to a pass-through service.
+the actual service and delegates to a passthrough service.
 
 
 #### TokenOperations
@@ -150,7 +150,8 @@ The routes for CRUD meeting operations that bookit-web interacts with.
 
 ## Special cases
 MeetingOps seems to be an IOC class meant for reusing logic (e.g. checking for meeting availability) against an
-interchangeable set of services.
+interchangeable set of services.  This class is actively being gutted as it's not maintainting any state nor representing
+an interface of much value.
 
 ## Useful links
 
