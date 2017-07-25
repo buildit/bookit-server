@@ -2,9 +2,10 @@ import {Meeting} from '../../model/Meeting';
 import {Duration, Moment} from 'moment';
 import {Participant} from '../../model/Participant';
 import {Room} from '../../model/Room';
+import {Domain} from '../../model/EnvironmentConfig';
 
 export interface MeetingsService {
-  domain(): string;
+  domain(): Domain;
 
 
   clearCaches(): boolean;

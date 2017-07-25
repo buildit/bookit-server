@@ -20,7 +20,6 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
   const jwtTokenProvider = new MockJWTTokenProvider(environment.jwtTokenSecret, new MockAzureAuthTokenProvider());
 
   return new RuntimeConfig(environment.port,
-                           environment.domain,
                            new MockPasswordStore(),
                            new MockGraphTokenProvider(),
                            jwtTokenProvider,

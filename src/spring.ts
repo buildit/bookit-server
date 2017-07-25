@@ -21,7 +21,7 @@ const meetingService = Runtime.meetingService;
 const domain = meetingService.domain();
 
 const meetingOps = new MeetingsOps(meetingService);
-const room = generateMSRoomResource('Red', domain);
+const room = generateMSRoomResource('Red', domain.domainName);
 
 function testGetDevices() {
   Runtime.deviceService.getDevices()

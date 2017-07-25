@@ -6,10 +6,11 @@ import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {BookitUser} from '../../model/BookitUser';
 import {getServiceUser} from '../../config/identity';
+import {Domain} from '../../model/EnvironmentConfig';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
-  constructor(graphTokenProvider: GraphTokenProvider) {
+  constructor(graphTokenProvider: GraphTokenProvider, private domain: Domain) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphUserService');
   }
@@ -46,7 +47,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   postUser(user: BookitUser): Promise<MSUser> {
-    const bookitServiceUserId = getServiceUser('buildit'); // How to get the environment/mode?
+    const bookitServiceUserId = this.domain.serviceUser;
 
     const userObjectThatMSLikesWAntsNEEDz = {
       givenName: user.email,

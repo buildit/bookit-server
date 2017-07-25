@@ -2,7 +2,8 @@ import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
   domainName: 'myews',
-  sites: ['nyc']
+  sites: ['nyc'],
+  serviceUser: 'roodmin@myews.onmicrosoft.com'
 };
 
 export const creds: GraphAPIParameters = {

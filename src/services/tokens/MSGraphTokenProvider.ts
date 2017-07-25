@@ -15,11 +15,6 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
   }
 
 
-  domain(): string {
-    return this._domain.domainName;
-  }
-
-
   public hasToken(): boolean {
     return !!this.token; // WebStorm inspection
   }

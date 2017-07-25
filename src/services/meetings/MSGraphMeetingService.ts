@@ -10,17 +10,20 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {Domain} from '../../model/EnvironmentConfig';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
-  domain(): string {
-    return this.tokenOperations.domain();
-  }
-
-  constructor(graphTokenProvider: GraphTokenProvider) {
+  constructor(graphTokenProvider: GraphTokenProvider, private _domain: Domain) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphMeetingService');
   }
+
+
+  domain(): Domain {
+    return this._domain;
+  }
+
 
 
   clearCaches() {

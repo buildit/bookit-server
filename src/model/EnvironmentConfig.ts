@@ -39,6 +39,7 @@ export interface EnvironmentConfig {
 export interface Domain {
   domainName: string;
   sites: string[];
+  serviceUser: string;
 }
 
 export interface GraphAPIParameters {

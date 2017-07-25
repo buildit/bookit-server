@@ -22,16 +22,15 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
   const tokenOperations = new MSGraphTokenProvider(graphAPIParameters, environment.domain, false);
 
   return new RuntimeConfig(environment.port,
-                           environment.domain,
                            new MockPasswordStore(),
                            tokenOperations,
                            jwtTokenProvider,
                            () => new MSGraphDeviceService(tokenOperations),
-                           () => new MSGraphUserService(tokenOperations),
+                           () => new MSGraphUserService(tokenOperations, environment.domain),
                            () => new MSGraphMailService(tokenOperations),
                            () => new MSGraphGroupService(tokenOperations),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
                            () => {
-                             return new MSGraphMeetingService(tokenOperations);
+                             return new MSGraphMeetingService(tokenOperations, environment.domain);
                            });
 }

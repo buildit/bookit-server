@@ -2,7 +2,8 @@ import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
   domainName: 'builditcontoso',
-  sites: ['nyc']
+  sites: ['nyc'],
+  serviceUser: 'roodmin@builditcontoso.onmicrosoft.com'
 };
 
 

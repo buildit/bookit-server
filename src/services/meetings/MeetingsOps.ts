@@ -9,9 +9,20 @@ import {Meeting} from '../../model/Meeting';
 import {isMeetingOverlapping} from '../../utils/validation';
 
 
-function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
+function isOwner(meeting: Meeting, user: Participant) {
+  return meeting.owner.email === user.email;
+}
+
+
+function isIdentifiedBy(meeting: Meeting, id: string) {
+  return meeting.id === id;
+}
+
+
+
+function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: Moment, newMeetingEnd: Moment) {
   const conflict = meetings.find(meeting => {
-    return isMeetingOverlapping(moment(meeting.start), moment(meeting.end), newMeetingStart, newMeetingEnd);
+    return isMeetingOverlapping(meeting.start, meeting.end, newMeetingStart, newMeetingEnd);
   });
 
   if (conflict) {
@@ -20,7 +31,7 @@ function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Mom
 }
 
 
-function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment) {
+function hasConflicts(meetings: Meeting[], start: Moment, end: Moment, originalId: string) {
   const conflict = meetings.find(meeting => {
     return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, start, end);
   });
@@ -31,14 +42,31 @@ function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, en
 }
 
 
+function checkTime(meetingsService: MeetingsService,
+                   room: Room,
+                   start: Moment,
+                   end: Moment,
+                   validations: Array<(meeting: Meeting) => boolean>): Promise<any> {
+
+  function checkValidations(meetings: Meeting[]) {
+    return meetings.some(meeting => {
+      return validations.some(validation => validation(meeting));
+    });
+  }
+
+  return meetingsService.getMeetings(room, start, end)
+                        .then(checkValidations);
+}
+
+
 function checkTimeIsAvailable(meetingsService: MeetingsService,
                               room: Room,
                               start: moment.Moment,
                               duration: moment.Duration): Promise<any> {
   const end = start.clone().add(duration);
 
-  return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasAnyMeetingConflicts(meetings, start, end));
+  const timeValidation = (meeting: Meeting) => isMeetingOverlapping(meeting.start, meeting.end, start, end);
+  return checkTime(meetingsService, room, start, end, [timeValidation]);
 }
 
 
@@ -48,8 +76,9 @@ function checkMeetingTimeIsAvailable(meetingsService: MeetingsService,
                                      start: Moment,
                                      duration: Duration): Promise<any> {
   const end = start.clone().add(duration);
+
   return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasConflicts(meetings, id, start, end));
+                        .then(meetings => hasConflicts(meetings, start, end, id));
 }
 
 
@@ -122,27 +151,6 @@ export class MeetingsOps {
   getUserMeetings(owner: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     return this.meetingsService.getUserMeetings(owner, start, end);
   }
-
-
-  // getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-  //   logger.debug('Getting meetings', this.meetingsService);
-  //   return this.meetingsService.getMeetings(room, start, end);
-  // }
-  //
-  //
-  // findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
-  //   return this.meetingsService.findMeeting(room, meetingId, start, end);
-  // }
-
-
-  // createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-  //   return promiseCreateMeeting(this.meetingsService, subj, start, duration, owner, room);
-  // }
-
-
-  // deleteMeeting(owner: Participant, id: string): Promise<any> {
-  //   return this.meetingsService.deleteMeeting(owner, id);
-  // }
 
 
 }

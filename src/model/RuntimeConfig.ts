@@ -34,7 +34,6 @@ export class RuntimeConfig {
    */
 
   constructor(port: number,
-              private _domain: Domain,
               private _passwordStore: PasswordStore,
               private _graphTokenProvider: GraphTokenProvider,
               private _jwtTokenProvider: JWTTokenProvider,
@@ -50,11 +49,6 @@ export class RuntimeConfig {
 
   get port() {
     return this._port;
-  }
-
-
-  get domain() {
-    return this._domain;
   }
 
 

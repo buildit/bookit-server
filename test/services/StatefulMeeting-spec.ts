@@ -16,8 +16,8 @@ import {Room} from '../../src/model/Room';
 
 
 export function StatefulMeetingSpec(meetingService: MeetingsService, description: string) {
-  const BRUCE_ID = getEmail('bruce', meetingService.domain());
-  const redRoomId = getRoomEmail('red', meetingService.domain());
+  const BRUCE_ID = getEmail('bruce', meetingService.domain().domainName);
+  const redRoomId = getRoomEmail('red', meetingService.domain().domainName);
 
   const bruceParticipant = new Participant(BRUCE_ID);
   const redRoom = new Room('1', 'Red', redRoomId);

@@ -33,14 +33,19 @@ const app = configureRoutes(express(),
                             meetingService);
 
 
-const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
-const room = generateMSRoomResource('white', Runtime.meetingService.domain());
+const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain().domainName);
+const babsOwner = generateMSUserResource('babs', Runtime.meetingService.domain().domainName);
+const room = generateMSRoomResource('white', Runtime.meetingService.domain().domainName);
 
 const bruceCredentials = {
   user: bruceOwner.email,
   password: 'who da boss?'
 };
 
+const babsCredentials = {
+  user: babsOwner.email,
+  password: 'im a brooklyn girl'
+};
 
 describe('meeting routes operations', function testMeetingRoutes() {
 

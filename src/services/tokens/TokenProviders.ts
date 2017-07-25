@@ -4,7 +4,6 @@ import {Credentials} from '../../model/Credentials';
  * prior to using any of the Microsoft Graph endpoints.
  */
 export interface GraphTokenProvider {
-  domain(): string;
   hasToken(): boolean;
   getCurrentToken(): string;
   withToken(): Promise<string>;

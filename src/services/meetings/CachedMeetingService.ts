@@ -39,7 +39,7 @@ export class CachedMeetingService implements MeetingsService {
     };
 
     if (!delegatedMeetingsService) {
-      this.delegatedMeetingsService = new PassThroughMeetingService(_domain.domainName);
+      this.delegatedMeetingsService = new PassThroughMeetingService(_domain);
     }
 
     logger.info('Constructing CachedMeetingService');
@@ -251,7 +251,7 @@ class PassThroughMeetingService implements MeetingsService {
   meetings: Meeting[];
   userMeetings: Meeting[];
 
-  constructor(private _domain: string) {
+  constructor(private _domain: Domain) {
     this.clearCaches();
   }
 

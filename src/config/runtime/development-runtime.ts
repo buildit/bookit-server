@@ -45,7 +45,6 @@ function generateMockGroup(domain: string): GroupService {
 
 function provideMockRuntime(env: EnvironmentConfig, jwtTokenProvider: JWTTokenProvider) {
   const config = new RuntimeConfig(env.port,
-                                   env.domain,
                                    new MockPasswordStore(),
                                    new MockGraphTokenProvider(),
                                    jwtTokenProvider,
@@ -71,17 +70,16 @@ function provideDevelopmentGraphRuntime(env: EnvironmentConfig, jwtTokenProvider
   const groupServiceFactory = env.graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;
 
   return new RuntimeConfig(env.port,
-                           env.domain,
                            new MockPasswordStore(),
                            tokenOperations,
                            jwtTokenProvider,
                            () => new MSGraphDeviceService(tokenOperations),
-                           () => new MSGraphUserService(tokenOperations),
+                           () => new MSGraphUserService(tokenOperations, env.domain),
                            () => new MSGraphMailService(tokenOperations),
                            groupServiceFactory,
                            (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                            (runtime) => {
-                             const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
+                             const cloudMeetingService = new MSGraphMeetingService(tokenOperations, env.domain);
                              return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
                            });
 
