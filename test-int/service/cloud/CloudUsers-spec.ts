@@ -4,12 +4,11 @@ const svc = Runtime.userService;
 
 describe('Cloud User services', function testUserService() {
   it('returns a list of users', function testGetUsers() {
-    return svc.getUsers().then(users => {
-      const user0 = users[0];
-      //noinspection BadExpressionStatementJS
-      expect(user0.id).to.be.string;
-      //noinspection BadExpressionStatementJS
-      expect(user0.displayName).to.be.string;
+    return svc.getUsers().then(() => {
+      throw new Error('Should not be here.')
+    })
+    .catch(err => {
+      expect(err).to.be.eq('Not implemented yet.');
     });
   });
 });

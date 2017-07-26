@@ -8,6 +8,7 @@ import {domain as defaultDomain} from './default/credentials';
 export interface Identity {
   domain: Domain;
   credentials?: GraphAPIParameters;
+  serviceUserEmail?: string;
 }
 
 export const roman: Identity = {
@@ -17,7 +18,8 @@ export const roman: Identity = {
 
 export const buildit: Identity = {
   domain: builditDomain,
-  credentials: builditCreds
+  credentials: builditCreds,
+  serviceUserEmail: 'roodmin@builditcontoso.onmicrosoft.com',
 };
 
 export const test: Identity = {
@@ -29,4 +31,3 @@ export const test: Identity = {
 export const defaultIdentity: Identity = {
   domain: defaultDomain
 };
-

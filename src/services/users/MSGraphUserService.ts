@@ -1,24 +1,17 @@
-import {RootLog as logger} from '../../utils/RootLogger';
+import * as request from 'superagent';
 
+import {RootLog as logger} from '../../utils/RootLogger';
 import {MSGraphBase} from '../MSGraphBase';
 import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {BookitUser} from '../../model/BookitUser';
+import {getServiceUser} from '../../config/identity';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphUserService');
-  }
-
-
-  getUsers(): Promise<Array<MSUser>> {
-    logger.info('Calling MS user service ');
-    return this.client
-               .api('/users')
-               // .select('id,displayName,mail')
-               .get()
-               .then(response => { return response.value; }) as Promise<any>;
   }
 
   getDevices(userId: string): Promise<Array<any>> {
@@ -28,9 +21,41 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  postUser(userEmail: string): Promise<any> {
-    return Promise.reject('Unimplemented: MockUserService:postUser');
+  getUsers(): Promise<any> {
+    return Promise.reject('Not implemented yet.')
+  }
+
+  postUser(user: BookitUser): Promise<MSUser> {
+    const bookitServiceUserId = getServiceUser('buildit');
+
+    const userObjectThatMSLikesWAntsNEEDz = {
+      givenName: user.email,
+      emailAddresses: [{ address: user.email }],
+      companyName: user.team,
+    };
+
+    return new Promise((resolve, reject) => {
+      const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
+      console.info('POST', URL, user.email);
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.post(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .send(userObjectThatMSLikesWAntsNEEDz)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(error);
+                       return;
+                     }
+                     const user = {
+                       name: response.body.givenName,
+                       email: response.body.emailAddresses[0].address,
+                     };
+                     resolve(user);
+                   });
+          });
+    });
+
   }
 
 }
-
