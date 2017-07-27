@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DIR=`dirname $0`
+echo "DIR = $DIR"
 
 if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
@@ -12,8 +13,8 @@ if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; t
     docker tag builditdigital/bookit-server:$IMG_VERSION builditdigital/bookit-server:latest;
     docker push builditdigital/bookit-server:latest;
 
-    openssl aes-256-cbc -K $encrypted_2d5b9f764c04_key -iv $encrypted_2d5b9f764c04_iv -in ./deploy/ec2/travis.enc -out ./deploy/ec2/travis -d
-    chmod 600 $DIR/ec2/travis
+    openssl aes-256-cbc -K $encrypted_2d5b9f764c04_key -iv $encrypted_2d5b9f764c04_iv -in $DIR/deploy/ec2/travis.enc -out $DIR/deploy/ec2/travis -d
+    chmod 600 $DIR/deploy/ec2/travis
     scp -o StrictHostKeyChecking=no -i $DIR/ec2/travis $DIR/dev/docker-compose.yml app@bookit.riglet.io:/home/app/
     ssh -o StrictHostKeyChecking=no -i $DIR/ec2/travis app@bookit.riglet.io \
       'docker-compose down; docker-compose pull; docker-compose up -d'
