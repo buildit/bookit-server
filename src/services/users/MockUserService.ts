@@ -9,7 +9,7 @@ export class MockUserService implements UserService {
   }
 
 
-  getUsers(): Promise<Array<MSUser>> {
+  listExternalUsers(): Promise<Array<MSUser>> {
     return new Promise((resolve) => {
       throw 'Implement me';
     });

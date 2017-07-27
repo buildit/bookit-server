@@ -21,9 +21,30 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  getUsers(): Promise<any> {
-    return Promise.reject('Not implemented yet.')
+  listExternalUsers(): Promise<Array<MSUser>> {
+    // return Promise.reject('in ms user service')
+    const bookitServiceUserId = getServiceUser('buildit');
+
+    return new Promise((resolve, reject) => {
+      const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
+      console.info('GET', URL);
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(error);
+                       return;
+                     }
+                     const users = response.body;
+                     resolve(users);
+                   });
+          });
+    });
+
   }
+
 
   postUser(user: BookitUser): Promise<MSUser> {
     const bookitServiceUserId = getServiceUser('buildit');
