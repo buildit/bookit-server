@@ -4,7 +4,7 @@ DIR=`dirname $0`
 
 if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
-    echo "Building $IMG_VERSION";
+    echo "Building bookit-server $IMG_VERSION";
     npm prune --production;
     docker build -t builditdigital/bookit-server:$IMG_VERSION .;
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
