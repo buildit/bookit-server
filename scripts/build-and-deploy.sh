@@ -1,6 +1,7 @@
 #!/bin/bash
 
-DIR=`../deploy`
+DIR='../deploy'
+echo "DIR=$DIR"
 
 if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; then
     export IMG_VERSION=`node -p -e "require('./package.json').version"`;
