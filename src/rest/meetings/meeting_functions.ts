@@ -54,6 +54,10 @@ export function validateTimes(start: Moment, end: Moment) {
 }
 
 
+export function meetingsNoEmpty(meetings: Meeting[]) {
+  return meetings.length > 0;
+}
+
 export function createMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,

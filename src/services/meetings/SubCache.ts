@@ -118,10 +118,10 @@ export class SubCache<T extends Attendee> {
       roomMeetings.forEach(meeting => meetingIdMap.set(meeting.id, meeting));
 
       const meetings =  Array.from(meetingIdMap.values()) || [];
-      logger.info(`SubCache::getMeetings(${owner}) filter is:`, start, end);
+      logger.debug(`SubCache::getMeetings(${owner}) filter is:`, start, end);
 
       const filtered =  meetings.filter(meeting => isMeetingWithinRange(meeting, start, end));
-      logger.info(`SubCache::getMeetings(${owner}) filtered:`, filtered.map(m => m.id));
+      logger.debug(`SubCache::getMeetings(${owner}) filtered:`, filtered.map(m => m.id));
 
       return resolve(filtered);
     });
@@ -132,11 +132,11 @@ export class SubCache<T extends Attendee> {
     const start = _start.clone().startOf('day');
     if (!this.cacheStart || start.isBefore(this.cacheStart)) {
       this.cacheStart = start;
-      logger.info(`${this.attendee.email} updated start`, this.cacheStart);
+      logger.debug(`${this.attendee.email} updated start`, this.cacheStart);
       return true;
     }
 
-    logger.info(`${this.attendee.email} will use existing start`, this.cacheStart);
+    logger.debug(`${this.attendee.email} will use existing start`, this.cacheStart);
     return false;
   }
 
@@ -145,11 +145,11 @@ export class SubCache<T extends Attendee> {
     const end = _end.clone().endOf('day');
     if (!this.cacheEnd || end.isAfter(this.cacheEnd)) {
       this.cacheEnd = end;
-      logger.info(`${this.attendee.email} updated end`, this.cacheEnd);
+      logger.debug(`${this.attendee.email} updated end`, this.cacheEnd);
       return true;
     }
 
-    logger.info(`${this.attendee.email} will use existing end`, this.cacheEnd);
+    logger.debug(`${this.attendee.email} will use existing end`, this.cacheEnd);
     return false;
   }
 
@@ -158,7 +158,7 @@ export class SubCache<T extends Attendee> {
     const existingMeetingIds = new Set(this.idCache.keys());
     const updatedMeetingIds = new Set(meetingIds);
 
-    logger.info(`Reconciling ${this.attendee.email} cache - existing:`, existingMeetingIds.size, 'updated:', updatedMeetingIds.size);
+    logger.debug(`Reconciling ${this.attendee.email} cache - existing:`, existingMeetingIds.size, 'updated:', updatedMeetingIds.size);
     // throw new Error('fail');
     updatedMeetingIds.forEach(id => existingMeetingIds.delete(id));
     existingMeetingIds.forEach(id => this.evictMeeting(id));

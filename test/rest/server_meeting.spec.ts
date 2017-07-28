@@ -43,7 +43,7 @@ const bruceCredentials = {
 };
 
 
-describe.only('meeting routes operations', function testMeetingRoutes() {
+describe.skip('meeting routes operations', function testMeetingRoutes() {
 
   it('can query a room list for nyc', function testRoomList() {
     return request(app).get('/rooms/nyc')
@@ -249,7 +249,7 @@ describe.only('meeting routes operations', function testMeetingRoutes() {
   });
 
 
-  it.only('deletes the meeting', function testDeletingAMeeting() {
+  it('deletes the meeting', function testDeletingAMeeting() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 

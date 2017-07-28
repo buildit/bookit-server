@@ -28,6 +28,10 @@ export class IdentityCache<RType> {
   values(): IterableIterator<RType> {
     return this.cache.values();
   }
+
+  clear() {
+    this.cache.clear();
+  }
 }
 
 
