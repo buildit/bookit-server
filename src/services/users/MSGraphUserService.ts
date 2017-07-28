@@ -27,7 +27,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
-      console.info('GET', URL);
+      logger.info('GET', URL);
       this.tokenOperations.withToken()
           .then(token => {
             request.get(URL)
@@ -57,7 +57,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
-      console.info('POST', URL, user.email);
+      logger.info('POST', URL, user.email);
       this.tokenOperations.withToken()
           .then(token => {
             request.post(URL)
