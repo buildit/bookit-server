@@ -20,8 +20,7 @@ import {Credentials} from '../../model/Credentials';
 
 
 export interface MeetingRequest {
-  readonly id?: string;
-  readonly userMeetingId?: string;
+  readonly id?: string; // This will only be returned to the UI if the user is entitled
   readonly title: string;
   readonly start: string;
   readonly end: string;
@@ -85,10 +84,8 @@ export function configureMeetingRoutes(app: Express,
       const end = moment(meeting.end);
       validateTimes(start, end);
 
-      const userMeetingId = meeting.userMeetingId;
-
-      if (!userMeetingId) {
-        sendValidation('Expected a user meeting id in the payload', res);
+      if (!meeting.id) {
+        sendValidation('Require a meeting id in the payload in order to edit this meeting', res);
       }
 
       updateMeeting(req, res, roomService, meetingsService, meetingId, new Participant(credentials.user));

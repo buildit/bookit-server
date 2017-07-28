@@ -16,6 +16,8 @@ import {
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
 import {Moment} from 'moment';
+import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
+import {ListCache} from '../../utils/cache/caches';
 
 
 
@@ -96,7 +98,6 @@ export function updateMeeting(req: Request,
   const updateRoomMeeting = (room: Room) => {
     updateMeetingOperation(meetingService,
                            id,
-                           event.userMeetingId,
                            event.title,
                            startMoment,
                            moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
@@ -145,6 +146,31 @@ export function handleMeetingFetch(roomService: RoomService,
 }
 
 
+export function obscureMeetingDetails(meeting: Meeting) {
+  const copy = Object.assign({}, meeting);
+  copy.title = meeting.owner.name;
+
+  return copy;
+}
+
+
+export function obscureMeetingIdentifier(meeting: Meeting) {
+  const toReturn = Object.assign({}, meeting);
+  toReturn.id = undefined;
+
+  return toReturn;
+}
+
+
+export function assignProperties(roomMeeting: Meeting, userMeeting: Meeting) {
+  roomMeeting.title = userMeeting.title;
+  roomMeeting.id = userMeeting.id;
+
+  logger.info(`meeting_functions::assignProperties() ${roomMeeting.title} - ${userMeeting.title}`);
+  return roomMeeting;
+}
+
+
 /*
 Can't match by meeting id when using different user perspectives
 Don't match by location since bookings by BookIt and Outlook are different
@@ -165,25 +191,45 @@ export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
 
 
 function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
-  return roomMeetings.map(roomNMeetings => {
-    return {
-      room: roomNMeetings.room,
-      meetings: roomNMeetings.meetings.map(meeting => {
-        const userMeeting = matchMeeting(meeting, userMeetings);
-        if (!userMeeting) {
-          return meeting;
-        }
+  function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomEmail: string) {
+    const toReturn = obscureMeetingIdentifier(meeting);
 
-        const toReturn = Object.assign({}, meeting);
-        toReturn.title = userMeeting.title;
-        toReturn.userMeetingId = userMeeting.id;
-        return toReturn;
-      })
+    const meetingsForRoom = roomCache.get(roomEmail);
+    const userMeeting = matchMeeting(meeting, meetingsForRoom);
+    if (!userMeeting) {
+      return toReturn;
+    }
+
+    roomCache.remove(meeting);
+    assignProperties(toReturn, userMeeting);
+    return toReturn;
+  }
+
+
+  /*
+
+   */
+  const roomCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new RoomCachingStrategy());
+  userMeetings.forEach(meeting => roomCache.put(meeting));
+  logger.info('roomCache', roomCache);
+
+
+  return roomMeetings.map(roomMeeting => {
+    const roomId = roomMeeting.room.name;
+    const originalMeetings = roomCache.get(roomId);
+    logger.info(`meeting_functions::mergeMeetings ${roomId} has original meetings ${originalMeetings.length}`);
+
+    const mergedMeetings = roomMeeting.meetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
+    const leftOverMeetings = roomCache.get(roomId);
+    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${leftOverMeetings.length}`);
+    return {
+      room: roomMeeting.room,
+      meetings: mergedMeetings
     };
   });
 }
 
 
 export function handleMeetingDeletion(meetingService: MeetingsService, roomEmail: string, meetingId: string): Promise<void> {
-  return meetingService.deleteMeeting(new Participant(roomEmail), meetingId);
+  return meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId);
 }

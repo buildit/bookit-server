@@ -18,6 +18,7 @@ import {Meeting} from '../../src/model/Meeting';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
+import {retryUntil} from "../../src/utils/retry";
 
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
@@ -34,7 +35,7 @@ const app = configureRoutes(express(),
 
 
 const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
-const room = generateMSRoomResource('white', Runtime.meetingService.domain());
+const whiteRoom = generateMSRoomResource('white', Runtime.meetingService.domain());
 
 const bruceCredentials = {
   user: bruceOwner.email,
@@ -42,7 +43,7 @@ const bruceCredentials = {
 };
 
 
-describe('meeting routes operations', function testMeetingRoutes() {
+describe.only('meeting routes operations', function testMeetingRoutes() {
 
   it('can query a room list for nyc', function testRoomList() {
     return request(app).get('/rooms/nyc')
@@ -79,17 +80,17 @@ describe('meeting routes operations', function testMeetingRoutes() {
       start: moment(meetingReq.start),
       duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-    return request(app).post(`/room/${room.email}/meeting`)
+    return request(app).post(`/room/${whiteRoom.email}/meeting`)
                        .set('Content-Type', 'application/json')
                        .set('x-access-token', token)
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
+                       .then(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd))
                        .then((meetings) => {
                          expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
 
@@ -114,26 +115,25 @@ describe('meeting routes operations', function testMeetingRoutes() {
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-    return meetingService.createMeeting(original.title,
-                                        original.start,
-                                        original.duration,
-                                        original.bruceOwner,
-                                        original.room)
+    return meetingService.createUserMeeting(original.title,
+                                            original.start,
+                                            original.duration,
+                                            original.bruceOwner,
+                                            original.whiteRoom)
                          .then(created => {
                            const updatedMeeting: MeetingRequest = {
                              id: created.id,
-                             userMeetingId: created.id,
                              title: 'this is new',
                              start: meetingStart,
                              end: meetingEnd,
                            };
 
-                           return request(app).put(`/room/${room.email}/meeting/${updatedMeeting.id}`)
+                           return request(app).put(`/room/${whiteRoom.email}/meeting/${updatedMeeting.id}`)
                                               .set('Content-Type', 'application/json')
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
@@ -172,14 +172,14 @@ describe('meeting routes operations', function testMeetingRoutes() {
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
-    return meetingService.createMeeting(meetingToCreate.title,
-                                        meetingToCreate.start,
-                                        meetingToCreate.duration,
-                                        meetingToCreate.bruceOwner,
-                                        meetingToCreate.room)
+    return meetingService.createUserMeeting(meetingToCreate.title,
+                                            meetingToCreate.start,
+                                            meetingToCreate.duration,
+                                            meetingToCreate.bruceOwner,
+                                            meetingToCreate.whiteRoom)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -214,17 +214,17 @@ describe('meeting routes operations', function testMeetingRoutes() {
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingEnd), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
     console.info('Token', token);
 
-    return meetingService.createMeeting(expected.title,
-                                        expected.start,
-                                        expected.duration,
-                                        expected.bruceOwner,
-                                        expected.room)
+    return meetingService.createUserMeeting(expected.title,
+                                            expected.start,
+                                            expected.duration,
+                                            expected.bruceOwner,
+                                            expected.whiteRoom)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -249,7 +249,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
   });
 
 
-  it('deletes the meeting', function testDeletingAMeeting() {
+  it.only('deletes the meeting', function testDeletingAMeeting() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
 
@@ -260,25 +260,34 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = momentStart.clone().subtract(5, 'minutes');
     const searchEnd = momentEnd.clone().add(5, 'minutes');
 
-    return meetingService.createMeeting('test delete', momentStart, meetingDuration, bruceOwner, room)
+    return meetingService.createUserMeeting('test delete', momentStart, meetingDuration, bruceOwner, whiteRoom)
+                         // .then(meeting => {
+                         //   return retryUntil(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd),
+                         //                     meetings => meetings.length > 0).then(() => meeting);
+                         // })
                          .then((meeting: Meeting) => {
                            logger.info('meeting to delete created!');
-                           const meetingRoom = room.email;
+                           const meetingRoom = whiteRoom.email;
                            const meetingId = meeting.id;
 
                            const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-                           return new Promise<Meeting>((resolve) => {
-                             request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
+                           return request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
                                          .set('x-access-token', token)
+                                         .expect(200)
                                          .then(() => {
                                            logger.info('delete completed');
-                                           resolve(meeting);
+                                            return meeting;
+                                         })
+                                         .catch((e) => {
+                                           throw new Error(`Error deleting meeting ${e}`);
                                          });
-                           });
                          })
                          .then((meeting) => {
-                           return meetingService.findMeeting(room, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                           return meetingService.findMeeting(whiteRoom, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                         })
+                         .catch(e => {
+                           return expect.fail(e.message);
                          });
   });
 

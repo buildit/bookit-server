@@ -37,7 +37,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+  createUserMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     const eventData = MSGraphMeetingService._generateEventPayload(subj, start, duration, owner, room);
 
     const URL = `https://graph.microsoft.com/v1.0/users/${owner.email}/calendar/events`;
@@ -106,7 +106,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
+  deleteUserMeeting(owner: Participant, id: string): Promise<any> {
     return this._deleteMeeting(owner, id);
   }
 
@@ -115,6 +115,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     return Promise.reject('Error');
   }
 
+  /*
+  ###############################################################################################################
+   */
 
   private _getMeetings(user: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();

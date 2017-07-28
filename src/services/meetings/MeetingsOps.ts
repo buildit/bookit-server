@@ -45,12 +45,12 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
 
 function checkMeetingTimeIsAvailable(meetingsService: MeetingsService,
                                      room: Room,
-                                     id: string,
+                                     userMeetingId: string,
                                      start: Moment,
                                      duration: Duration): Promise<any> {
   const end = start.clone().add(duration);
   return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasConflicts(meetings, id, start, end));
+                        .then(meetings => hasConflicts(meetings, userMeetingId, start, end));
 }
 
 
@@ -64,7 +64,7 @@ export function createMeetingOperation(meetingService: MeetingsService,
   return new Promise((resolve, reject) => {
     const ifAvailable = checkTimeIsAvailable(meetingService, room, start, duration);
 
-    ifAvailable.then(() => meetingService.createMeeting(subj, start, duration, owner, room)
+    ifAvailable.then(() => meetingService.createUserMeeting(subj, start, duration, owner, room)
                                          .then(resolve)
                                          .catch(reject))
                .catch(reject);
@@ -72,7 +72,6 @@ export function createMeetingOperation(meetingService: MeetingsService,
 }
 
 export function updateMeetingOperation(meetingService: MeetingsService,
-                                       id: string,
                                        userMeetingId: string,
                                        subj: string,
                                        start: Moment,
@@ -81,7 +80,7 @@ export function updateMeetingOperation(meetingService: MeetingsService,
                                        room: Room): Promise<Meeting> {
 
   return new Promise((resolve, reject) => {
-    const ifAvailable = checkMeetingTimeIsAvailable(meetingService, room, id, start, duration);
+    const ifAvailable = checkMeetingTimeIsAvailable(meetingService, room, userMeetingId, start, duration);
 
     ifAvailable.then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room)
                                          .then(resolve)

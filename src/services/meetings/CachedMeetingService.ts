@@ -10,6 +10,7 @@ import {RoomService} from '../rooms/RoomService';
 import {Room} from '../../model/Room';
 import {Domain} from '../../model/EnvironmentConfig';
 import {SubCache} from './SubCache';
+import {obscureMeetingDetails} from '../../rest/meetings/meeting_functions';
 
 
 const DEFAULT_REFRESH_IN_MILLIS = 300 * 1000;
@@ -90,10 +91,10 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+  createUserMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     return this.delegatedMeetingsService
-               .createMeeting(subj, start, duration, owner, room)
-               .then(meeting => this.cacheMeeting(room, meeting))
+               .createUserMeeting(subj, start, duration, owner, room)
+               .then(meeting => this.cacheUserMeeting(owner, meeting))
                .catch(error => {
                  logger.error(error);
                  throw new Error(error);
@@ -102,15 +103,9 @@ export class CachedMeetingService implements MeetingsService {
 
 
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', id);
     return this.delegatedMeetingsService
                .updateUserMeeting(id, subj, start, duration, owner, room)
-               // refresh room cache?
-               .then(meeting => {
-                 const startOfDate = start.clone().startOf('day');
-                 const endDate = start.clone().add(duration).endOf('day');
-                 return this.refreshCache(room, startOfDate, endDate)
-                            .then(() => meeting);
-               })
                .then(meeting => this.cacheUserMeeting(owner, meeting))
                .catch(error => {
                  logger.error(error);
@@ -128,18 +123,25 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
+  /**
+   * The rest interface for delete expects a room e-mail and a meeting id.  The assumptions for all this stuff
+   * has changed a bit and we wanted to maintain the interface while changing the underlying behavior.
+   * @param owner
+   * @param id
+   * @returns {Promise<T>}
+   */
+  deleteUserMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      const found = Array.from(this.roomSubCaches.values())
-                         .some(cache => cache.get(id) != null);
+      const userMeeting = Array.from(this.ownerSubCaches.values()).reduce((acc, cache) => cache.get(id), undefined);
 
-      if (!found) {
-        throw new Error(`Unable to find meeting id: ${id}`);
+      if (!userMeeting) {
+        logger.info('Could not find meeting', owner.email, id);
+        return reject(`Unable to find meeting id: ${id}`);
       }
 
-      logger.info('Will delete meeting from owner', owner.email);
+      logger.info('Will delete meeting from owner', userMeeting);
       return this.delegatedMeetingsService
-                 .deleteMeeting(owner, id)
+                 .deleteUserMeeting(userMeeting.owner, userMeeting.id)
                  .then(() => {
                    this.evictMeeting(id);
                    resolve();
@@ -216,7 +218,10 @@ export class CachedMeetingService implements MeetingsService {
     const cacheMeetings = (meetings: Meeting[]) => roomCache.cacheMeetings(meetings);
 
     logger.info(`CachedMeetingService::refreshCache() - refreshing ${room.email}`);
-    return fetchMeetings().then(cacheMeetings);
+    return fetchMeetings().then(meetings => {
+      logger.info(`CachedMeetingService::refreshCache() - fetched ${room.email}`, meetings);
+      cacheMeetings(meetings);
+    });
   }
 
 
@@ -280,15 +285,14 @@ class PassThroughMeetingService implements MeetingsService {
   }
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
-    const mappedMeetings = this.meetings.map(meeting => {
-      const copy = Object.assign({}, meeting);
-      copy.title = meeting.owner.name;
-
-      return copy;
+    const roomMeetings = this.meetings.filter(meeting => {
+      logger.info('PT::getMeetings filter', meeting.location.displayName, room.name, meeting.location.displayName === room.name);
+      return meeting.location.displayName === room.name;
     });
+    const mappedMeetings = roomMeetings.map(obscureMeetingDetails);
 
-    logger.info('PassThroughMeetingService::getMeetings() - resolving', mappedMeetings.map(m => m.id));
-    return Promise.resolve(this.meetings);
+    logger.info(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
+    return Promise.resolve(roomMeetings);
   }
 
 
@@ -299,7 +303,7 @@ class PassThroughMeetingService implements MeetingsService {
   }
 
 
-  createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
+  createUserMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve) => {
       const userMeetingId = uuid();
       const userMeeting: Meeting = {
@@ -352,7 +356,8 @@ class PassThroughMeetingService implements MeetingsService {
     }
 
     return new Promise((resolve) => {
-      const roomMeeting = update(this.meetings, start, duration);
+      logger.info('PassThroughMeetingService::updateUserMeeting() - updating', id);
+      update(this.meetings, start, duration);
       const userMeeting = update(this.userMeetings, start, duration, subj);
 
       resolve(userMeeting);
@@ -360,7 +365,7 @@ class PassThroughMeetingService implements MeetingsService {
   }
 
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
+  deleteUserMeeting(owner: Participant, id: string): Promise<any> {
     this.meetings = this.meetings.filter(meeting => meeting.id === id);
     return Promise.resolve();
   }

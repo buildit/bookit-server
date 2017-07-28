@@ -119,7 +119,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('fails to delete non-existent room', function testDeleteOfNonexistent() {
-      meetingService.deleteMeeting(redRoom, 'bogus').should.eventually.be.rejected;
+      meetingService.deleteUserMeeting(redRoom, 'bogus').should.eventually.be.rejected;
     });
 
     it('has deletes all meetings', function testMeetingsAreEmpty() {
@@ -130,7 +130,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
       return meetingService.getMeetings(redRoom, start, end)
                            .then(meetings => {
                              const deletePromises = meetings.map(
-                               meeting => meetingService.deleteMeeting(redRoom, meeting.id));
+                               meeting => meetingService.deleteUserMeeting(redRoom, meeting.id));
                              return Promise.all(deletePromises);
                            })
                            .then(() => meetingService.getMeetings(redRoom, start, end)).should.eventually.be.empty;

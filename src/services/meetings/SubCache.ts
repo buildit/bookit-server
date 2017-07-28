@@ -96,6 +96,7 @@ export class SubCache<T extends Attendee> {
 
 
   cacheMeetings(meetings: Meeting[]) {
+    logger.trace('SubCache::cacheMeetings()');
     const meetingIds = meetings.map(meeting => meeting.id);
     meetings.forEach(this.cacheMeeting.bind(this));
     this.reconcileAndEvict(meetingIds);
@@ -158,6 +159,7 @@ export class SubCache<T extends Attendee> {
     const updatedMeetingIds = new Set(meetingIds);
 
     logger.info(`Reconciling ${this.attendee.email} cache - existing:`, existingMeetingIds.size, 'updated:', updatedMeetingIds.size);
+    // throw new Error('fail');
     updatedMeetingIds.forEach(id => existingMeetingIds.delete(id));
     existingMeetingIds.forEach(id => this.evictMeeting(id));
   }

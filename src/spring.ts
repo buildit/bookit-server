@@ -96,7 +96,7 @@ async function testMeetingCreate() {
 
   logger.info('start time', start);
 
-  return meetingService.createMeeting(`Springboard meeting at ${start}`, start, duration, owner, room);
+  return meetingService.createUserMeeting(`Springboard meeting at ${start}`, start, duration, owner, room);
 }
 
 
@@ -107,7 +107,7 @@ async function testMeetingDelete(meeting: Meeting) {
   // const end = moment().startOf('day').add(1, 'day');
 
   logger.info('Meetings', meeting);
-  return meetingService.deleteMeeting(owner, meeting.id);
+  return meetingService.deleteUserMeeting(owner, meeting.id);
 }
 
 // testMeetingCreate().then(meeting => {
