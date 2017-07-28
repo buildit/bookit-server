@@ -123,3 +123,11 @@ function testX() {
   });
 }
 
+function testListExternalUsers() {
+  console.log('======================');
+  userService.listExternalUsers()
+    .then(users => console.log(users))
+    .catch(err => console.log(err));
+}
+
+testListExternalUsers();
