@@ -55,15 +55,35 @@ USE_CLOUD=true
 
 ##### MICROSOFT GRAPH SETTINGS
 These settings represent the identity that the application will use to access MS Graph API services.  The variable
-that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'test' as the value.
+that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'buildit' as the value.
 ```
-CLOUD_CONFIG=test
+CLOUD_CONFIG=buildit
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use TEST_SECRET. Please
- obtain these and other secrets from your fellow developers.
+There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use BUILDIT_SECRET. Please
+ obtain these and other secrets by following the AWS param steps below.
 ```
-TEST_SECRET=your-client-secret
+BUILDIT_SECRET=secret-obtained-from-aws
+```
+
+
+## AWS Param Store
+
+We store secrets for the system in AWS' SSM param store.  It does all the hard work of encrypting our application parameters.
+
+### Get access to AWS
+You will have to speak to a fellow developer to obtain AWS keys.  You'll have to get a key id and key secret.  After that run:
+
+```
+aws configure
+```
+
+After this, you should be good to go to run aws cli scripts to pull in environment secrets.  From the server checkout directory,
+there is a bin directory that has scripts that you can run.
+
+```
+MARIUSZs-Mac-Pro:bookit-server andrew$ ./bin/fetch_aws_param.py BUILDIT_SECRET
+<<The secret would be printed here>>
 ```
 
 ## Authentication
@@ -110,7 +130,7 @@ One is Mock and the other is MSGraph.
 There are a small set of services under which the code is organized under src/services.  
 
 ##### Mock
-A version that implements the interface and has basic or pass-through functionality.
+A version that implements the interface and has basic or pass-through functionality.  Sometimes these implementations imitate Microsoft's idiosyncracies like the PassthroughMeetingService in CachedMeetingService.
 
 ##### MS Graph
 These are the services that connect to Microsoft.
@@ -150,7 +170,8 @@ The routes for CRUD meeting operations that bookit-web interacts with.
 
 ## Special cases
 MeetingOps seems to be an IOC class meant for reusing logic (e.g. checking for meeting availability) against an
-interchangeable set of services.
+interchangeable set of services.  This class is actively being gutted as it's not maintainting any state nor representing
+an interface of much value.
 
 ## Useful links
 
