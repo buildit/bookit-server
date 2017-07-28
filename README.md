@@ -67,6 +67,13 @@ BUILDIT_SECRET=secret-obtained-from-aws
 ```
 
 
+## Azure administration
+
+If you need to access the administration user and password details for a particular identity, you can get that from AWS as well.  
+The parameter names to pull would be <IDENTITY>_ADMIN_NAME and <IDENTITY>_ADMIN_PASSWORD.  Follow the directions below on
+how to get AWS secrets.
+
+
 ## AWS Param Store
 
 We store secrets for the system in AWS' SSM param store.  It does all the hard work of encrypting our application parameters.
