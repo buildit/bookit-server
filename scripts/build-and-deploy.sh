@@ -18,7 +18,7 @@ if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; t
     ssh -o StrictHostKeyChecking=no -i $DEPLOY_HOME/ec2/travis app@bookit.riglet.io \
       'docker-compose pull; \
        docker-compose down; \
-       CLOUD_CONFIG="`/usr/src/app/bin/fetch_aws_param.py CLOUD_CONFIG`" \
-       BUILDIT_SECRET="`/usr/src/app/bin/fetch_aws_param.py BUILDIT_SECRET`" docker-compose up -d'
+       CLOUD_CONFIG=`aws ssm get-parameters --name CLOUD_CONFIG --with-decryption --output text | cut -f 4` \
+       BUILDIT_SECRET=`aws ssm get-parameters --name BUILDIT_SECRET --with-decryption --output text | cut -f 4`'
 fi
 
