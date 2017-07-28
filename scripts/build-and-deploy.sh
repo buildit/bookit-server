@@ -16,6 +16,9 @@ if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; t
     chmod 600 $DEPLOY_HOME/ec2/travis
     scp -o StrictHostKeyChecking=no -i $DEPLOY_HOME/ec2/travis $DEPLOY_HOME/dev/docker-compose.yml app@bookit.riglet.io:/home/app/
     ssh -o StrictHostKeyChecking=no -i $DEPLOY_HOME/ec2/travis app@bookit.riglet.io \
-      'docker-compose down; docker-compose pull; docker-compose up -d'
+      'docker-compose pull; \
+       docker-compose down; \
+       CLOUD_CONFIG="`./bin/fetch_aws_param.py CLOUD_CONFIG`" \
+       BUILDIT_SECRET="`./bin/fetch_aws_param.py BUILDIT_SECRET`" docker-compose up -d'
 fi
 
