@@ -5,7 +5,7 @@ import {MSGraphBase} from '../MSGraphBase';
 import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {BookitUser} from '../../model/BookitUser';
-import {getServiceUser} from '../../config/identity';
+import {getServiceUser, getExternalTeam} from '../../config/identity';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
@@ -21,9 +21,9 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  listExternalUsers(): Promise<Array<BookitUser>> {
-    // return Promise.reject('in ms user service')
+  listExternalUsers(): Promise<Array<any>> {
     const bookitServiceUserId = getServiceUser('buildit');
+    const externalTeam = getExternalTeam('buildit');
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
@@ -40,7 +40,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                      const users = response.body.value;
                      const mapUser = (user: any) => ({
                        email: user.emailAddresses[0].address,
-                       team: 'WIPRO', 
+                       team: externalTeam,
                        roles: user.categories,
                        createdDateTime: user.createdDateTime,
                      })

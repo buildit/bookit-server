@@ -9,6 +9,8 @@ export interface Identity {
   domain: Domain;
   credentials?: GraphAPIParameters;
   serviceUserEmail?: string;
+  internalTeam?: string;
+  externalTeam?: string;
 }
 
 export const roman: Identity = {
@@ -20,6 +22,8 @@ export const buildit: Identity = {
   domain: builditDomain,
   credentials: builditCreds,
   serviceUserEmail: 'roodmin@builditcontoso.onmicrosoft.com',
+  internalTeam: 'DESIGNIT',
+  externalTeam: 'WIPRO',
 };
 
 export const test: Identity = {
