@@ -1,6 +1,6 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {MSUser, UserService} from './UserService';
+import {UserService} from './UserService';
 import {BookitUser} from '../../model/BookitUser';
 
 export class MockUserService implements UserService {
@@ -9,7 +9,7 @@ export class MockUserService implements UserService {
   }
 
 
-  listExternalUsers(): Promise<Array<MSUser>> {
+  listExternalUsers(): Promise<Array<BookitUser>> {
     return new Promise((resolve) => {
       throw 'Implement me';
     });

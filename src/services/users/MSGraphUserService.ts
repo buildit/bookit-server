@@ -21,7 +21,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  listExternalUsers(): Promise<Array<MSUser>> {
+  listExternalUsers(): Promise<Array<BookitUser>> {
     // return Promise.reject('in ms user service')
     const bookitServiceUserId = getServiceUser('buildit');
 
@@ -37,8 +37,14 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
-                     const users = response.body;
-                     resolve(users);
+                     const users = response.body.value;
+                     const mapUser = (user: any) => ({
+                       email: user.emailAddresses[0].address,
+                       team: 'WIPRO', 
+                       roles: user.categories,
+                       createdDateTime: user.createdDateTime,
+                     })
+                     resolve(users.map(mapUser));
                    });
           });
     });

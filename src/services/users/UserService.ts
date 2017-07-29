@@ -19,7 +19,7 @@ export class MSUser {
 }
 
 export interface UserService {
-  listExternalUsers(): Promise<Array<MSUser>>;
+  listExternalUsers(): Promise<Array<BookitUser>>;
 
   getDevices(userId: string): Promise<Array<any>>;
 
