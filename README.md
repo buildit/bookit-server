@@ -59,43 +59,47 @@ USE_CLOUD=true
 ```
 
 ##### MICROSOFT GRAPH SETTINGS
-These settings represent the identity that the application will use to access MS Graph API services.  The variable
-that is used for selecting the identity is called CLOUD_CONFIG.  For now, use 'buildit' as the value.
+These settings represent the identity that the application will use to access MS Graph API services.
+
+The variable that is used for selecting the identity is called `CLOUD_CONFIG`.  For now, use 'buildit' as the value.
 ```
 CLOUD_CONFIG=buildit
 ```
 
-There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use BUILDIT_SECRET. Please
- obtain these and other secrets by following the AWS param steps below.
+There is a secret for each identity that is named `<IDENTITY>_SECRET`.  Once again, for now, use `BUILDIT_SECRET`. Please
+ obtain these and other secrets by following the AWS Parameter Store steps below.
 ```
-BUILDIT_SECRET=secret-obtained-from-aws
+BUILDIT_SECRET=secret-obtained-from-aws (see below)
 ```
 
 ## Azure administration
 
 If you need to access the administration user and password details for a particular identity, you can get that from AWS as well.  
-The parameter names to pull would be <IDENTITY>_ADMIN_NAME and <IDENTITY>_ADMIN_PASSWORD.  Follow the directions below on
+The parameter names to pull would be `<IDENTITY>_ADMIN_NAME` and `<IDENTITY>_ADMIN_PASSWORD`.  Follow the directions below on
 how to get AWS secrets.
 
 
-## AWS Param Store
+## Obtaining Secrets from AWS Parameter Store
 
-We store secrets for the system in AWS' SSM param store.  It does all the hard work of encrypting our application parameters.
+We store secrets for the system in AWS' SSM Parameter Store.  It does all the hard work of encrypting our application parameters.
 
 ### Get access to AWS
-You will have to speak to a fellow developer to obtain AWS keys.  You'll have to get a key id and key secret.  After that run:
+Speak to a fellow developer to obtain AWS keys, which are comprised of a key id and key secret.  After that run:
 
 ```
 aws configure
 ```
+(_Note:_ Use us-east-1 as your region, when asked, for now.  Note that this can be overridden on the command-line as shown below.)
 
-After this, you should be good to go to run aws cli scripts to pull in environment secrets.  From the server checkout directory,
-there is a bin directory that has scripts that you can run.
+After this, you should be good to go to run the AWS CLI to pull in environment secrets:
 
 ```
-MARIUSZs-Mac-Pro:bookit-server andrew$ ./bin/fetch_aws_param.py BUILDIT_SECRET
-<<The secret would be printed here>>
+$ aws ssm get-parameters --region us-east-1 --name BUILDIT_SECRET --with-decryption
+<<The secret is printed here>>
 ```
+(_Note:_ You can leave out the region parameter if you provided one at configuration time.  The above demonstrates the inclusion
+of the region parameter for demonstration purposes).
+
 
 ## Authentication
 There are a few endpoints that require a token in order to access.  It's either because it needs
