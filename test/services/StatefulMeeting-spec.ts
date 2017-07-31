@@ -9,7 +9,7 @@ chai.should();
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {createMeetingOperation, MeetingsOps} from '../../src/services/meetings/MeetingsOps';
+import {createMeetingOperation} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 import {Room} from '../../src/model/Room';
@@ -21,9 +21,6 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
 
   const bruceParticipant = new Participant(BRUCE_ID);
   const redRoom = new Room('1', 'Red', redRoomId);
-
-  /* why do we have these three? */
-  const meetingOps = new MeetingsOps(meetingService);
 
   const start = moment().add(20 + Math.random() * 20, 'days').startOf('day');
   const end = start.clone().add(1, 'day');

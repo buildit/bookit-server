@@ -7,6 +7,8 @@ import {Room} from '../../model/Room';
 import {MeetingsService} from './MeetingService';
 import {Meeting} from '../../model/Meeting';
 import {isMeetingOverlapping} from '../../utils/validation';
+import {handleMeetingFetch, handleRoomMeetingFetch} from '../../rest/meetings/meeting_functions';
+import {Credentials} from '../../model/Credentials';
 
 
 function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
@@ -20,7 +22,7 @@ function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Mom
 }
 
 
-function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment) {
+function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, end: Moment): boolean {
   const conflict = meetings.find(meeting => {
     logger.info(`Checking conflict: ${meeting.id} against ${originalId}`);
     return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, start, end);
@@ -29,6 +31,8 @@ function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, en
   if (conflict) {
     throw 'Found other meeting conflict';
   }
+
+  return false;
 }
 
 
@@ -43,14 +47,12 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
 }
 
 
-function checkMeetingTimeIsAvailable(meetingsService: MeetingsService,
-                                     room: Room,
+function checkMeetingTimeIsAvailable(meetings: Meeting[],
                                      userMeetingId: string,
                                      start: Moment,
-                                     duration: Duration): Promise<any> {
+                                     duration: Duration) {
   const end = start.clone().add(duration);
-  return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasConflicts(meetings, userMeetingId, start, end));
+  return hasConflicts(meetings, userMeetingId, start, end);
 }
 
 
@@ -78,72 +80,15 @@ export function updateMeetingOperation(meetingService: MeetingsService,
                                        duration: Duration,
                                        owner: Participant,
                                        room: Room): Promise<Meeting> {
+    const end = start.clone().add(duration);
 
-  return new Promise((resolve, reject) => {
-    const ifAvailable = checkMeetingTimeIsAvailable(meetingService, room, userMeetingId, start, duration);
-
-    ifAvailable.then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room)
-                                         .then(resolve)
-                                         .catch(reject))
-               .catch(reject);
-  });
+    return handleRoomMeetingFetch(meetingService, room, owner, start, end)
+      .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
+      .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room));
 }
 
 
 export interface RoomMeetings {
   room: Room;
   meetings: Meeting[];
-}
-
-
-/**
- * TODO: deprecate
- *
- * This shouldn't be a class but a series of functions as there is no state being contained within the class.
- */
-export class MeetingsOps {
-
-  constructor(private meetingsService: MeetingsService) {
-  };
-
-
-  getRoomListMeetings(rooms: Room[], start: Moment, end: Moment): Promise<RoomMeetings[]> {
-    const mapRoom = (room: Room) => {
-      return this.meetingsService
-                 .getMeetings(room, start, end)
-                 .then(m => {
-                   return {room, meetings: m};
-                 });
-    };
-
-    return Promise.all(rooms.map(mapRoom));
-  }
-
-
-  getUserMeetings(owner: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
-    return this.meetingsService.getUserMeetings(owner, start, end);
-  }
-
-
-  // getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-  //   logger.debug('Getting meetings', this.meetingsService);
-  //   return this.meetingsService.getMeetings(room, start, end);
-  // }
-  //
-  //
-  // findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
-  //   return this.meetingsService.findMeeting(room, meetingId, start, end);
-  // }
-
-
-  // createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-  //   return promiseCreateMeeting(this.meetingsService, subj, start, duration, owner, room);
-  // }
-
-
-  // deleteMeeting(owner: Participant, id: string): Promise<any> {
-  //   return this.meetingsService.deleteMeeting(owner, id);
-  // }
-
-
 }

@@ -7,7 +7,6 @@ import {Participant} from './model/Participant';
 import {generateMSRoomResource} from './config/bootstrap/rooms';
 import {Meeting} from './model/Meeting';
 import {handleMeetingFetch} from './rest/meetings/meeting_functions';
-import {MeetingsOps} from './services/meetings/MeetingsOps';
 import {Credentials} from './model/Credentials';
 import {log} from 'util';
 
@@ -20,7 +19,6 @@ const meetingService = Runtime.meetingService;
 
 const domain = meetingService.domain();
 
-const meetingOps = new MeetingsOps(meetingService);
 const room = generateMSRoomResource('Red', domain);
 
 
@@ -133,7 +131,7 @@ function testX() {
   const end = moment(searchEnd);
 
 
-  handleMeetingFetch(roomService, meetingOps, undefined, 'nyc', start, end).then(roomMeetings => {
+  handleMeetingFetch(roomService, meetingService, undefined, 'nyc', start, end).then(roomMeetings => {
     logger.info('M', roomMeetings);
   });
 }

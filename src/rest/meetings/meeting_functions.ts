@@ -5,13 +5,13 @@ import {Participant} from '../../model/Participant';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {checkParam, sendError} from '../rest_support';
-import {Room} from '../../model/Room';
+import {sendError} from '../rest_support';
+import {Room, RoomList} from '../../model/Room';
 import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, updateMeetingOperation, MeetingsOps, RoomMeetings
+  createMeetingOperation, updateMeetingOperation, RoomMeetings
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -70,7 +70,8 @@ export function createMeeting(req: Request,
 
   logger.info('Want to create meeting:', event);
   const createRoomMeeting = (room: Room) => {
-    createMeetingOperation(meetingService, event.title,
+    createMeetingOperation(meetingService,
+                           event.title,
                            startMoment,
                            moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
                            owner,
@@ -91,7 +92,7 @@ export function updateMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,
                               meetingService: MeetingsService,
-                              id: string,
+                              userMeetingId: string,
                               owner: Participant) {
   const event = req.body as MeetingRequest;
   const startMoment = moment(event.start);
@@ -101,7 +102,7 @@ export function updateMeeting(req: Request,
   logger.info('Want to update meeting:', event);
   const updateRoomMeeting = (room: Room) => {
     updateMeetingOperation(meetingService,
-                           id,
+                           userMeetingId,
                            event.title,
                            startMoment,
                            moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
@@ -119,34 +120,78 @@ export function updateMeeting(req: Request,
 }
 
 
+function getRoomAndMergeUserMeetings(meetingService: MeetingsService,
+                                     room: Room,
+                                     start: moment.Moment,
+                                     end: moment.Moment,
+                                     userMeetings: Meeting[]): Promise<RoomMeetings> {
+  return meetingService.getMeetings(room, start, end)
+                       .then(roomMeetings => mergeMeetingsForRoom(room, roomMeetings, userMeetings))
+                       .then(mergedMeetings => {
+                         return {
+                           room: room,
+                           meetings: mergedMeetings
+                         };
+                       });
+}
+
+
+function getMergedRoomListUserMeetings(meetingService: MeetingsService,
+                                     roomList: RoomList,
+                                     start: moment.Moment,
+                                     end: moment.Moment,
+                                     userMeetings: Meeting[]): Promise<RoomMeetings[]> {
+
+  const mergedMeetings = roomList.rooms.map(room => getRoomAndMergeUserMeetings(meetingService,
+                                                                                room,
+                                                                                start,
+                                                                                end,
+                                                                                userMeetings));
+  return Promise.all(mergedMeetings);
+}
+
+
+function getUserMeetings(meetingService: MeetingsService,
+                         credentials: Credentials,
+                         start: Moment,
+                         end: Moment): Promise<Meeting[]> {
+  if (!credentials) {
+    return Promise.resolve([]);
+  }
+
+  const owner = new Participant(credentials.user);
+  return meetingService.getUserMeetings(owner, start, end);
+}
+
+
+export function handleRoomMeetingFetch(meetingService: MeetingsService,
+                                       room: Room,
+                                       owner: Participant,
+                                       start: Moment,
+                                       end: Moment): Promise<RoomMeetings> {
+  return meetingService.getUserMeetings(owner, start, end)
+                       .then(userMeetings => {
+                         return getRoomAndMergeUserMeetings(meetingService,
+                                                            room,
+                                                            start,
+                                                            end,
+                                                            userMeetings);
+                       });
+}
+
 export function handleMeetingFetch(roomService: RoomService,
-                                   meetingOps: MeetingsOps,
+                                   meetingService: MeetingsService,
                                    credentials: Credentials,
                                    listName: string,
-                                   start: moment.Moment,
-                                   end: moment.Moment): Promise<RoomMeetings[]> {
-  return new Promise((resolve, reject) => {
-    roomService.getRoomList(listName)
-               .then(roomList => meetingOps.getRoomListMeetings(roomList.rooms, start, end))
-               .then(roomMeetings => {
-                 if (!credentials) {
-                   logger.info('CREDS', credentials);
-                   logger.info('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
-                   return resolve(roomMeetings);
-                 }
-
-                 const participant = new Participant(credentials.user);
-                 meetingOps.getUserMeetings(participant, start, end)
-                           .then(userMeetings => {
-                             logger.info(`------------${participant.email}-----------`);
-                             const merged = mergeMeetings(roomMeetings, userMeetings);
-                             return resolve(merged);
-                           });
-               })
-               .catch((err) => {
-                 reject(err);
-               });
-  });
+                                   start: Moment,
+                                   end: Moment): Promise<RoomMeetings[]> {
+  return roomService.getRoomList(listName)
+                    .then(roomList => {
+                      const promisedMeetings = getUserMeetings(meetingService, credentials, start, end);
+                      return promisedMeetings.then(userMeetings => {
+                        return getMergedRoomListUserMeetings(meetingService, roomList, start, end, userMeetings);
+                      });
+                    });
 }
 
 
@@ -194,38 +239,53 @@ export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
 }
 
 
-function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
-  function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomEmail: string) {
-    const toReturn = obscureMeetingIdentifier(meeting);
+function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomEmail: string) {
+  const toReturn = obscureMeetingIdentifier(meeting);
 
-    const meetingsForRoom = roomCache.get(roomEmail);
-    const userMeeting = matchMeeting(meeting, meetingsForRoom);
-    if (!userMeeting) {
-      return toReturn;
-    }
-
-    roomCache.remove(meeting);
-    assignProperties(toReturn, userMeeting);
+  const meetingsForRoom = roomCache.get(roomEmail);
+  const userMeeting = matchMeeting(meeting, meetingsForRoom);
+  if (!userMeeting) {
     return toReturn;
   }
 
+  roomCache.remove(meeting);
+  assignProperties(toReturn, userMeeting);
+  return toReturn;
+}
 
-  /*
 
-   */
+function cacheMeetingsByRoom(meetings: Meeting[]): ListCache<Meeting> {
+  const roomCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new RoomCachingStrategy());
+  meetings.forEach(meeting => roomCache.put(meeting));
+
+  return roomCache;
+}
+
+
+function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings: Meeting[]): Meeting[] {
+  const roomCache = cacheMeetingsByRoom(userMeetings);
+
+  const roomId = room.name;
+  const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
+  const leftOverMeetings = roomCache.get(roomId);
+  if (leftOverMeetings.length > 0) {
+    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${leftOverMeetings.length}`);
+  }
+
+  return mergedMeetings;
+}
+
+
+function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
   const roomCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new RoomCachingStrategy());
   userMeetings.forEach(meeting => roomCache.put(meeting));
-  logger.info('roomCache', roomCache);
-
 
   return roomMeetings.map(roomMeeting => {
     const roomId = roomMeeting.room.name;
     const originalMeetings = roomCache.get(roomId);
     logger.info(`meeting_functions::mergeMeetings ${roomId} has original meetings ${originalMeetings.length}`);
 
-    const mergedMeetings = roomMeeting.meetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
-    const leftOverMeetings = roomCache.get(roomId);
-    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${leftOverMeetings.length}`);
+    const mergedMeetings = mergeMeetingsForRoom(roomMeeting.room, roomMeeting.meetings, userMeetings);
     return {
       room: roomMeeting.room,
       meetings: mergedMeetings

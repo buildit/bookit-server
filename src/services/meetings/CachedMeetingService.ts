@@ -64,6 +64,7 @@ export class CachedMeetingService implements MeetingsService {
     this.roomSubCaches = new Map<string, SubCache<Room>>();
     this.ownerSubCaches = new Map<string, SubCache<Participant>>();
 
+    this.delegatedMeetingsService.clearCaches();
     return true;
   }
 
@@ -125,16 +126,6 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  private waitForRoomMeeting(toMatch: Meeting, start: Moment, duration: Duration, room: Room): Promise<Meeting[]> {
-    const searchStart = start.clone().subtract('1', 'second');
-    const searchEnd = start.clone().add(duration).add('1', 'second');
-    const fetchMeetings = this.getMeetings.bind(this, room, searchStart, searchEnd);
-
-    const matchedUserMeeting = matchMeeting.bind(this, toMatch);
-    return retryUntilAtInterval(25, fetchMeetings, matchedUserMeeting);
-  }
-
-
   findMeeting(room: Room, meetingId: string, start: Moment, end: Moment): Promise<Meeting> {
     return new Promise((resolve, reject) => {
       const roomCache = this.getCacheForRoom(room);
@@ -160,7 +151,7 @@ export class CachedMeetingService implements MeetingsService {
         return reject(`Unable to find meeting id: ${id}`);
       }
 
-      logger.info('Will delete meeting from owner', userMeeting);
+      logger.info('Will delete meeting from owner', owner.email, id);
       return this.delegatedMeetingsService
                  .deleteUserMeeting(userMeeting.owner, userMeeting.id)
                  .then(() => {
@@ -173,6 +164,16 @@ export class CachedMeetingService implements MeetingsService {
 
   doSomeShiznit(test: any): Promise<any> {
     return this.delegatedMeetingsService.doSomeShiznit(test);
+  }
+
+
+  private waitForRoomMeeting(toMatch: Meeting, start: Moment, duration: Duration, room: Room): Promise<Meeting[]> {
+    const searchStart = start.clone().subtract('1', 'second');
+    const searchEnd = start.clone().add(duration).add('1', 'second');
+    const fetchMeetings = this.getMeetings.bind(this, room, searchStart, searchEnd);
+
+    const matchedUserMeeting = matchMeeting.bind(this, toMatch);
+    return retryUntilAtInterval(50, fetchMeetings, matchedUserMeeting);
   }
 
 
@@ -238,9 +239,8 @@ export class CachedMeetingService implements MeetingsService {
 
     const cacheMeetings = (meetings: Meeting[]) => roomCache.cacheMeetings(meetings);
 
-    logger.info(`CachedMeetingService::refreshCache() - refreshing ${room.email}`);
     return fetchMeetings().then(meetings => {
-      logger.debug(`CachedMeetingService::refreshCache() - fetched ${room.email}`, meetings);
+      logger.debug(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, meetings.length);
       cacheMeetings(meetings);
     });
   }
@@ -265,12 +265,13 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  private cacheMeeting(room: Room, meeting: Meeting) {
+  private cacheRoomMeeting(room: Room, meeting: Meeting) {
     return this.getCacheForRoom(room).put(meeting);
   }
 
 
   private cacheUserMeeting(owner: Participant, meeting: Meeting) {
+    logger.info('Caching meeting', meeting.id);
     return this.getCacheForOwner(owner).put(meeting);
   }
 
@@ -293,7 +294,7 @@ class MockGraphMeetingService implements MeetingsService {
 
 
   constructor(private _domain: string) {
-    this.clearCaches();
+    this.clearCaches(true);
   }
 
 
@@ -302,7 +303,9 @@ class MockGraphMeetingService implements MeetingsService {
   }
 
 
-  clearCaches() {
+  clearCaches(initializing = false) {
+    const type = initializing ? ' Initializing' : 'Clearing';
+    logger.info(`${type} Mock Graph caches`);
     this.roomMeetingCache.clear();
     this.userMeetingCache.clear();
 
@@ -314,22 +317,25 @@ class MockGraphMeetingService implements MeetingsService {
     const roomMeetings = this.roomMeetings().filter(meeting => meeting.location.displayName === room.name);
     const mappedMeetings = roomMeetings.map(obscureMeetingDetails);
 
-    logger.info(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
+    if (mappedMeetings.length > 0) {
+      logger.info(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
+    }
+
     return Promise.resolve(roomMeetings);
   }
 
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings().filter(meeting => meeting.owner.email === user.email);
-    console.info('Filtered user meetings', filtered);
+    logger.info('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 
 
   createUserMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve) => {
-      const userMeetingId = uuid();
-      const roomMeetingId = uuid();
+      const userMeetingId = 'user_' + uuid();
+      const roomMeetingId = 'room_' + uuid();
 
       const userMeeting: Meeting = {
         id: userMeetingId,

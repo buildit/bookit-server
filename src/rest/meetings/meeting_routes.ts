@@ -5,7 +5,6 @@ import {start} from 'repl';
 import {Participant} from '../../model/Participant';
 
 import {MeetingsService} from '../../services/meetings/MeetingService';
-import {MeetingsOps, RoomMeetings} from '../../services/meetings/MeetingsOps';
 import {RoomService} from '../../services/rooms/RoomService';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {extractQueryParamAsMoment} from '../../utils/validation';
@@ -33,9 +32,6 @@ export function configureMeetingRoutes(app: Express,
                                        roomService: RoomService,
                                        meetingsService: MeetingsService): Express {
 
-  const meetingsOps = new MeetingsOps(meetingsService);
-
-
   credentialedEndpoint(app, '/rooms/:listName/meetings', app.get, (req: Request, res: Response) => {
     logger.info('Fetching meetings');
     const listName = req.params['listName'];
@@ -46,7 +42,7 @@ export function configureMeetingRoutes(app: Express,
       const end = extractQueryParamAsMoment(req, 'end');
       validateTimes(start, end);
 
-      const meetings = handleMeetingFetch(roomService, meetingsOps, credentials, listName, start, end);
+      const meetings = handleMeetingFetch(roomService, meetingsService, credentials, listName, start, end);
       meetings.then(roomMeetings => res.json(roomMeetings));
     } catch (error) {
       return sendValidation(error, res);

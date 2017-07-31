@@ -43,7 +43,7 @@ const bruceCredentials = {
 };
 
 
-describe.skip('meeting routes operations', function testMeetingRoutes() {
+describe('meeting routes operations', function testMeetingRoutes() {
 
   it('can query a room list for nyc', function testRoomList() {
     return request(app).get('/rooms/nyc')
@@ -53,7 +53,7 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                          return roomService.getRoomList('nyc')
                                            .then(roomList => {
                                              const rooms = roomList.rooms;
-                                             expect(rooms).to.be.deep.equal(res.body);
+                                             return expect(rooms).to.be.deep.equal(res.body);
                                            })
                                            .catch(error => {
                                              logger.error(error);
@@ -61,6 +61,7 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                                            });
                        });
   });
+
 
   it('creates the meeting', function testCreateMeeting() {
     const meetingStart = '2013-02-08 10:00:00';
@@ -92,15 +93,14 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                        .expect(200)
                        .then(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd))
                        .then((meetings) => {
-                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
-
-                         const meeting = meetings[0];
-
-                         expect(meeting.title).to.be.deep.eq(expected.title);
-
                          meetingService.clearCaches();
+
+                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
+                         const meeting = meetings[0];
+                         return expect(meeting.title).to.be.deep.eq(expected.title);
                        });
   });
+
 
   it('updates an existing meeting', function testUpdateMeeting() {
     const meetingStart = '2013-05-08 10:00:00';
@@ -139,18 +139,22 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                                               .send(updatedMeeting)
                                               .expect(200)
                                               .then(() => {
-                             return request(app).get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                .set('x-access-token', token)
-                                                .then(response => {
-                                                  const roomMeetings = response.body as RoomMeetings[];
-                                                  const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                    acc.push.apply(acc, room.meetings);
-                                                    return acc;
-                                                  }, []);
+                                                return request(app)
+                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
+                                                  .set('x-access-token', token)
+                                                  .expect(200)
+                                                  .then(response => {
+                                                    const roomMeetings = response.body as RoomMeetings[];
+                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
+                                                      acc.push.apply(acc, room.meetings);
+                                                      return acc;
+                                                    }, []);
 
-                                                  const meeting = allMeetings[0];
-                                                  return expect(meeting.title).to.be.eq(updatedMeeting.title);
-                                                });
+                                                    meetingService.clearCaches();
+
+                                                    const meeting = allMeetings[0];
+                                                    return expect(meeting.title).to.be.eq(updatedMeeting.title);
+                                                  });
                            });
 
                          });
@@ -167,13 +171,16 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
+    const title = 'meeting without a token';
     const meetingToCreate = {
-      title: 'meeting without a token',
+      title: title,
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
       whiteRoom
     };
+
+    logger.info('INVISIBILITY WANT TO CREATE', meetingToCreate.title);
 
     return meetingService.createUserMeeting(meetingToCreate.title,
                                             meetingToCreate.start,
@@ -181,7 +188,6 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                                             meetingToCreate.bruceOwner,
                                             meetingToCreate.whiteRoom)
                          .then((meeting) => {
-                           const meetingId = meeting.id;
                            return request(app)
                              .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
                              .then(query => {
@@ -191,14 +197,17 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
                                  return acc;
                                }, []);
 
-                               const meetings = allMeetings.filter(m => m.id === meetingId);
-                               expect(meetings.length).to.be.at.least(1);
-                               const expected = expect(meetings[0].title).to.be.equal('bruce');
+                               expect(allMeetings.length).to.be.equal(1);
+                               const meeting = allMeetings[0];
+                               const expected = expect(meeting.title).to.be.equal('bruce');
 
                                meetingService.clearCaches();
 
                                return expected;
                              });
+                         })
+                         .catch(error => {
+                           return expect.fail(error);
                          });
   });
 
@@ -209,7 +218,7 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const expected = {
+    const meetingToCreate = {
       title: 'meeting with token',
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingEnd), 'minutes'), 'minutes'),
@@ -218,13 +227,12 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
-    console.info('Token', token);
 
-    return meetingService.createUserMeeting(expected.title,
-                                            expected.start,
-                                            expected.duration,
-                                            expected.bruceOwner,
-                                            expected.whiteRoom)
+    return meetingService.createUserMeeting(meetingToCreate.title,
+                                            meetingToCreate.start,
+                                            meetingToCreate.duration,
+                                            meetingToCreate.bruceOwner,
+                                            meetingToCreate.whiteRoom)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -245,6 +253,9 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
 
                                return expected;
                              });
+                         })
+                         .catch(error => {
+                           return expect.fail(error);
                          });
   });
 
@@ -261,10 +272,6 @@ describe.skip('meeting routes operations', function testMeetingRoutes() {
     const searchEnd = momentEnd.clone().add(5, 'minutes');
 
     return meetingService.createUserMeeting('test delete', momentStart, meetingDuration, bruceOwner, whiteRoom)
-                         // .then(meeting => {
-                         //   return retryUntil(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd),
-                         //                     meetings => meetings.length > 0).then(() => meeting);
-                         // })
                          .then((meeting: Meeting) => {
                            logger.info('meeting to delete created!');
                            const meetingRoom = whiteRoom.email;
