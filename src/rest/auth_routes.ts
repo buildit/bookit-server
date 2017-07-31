@@ -6,6 +6,7 @@ import {Credentials} from '../model/Credentials';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectedEndpoint} from './filters';
 import {PasswordStore} from '../services/authorization/PasswordStore';
+import {UserService} from '../services/users/UserService';
 
 
 
@@ -26,6 +27,7 @@ export interface UserDetail {
 
 
 export function configureAuthenticationRoutes(app: Express,
+                                              userService: UserService,
                                               passwordStore: PasswordStore,
                                               jwtTokenProvider: JWTTokenProvider) {
 
@@ -41,10 +43,8 @@ export function configureAuthenticationRoutes(app: Express,
       sendUnauthorized(res, 'Unrecognized user');
     }
 
-    // TODO: Once we have a better idea how to filter users, like being able to
-    // say "you have a valid login, but you're not actually a bookit user", we should
-    // replace this with that.
-    if (!passwordStore.validateUser(decoded.unique_name)) {
+    const isValidated = await userService.validateExternalUser(decoded.unique_name);
+    if (!isValidated) {
         sendUnauthorized(res, 'Unrecognized user');
         return;
     }

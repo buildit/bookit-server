@@ -38,7 +38,7 @@ export function configureRoutes(app: Express,
   initializeCredentialsFilter(jwtTokenProvider);
   configureExpress(app);
 
-  configureAuthenticationRoutes(app, passwordStore, jwtTokenProvider);
+  configureAuthenticationRoutes(app, userService, passwordStore, jwtTokenProvider);
   configureTestRoutes(app, mailService);
   configureUsersRoutes(app, userService, mailService);
   configureRoomRoutes(app, roomService);

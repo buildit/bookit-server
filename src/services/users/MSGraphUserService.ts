@@ -80,9 +80,22 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                    });
           });
     });
-
   }
 
+  // TODO: Supply first condition via configuration
+  validateExternalUser(email: string): Promise<boolean> {
+    // (pure whitelist)
+    if (email.endsWith('@designit.com')) {
+      return Promise.resolve(true);
+    }
+
+    // (pure blacklist) if not mothership then false, otherwise...
+
+    // TODO: Explain why we use user.emailAddresses[0].address, probably.
+    return this.listExternalUsers()
+      .then((users: Array<any>) => users.filter(user => user.emailAddresses[0].address === email).length > 0)
+      .catch(() => false);
+  };
 
   postUser(user: BookitUser): Promise<MSUser> {
     const bookitServiceUserId = getServiceUser('buildit');
@@ -126,6 +139,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   updateUser(user: BookitUser): Promise<MSUser> {
+    // Get user from listExternalContacts(?) then filter + use id to udpate
+    // user.id = resolvedExternalUser.id! BEEP BOOP!
     return this.postUser(user);
   }
 
