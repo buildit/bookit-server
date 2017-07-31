@@ -50,7 +50,8 @@ The back end is heavily geared towards testing and stand-alone operation at the 
 
 ### Accessing additional modes
 
-To work with additional modes, you will need to create a plaintext file named '.env' in the root of your checkout.  
+To work with additional modes, you will need to create a plaintext file named '.env' in the root of your checkout 
+defining the following variables.  
 
 ##### Toggle usage of the Graph API backend
 ```
@@ -197,7 +198,7 @@ an interface of much value.
 
 ## Docker packaging
 
-Travis build performs Docker image push only for `master` branch.
+Travis build performs Docker image push to Docker Hub only for `master` branch.
 We do not perform separate `npm i` and reuse build `node_modules` with `npm prune --production`.
 
 Local build and run example
