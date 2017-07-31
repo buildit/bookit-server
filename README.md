@@ -65,9 +65,35 @@ CLOUD_CONFIG=buildit
 ```
 
 There is a secret for each identity that is << identity >>_SECRET.  Once again, for now, use BUILDIT_SECRET. Please
- obtain these and other secrets from your fellow developers.
+ obtain these and other secrets by following the AWS param steps below.
 ```
-BUILDIT_SECRET=your-client-secret
+BUILDIT_SECRET=secret-obtained-from-aws
+```
+
+## Azure administration
+
+If you need to access the administration user and password details for a particular identity, you can get that from AWS as well.  
+The parameter names to pull would be <IDENTITY>_ADMIN_NAME and <IDENTITY>_ADMIN_PASSWORD.  Follow the directions below on
+how to get AWS secrets.
+
+
+## AWS Param Store
+
+We store secrets for the system in AWS' SSM param store.  It does all the hard work of encrypting our application parameters.
+
+### Get access to AWS
+You will have to speak to a fellow developer to obtain AWS keys.  You'll have to get a key id and key secret.  After that run:
+
+```
+aws configure
+```
+
+After this, you should be good to go to run aws cli scripts to pull in environment secrets.  From the server checkout directory,
+there is a bin directory that has scripts that you can run.
+
+```
+MARIUSZs-Mac-Pro:bookit-server andrew$ ./bin/fetch_aws_param.py BUILDIT_SECRET
+<<The secret would be printed here>>
 ```
 
 ## Authentication
@@ -122,7 +148,7 @@ These are the services that connect to Microsoft.
 ##### Cached
 Wraps the service and caches data from the underlying service.  This is typically used with the cloud connected
 services.  However, for testing purposes, there is a use case where a cached service functions as
-the actual service and delegates to a passthrough service.
+the actual service and delegates to a pass-through service.
 
 
 #### TokenOperations
