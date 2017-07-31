@@ -18,7 +18,7 @@ if [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_EVENT_TYPE}" == "push" ]
     ssh -o StrictHostKeyChecking=no -i ${DEPLOY_HOME}/ec2/travis app@bookit.riglet.io \
       'docker-compose pull; \
        docker-compose down; \
-       AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document  | grep '"region"' | cut -d : -f 2 | sed 's/\"//g') \
+       AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document  | grep '"region"' | cut -d : -f 2 | tr -d \") \
        CLOUD_CONFIG=`aws ssm get-parameters --region ${AWS_REGION} --name CLOUD_CONFIG --with-decryption --output text | cut -f 4` \
        BUILDIT_SECRET=`aws ssm get-parameters --region ${AWS_REGION} --name BUILDIT_SECRET --with-decryption --output text | cut -f 4` \
        docker-compose up -d'
