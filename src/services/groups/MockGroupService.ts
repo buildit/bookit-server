@@ -1,7 +1,7 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {GroupService, MSGroup} from './GroupService';
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 
 
 /**
@@ -35,4 +35,3 @@ export class MockGroupService implements GroupService {
     throw new Error('Method not implemented.');
   }
 }
-

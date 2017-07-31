@@ -1,7 +1,7 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {GroupService, MSGroup} from './GroupService';
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 import {GroupIdCachingStrategy} from './GroupIdCachingStrategy';
 import {GroupNameCachingStrategy} from './GroupNameCachingStrategy';
 import {IdentityCache, SurrogateListCache} from '../../utils/cache/caches';

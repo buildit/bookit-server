@@ -1,5 +1,5 @@
 import {IdentityCachingStrategy} from '../../utils/cache/IdentityCachingStrategy';
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 
 
 export class UserGroupNameCachingStrategy extends IdentityCachingStrategy<MSUser> {

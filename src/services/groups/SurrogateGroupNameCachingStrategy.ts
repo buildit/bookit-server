@@ -1,4 +1,4 @@
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 import {MSGroup} from './GroupService';
 import {SurrogateListCachingStrategy} from '../../utils/cache/SurrogateListCachingStrategy';
 

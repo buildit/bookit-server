@@ -2,10 +2,13 @@ import * as request from 'superagent';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 import {MSGraphBase} from '../MSGraphBase';
-import {MSUser, UserService} from './UserService';
+import {UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
-import {BookitUser} from '../../model/BookitUser';
 import {getServiceUser, getExternalTeam, getInternalTeam} from '../../config/identity';
+import {mapMSUserToBookitUser, mapMSContactToBookitUser, filterOutRooms} from './user_functions';
+import {MSUser} from '../../model/MSUser';
+import {MSContact} from '../../model/MSContact';
+import {BookitUser} from '../../model/BookitUser';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
@@ -21,7 +24,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  listInternalUsers(): Promise<Array<any>> {
+  listInternalUsers(): Promise<Array<BookitUser>> {
     const bookitServiceUserId = getServiceUser('buildit');
     const internalTeam = getInternalTeam('buildit');
 
@@ -38,18 +41,9 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        return;
                      }
                      const users = response.body.value;
-                     const mapUser = (user: any) => ({
-                       email: user.userPrincipalName,
-                       team: internalTeam,
-                       roles: [''], // How to get this in the context of a "user"?
-                       createdDateTime: '',
-                       firstName: user.givenName,
-                       lastName: user.surname,
-                     })
-                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1)
                      resolve(
                        users
-                        .map(mapUser)
+                        .map((user: MSUser) => mapMSUserToBookitUser(user, internalTeam))
                         .filter(filterOutRooms)
                      );
                    });
@@ -58,7 +52,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
   }
 
-  listExternalUsers(): Promise<Array<any>> {
+  listExternalUsers(): Promise<Array<BookitUser>> {
     const bookitServiceUserId = getServiceUser('buildit');
     const externalTeam = getExternalTeam('buildit');
 
@@ -75,15 +69,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        return;
                      }
                      const users = response.body.value;
-                     const mapUser = (user: any) => ({
-                       email: user.emailAddresses[0].address,
-                       team: externalTeam,
-                       roles: user.categories,
-                       createdDateTime: user.createdDateTime,
-                       firstName: '',
-                       lastName: '',
-                     })
-                     resolve(users.map(mapUser));
+                     resolve(users.map((user: MSContact) => mapMSContactToBookitUser(user, externalTeam)));
                    });
           });
     });
@@ -91,7 +77,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
 
-  postUser(user: BookitUser): Promise<MSUser> {
+  postUser(user: any): Promise<MSUser> {
     const bookitServiceUserId = getServiceUser('buildit');
 
     const userObjectThatMSLikesWAntsNEEDz = {

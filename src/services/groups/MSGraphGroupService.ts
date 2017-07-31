@@ -5,7 +5,7 @@ import {RootLog as logger} from '../../utils/RootLogger';
 import {MSGraphBase} from '../MSGraphBase';
 import {GroupService, MSGroup} from './GroupService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 
 export class MSGraphGroupService extends MSGraphBase implements GroupService {
 
@@ -108,4 +108,3 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
   }
 
 }
-

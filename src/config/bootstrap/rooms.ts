@@ -1,7 +1,6 @@
 import {Room, RoomList} from '../../model/Room';
 import {MSGroup} from '../../services/groups/GroupService';
-import {MSUser} from '../../services/users/UserService';
-
+import {MSUser} from '../../model/MSUser';
 
 let counter = 1;
 

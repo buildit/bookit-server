@@ -12,7 +12,7 @@ import {CachedMeetingService} from '../../services/meetings/CachedMeetingService
 import {MockGraphTokenProvider} from '../../services/tokens/MockGraphTokenOperations';
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
-import {MSUser} from '../../services/users/UserService';
+import {MSUser} from '../../model/MSUser';
 import {MockMailService} from '../../services/mail/MockMailService';
 import {MSGroup} from '../../services/groups/GroupService';
 

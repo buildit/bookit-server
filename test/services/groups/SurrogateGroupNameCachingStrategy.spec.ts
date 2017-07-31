@@ -2,7 +2,7 @@ import {expect} from 'chai';
 
 import {SurrogateGroupNameCachingStrategy} from '../../../src/services/groups/SurrogateGroupNameCachingStrategy';
 import {MSGroup} from '../../../src/services/groups/GroupService';
-import {MSUser} from '../../../src/services/users/UserService';
+import {MSUser} from '../../../src/model/MSUser';
 
 
 const kewl: MSGroup = {

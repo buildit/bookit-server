@@ -24,12 +24,11 @@ import {MSGraphDeviceService} from '../../services/devices/MSGraphDeviceService'
 import {MockDeviceService} from '../../services/devices/MockDeviceService';
 import {MockGroupService} from '../../services/groups/MockGroupService';
 import {MSGraphRoomService} from '../../services/rooms/MSGraphRoomService';
-import {MSUser} from '../../services/users/UserService';
+import {MSUser} from '../../model/MSUser';
 import {GroupService} from '../../services/groups/GroupService';
 import {MSGraphGroupService} from '../../services/groups/MSGraphGroupService';
 import {JWTTokenProvider} from '../../services/tokens/TokenProviders';
 import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
-
 
 function generateMockGroup(domain: string): GroupService {
   const group = generateMSGroup('nyc', domain);

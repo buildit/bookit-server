@@ -1,5 +1,5 @@
 
-import {MSUser} from '../users/UserService';
+import {MSUser} from '../../model/MSUser';
 
 export interface MSGroup {
   id: string;
@@ -17,4 +17,3 @@ export interface GroupService {
 
   addGroupMember(groupName: string, memberName: string): Promise<boolean>;
 }
-
