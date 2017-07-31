@@ -2,33 +2,53 @@ import {Express} from 'express';
 
 import {UserService} from '../services/users/UserService';
 import {MailService} from '../services/mail/MailService';
+import {RootLog as logger} from '../utils/RootLogger';
+import {BookitUser} from '../model/BookitUser';
+import {getServiceUser} from '../config/identity';
 
 export function configureUsersRoutes(app: Express,
                                      userSvc: UserService,
                                      mailSvc: MailService): Express {
 
   app.get('/users', (req, res) => {
-    const users = userSvc.getUsers();
-    res.json(users);
+    // Currently we are only returning the external (i.e. Wipro) users
+    // Will need to also return the internal (i.e. Designit) users
+    userSvc.listExternalUsers()
+      .then(users => {
+        res.json(users);
+      })
+      .catch(err => {
+        res.send(err);
+      });
   });
 
   app.post('/users', (req, res) => {
-    const mockUser = {
-      id: 777,
-      name: 'Barbara Streisand',
+    const newUser = {
       email: req.body.email,
+      team: req.body.team,
+      role: 'user',
     };
 
-    const senderEmail = 'bookit@designitcontoso.onmicrosoft.com';
+    userSvc.postUser(newUser)
+      .then(user => {
+        logger.info('Created a new user:', user);
 
-    mailSvc.sendMail(senderEmail, mockUser.email, 'wipro_user_invitation')
-      .then(() => {
-        res.json(mockUser);
+        const senderEmail = getServiceUser('buildit'); // How to get the environment/mode?
+        mailSvc.sendMail(senderEmail, user.email, 'wipro_user_invitation')
+          .then(() => {
+            logger.info('Sent invitation to:', user.email);
+            res.json(user);
+          })
+          .catch(err => {
+            logger.error(err.message);
+            res.send('Failed to create new user.');
+          });
       })
       .catch(err => {
-        console.error(err.message);
-        res.send('failed to send mail');
+        logger.error(err);
+        res.status(500).send('Failed to create new user.');
       });
+
 
   });
 

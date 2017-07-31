@@ -19,7 +19,12 @@ export interface MeetingsService {
   createMeeting(subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting>;
 
 
-  updateMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Participant): Promise<Meeting>;
+  updateUserMeeting(id: string,
+                    subj: string,
+                    start: Moment,
+                    duration: Duration,
+                    owner: Participant,
+                    room: Participant): Promise<Meeting>;
 
 
   deleteMeeting(owner: Participant, id: string): Promise<any>;

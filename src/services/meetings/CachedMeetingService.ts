@@ -66,7 +66,6 @@ export class CachedMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const userCache = this.getCacheForOwner(user);
-    console.log('CMS:getUserMeetings', userCache);
     const fetch = userCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshUserCache(user, start, end);
     return fetch.then(() => userCache.getMeetings(start, end));
   }
@@ -102,10 +101,17 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  updateMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
+  updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     return this.delegatedMeetingsService
-               .updateMeeting(id, subj, start, duration, owner, room)
-               .then(meeting => this.cacheMeeting(room, meeting))
+               .updateUserMeeting(id, subj, start, duration, owner, room)
+               // refresh room cache?
+               .then(meeting => {
+                 const startOfDate = start.clone().startOf('day');
+                 const endDate = start.clone().add(duration).endOf('day');
+                 return this.refreshCache(room, startOfDate, endDate)
+                            .then(() => meeting);
+               })
+               .then(meeting => this.cacheUserMeeting(owner, meeting))
                .catch(error => {
                  logger.error(error);
                  throw new Error(error);
@@ -238,6 +244,11 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
+  private cacheUserMeeting(owner: Participant, meeting: Meeting) {
+    return this.getCacheForOwner(owner).put(meeting);
+  }
+
+
   private evictMeeting(id: string) {
     this.roomSubCaches.forEach(cache => cache.remove(id));
     this.ownerSubCaches.forEach(cache => cache.remove(id));
@@ -283,27 +294,17 @@ class PassThroughMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings.filter(meeting => meeting.owner.email === user.email);
+    console.info('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 
 
   createMeeting(subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     return new Promise((resolve) => {
-      const roomMeeting: Meeting = {
-        id: uuid(),
-        owner: owner,
-        title: owner.name, // simulates microsoft's behavior
-        start: start,
-        location: {displayName: room.name},
-        end: start.clone().add(duration),
-        participants: [owner, room],
-      };
-
-
-      this.meetings.push(roomMeeting);
-
+      const userMeetingId = uuid();
       const userMeeting: Meeting = {
-        id: roomMeeting.id,
+        id: userMeetingId,
+        userMeetingId: userMeetingId,
         owner: owner,
         title: subj, // simulates microsoft's behavior
         start: start,
@@ -314,12 +315,25 @@ class PassThroughMeetingService implements MeetingsService {
 
       this.userMeetings.push(userMeeting);
 
+      const roomMeeting: Meeting = {
+        id: userMeeting.id,
+        userMeetingId: userMeeting.id,
+        owner: owner,
+        title: owner.name, // simulates microsoft's behavior
+        start: start,
+        location: {displayName: room.name},
+        end: start.clone().add(duration),
+        participants: [owner, room],
+      };
+
+      this.meetings.push(roomMeeting);
+
       resolve(roomMeeting);
     });
   }
 
 
-  updateMeeting(id: string, subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
+  updateUserMeeting(id: string, subj: string, start: moment.Moment, duration: moment.Duration, owner: Participant, room: Room): Promise<Meeting> {
     function update(meetings: Meeting[], start: moment.Moment, duration: moment.Duration, subj?: string) {
       const roomMeeting = meetings.find(meeting => meeting.id === id);
 
@@ -339,9 +353,9 @@ class PassThroughMeetingService implements MeetingsService {
 
     return new Promise((resolve) => {
       const roomMeeting = update(this.meetings, start, duration);
-      update(this.userMeetings, start, duration, subj);
+      const userMeeting = update(this.userMeetings, start, duration, subj);
 
-      resolve(roomMeeting);
+      resolve(userMeeting);
     });
   }
 

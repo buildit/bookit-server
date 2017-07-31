@@ -20,6 +20,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   const first: Meeting = {
     id: '1',
+    userMeetingId: '1',
     title: 'My first meeting',
     owner: andrew,
     location: blueRoom,
@@ -30,6 +31,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   const second: Meeting = {
     id: '2',
+    userMeetingId: '2',
     title: 'My second meeting',
     owner: alex,
     location: redRoom,
@@ -40,6 +42,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   const third: Meeting = {
     id: '3',
+    userMeetingId: '3',
     title: 'My third meeting',
     owner: paul,
     location: blueRoom,
@@ -50,6 +53,7 @@ describe('date caching suite', function startDateCachingSuite() {
 
   const fourth: Meeting = {
     id: '4',
+    userMeetingId: '4',
     title: 'My fourth meeting',
     owner: alex,
     location: blueRoom,

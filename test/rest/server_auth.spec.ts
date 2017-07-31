@@ -68,9 +68,6 @@ describe('tests authentication', () => {
                          return details.token;
                        })
                        .then(token => {
-                         console.log('========================================');
-                         console.log(token);
-                         console.log('========================================');
                          return request(app).get('/backdoor')
                                             .set('x-access-token', token)
                                             .expect(200)

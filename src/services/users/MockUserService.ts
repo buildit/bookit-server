@@ -1,6 +1,7 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
 import {MSUser, UserService} from './UserService';
+import {BookitUser} from '../../model/BookitUser';
 
 export class MockUserService implements UserService {
   constructor() {
@@ -8,7 +9,7 @@ export class MockUserService implements UserService {
   }
 
 
-  getUsers(): Promise<Array<MSUser>> {
+  listExternalUsers(): Promise<Array<MSUser>> {
     return new Promise((resolve) => {
       throw 'Implement me';
     });
@@ -19,7 +20,7 @@ export class MockUserService implements UserService {
     return Promise.reject('Unimplemented: MockUserService:getDevices');
   }
 
-  postUser(userEmail: string): Promise<any> {
+  postUser(user: BookitUser): Promise<any> {
     return Promise.reject('Unimplemented: MockUserService:postUser');
   }
 }

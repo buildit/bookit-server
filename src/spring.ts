@@ -23,21 +23,6 @@ const domain = meetingService.domain();
 const meetingOps = new MeetingsOps(meetingService);
 const room = generateMSRoomResource('Red', domain);
 
-
-function testGetUsers() {
-  return userService.getUsers()
-                    .then(users => {
-                      logger.info('', users);
-                      return Promise.all(users.map(user => userService.getDevices(user.id)));
-                    })
-                    .then(response => {
-                      logger.info('', response);
-                    })
-                    .catch(error => {
-                      logger.error(error);
-                    });
-}
-
 function testGetDevices() {
   Runtime.deviceService.getDevices()
          .then(users => {
@@ -65,11 +50,11 @@ function testGetGroups() {
 function testAddGroupMember() {
   groupService.getGroup('wipro-bookit')
               .then(group => {
-                logger.info('Group', group);
+                logger.warn('Group', group);
                 return groupService.addGroupMember(group.displayName, 'andrew@differentdomain.com');
               })
               .then(status => {
-                logger.info('Status', status);
+                logger.warn('Status', status);
               });
 }
 
@@ -138,19 +123,11 @@ function testX() {
   });
 }
 
-testMeetingCreate().then((meeting) => {
-  logger.info('Created', meeting);
-  const startMoment = meeting.start;
-  const endMoment = meeting.end;
+function testListExternalUsers() {
+  console.log('======================');
+  userService.listExternalUsers()
+    .then(users => console.log(users))
+    .catch(err => console.log(err));
+}
 
-  const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
-  meetingService.updateMeeting(meeting.id,
-                               'new meeting',
-                               meeting.start,
-                               duration,
-                               meeting.owner,
-                               room)
-                .then(meeting => {
-                  logger.info('Updated', meeting);
-                });
-});
+testListExternalUsers();
