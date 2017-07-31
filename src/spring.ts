@@ -130,4 +130,11 @@ function testListExternalUsers() {
     .catch(err => console.log(err));
 }
 
-testListExternalUsers();
+function testListInternalUsers() {
+  console.log('======================');
+  userService.listInternalUsers()
+    .then(users => console.log(users))
+    .catch(err => console.log(err));
+}
+
+testListInternalUsers();

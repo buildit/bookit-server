@@ -8,13 +8,17 @@ export class MockUserService implements UserService {
     logger.info('MockRoomService: initializing');
   }
 
-
   listExternalUsers(): Promise<Array<BookitUser>> {
     return new Promise((resolve) => {
       throw 'Implement me';
     });
   }
 
+  listInternalUsers(): Promise<Array<BookitUser>> {
+    return new Promise((resolve) => {
+      throw 'Implement me';
+    });
+  }
 
   getDevices(userId: string): Promise<Array<any>> {
     return Promise.reject('Unimplemented: MockUserService:getDevices');

@@ -64,3 +64,14 @@ export function getExternalTeam(env: string) {
     }
   }
 }
+
+export function getInternalTeam(env: string) {
+  switch (env) {
+    case 'buildit': {
+      return buildit.internalTeam;
+    }
+    default: {
+      throw new Error(`No internal team is defined for this environment: ${env}`);
+    }
+  }
+}
