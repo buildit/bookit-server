@@ -23,7 +23,7 @@ export interface UserService {
 
   listInternalUsers(): Promise<Array<BookitUser>>;
 
-  getDevices(userId: string): Promise<Array<any>>;
+  createUser(user: BookitUser): Promise<MSUser>;
 
-  postUser(user: BookitUser): Promise<MSUser>;
+  updateUser(user: BookitUser): Promise<MSUser>;
 }

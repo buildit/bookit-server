@@ -31,7 +31,7 @@ export function configureUsersRoutes(app: Express,
       role: 'user',
     };
 
-    userSvc.postUser(newUser)
+    userSvc.createUser(newUser)
       .then(user => {
         logger.info('Created a new user:', user);
 

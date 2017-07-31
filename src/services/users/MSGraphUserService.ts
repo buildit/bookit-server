@@ -14,13 +14,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
     logger.info('Constructing MSGraphUserService');
   }
 
-  getDevices(userId: string): Promise<Array<any>> {
-    return this.client
-               .api(`/users/${userId}/ownedDevices`)
-               // .select('id,displayName,mail')
-               .get() as Promise<any>;
-  }
-
   listInternalUsers(): Promise<Array<any>> {
     const bookitServiceUserId = getServiceUser('buildit');
     const internalTeam = getInternalTeam('buildit');
@@ -122,6 +115,18 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
           });
     });
 
+  }
+
+  getUser(): any {
+
+  }
+
+  createUser(user: BookitUser): Promise<MSUser> {
+    return this.postUser(user);
+  }
+
+  updateUser(user: BookitUser): Promise<MSUser> {
+    return this.postUser(user);
   }
 
 }

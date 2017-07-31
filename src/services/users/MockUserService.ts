@@ -24,7 +24,11 @@ export class MockUserService implements UserService {
     return Promise.reject('Unimplemented: MockUserService:getDevices');
   }
 
-  postUser(user: BookitUser): Promise<any> {
-    return Promise.reject('Unimplemented: MockUserService:postUser');
+  createUser(user: BookitUser): Promise<any> {
+    return Promise.reject('Unimplemented: MockUserService:createUser');
   }
+  updateUser(user: BookitUser): Promise<any> {
+    return Promise.reject('Unimplemented: MockUserService:updateUser');
+  }
+
 }
