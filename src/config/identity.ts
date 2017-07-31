@@ -53,3 +53,25 @@ export function getServiceUser(env: string) {
     }
   }
 }
+
+export function getExternalTeam(env: string) {
+  switch (env) {
+    case 'buildit': {
+      return buildit.externalTeam;
+    }
+    default: {
+      throw new Error(`No external team is defined for this environment: ${env}`);
+    }
+  }
+}
+
+export function getInternalTeam(env: string) {
+  switch (env) {
+    case 'buildit': {
+      return buildit.internalTeam;
+    }
+    default: {
+      throw new Error(`No internal team is defined for this environment: ${env}`);
+    }
+  }
+}

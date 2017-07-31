@@ -5,7 +5,7 @@ import {MSGraphBase} from '../MSGraphBase';
 import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {BookitUser} from '../../model/BookitUser';
-import {getServiceUser} from '../../config/identity';
+import {getServiceUser, getExternalTeam, getInternalTeam} from '../../config/identity';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
@@ -21,9 +21,46 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                .get() as Promise<any>;
   }
 
-  listExternalUsers(): Promise<Array<MSUser>> {
-    // return Promise.reject('in ms user service')
+  listInternalUsers(): Promise<Array<any>> {
     const bookitServiceUserId = getServiceUser('buildit');
+    const internalTeam = getInternalTeam('buildit');
+
+    return new Promise((resolve, reject) => {
+      const URL = `https://graph.microsoft.com/v1.0/users/`;
+      logger.info('GET', URL);
+      this.tokenOperations.withToken()
+          .then(token => {
+            request.get(URL)
+                   .set('Authorization', `Bearer ${token}`)
+                   .end((error, response) => {
+                     if (error) {
+                       reject(error);
+                       return;
+                     }
+                     const users = response.body.value;
+                     const mapUser = (user: any) => ({
+                       email: user.userPrincipalName,
+                       team: internalTeam,
+                       roles: [''], // How to get this in the context of a "user"?
+                       createdDateTime: '',
+                       firstName: user.givenName,
+                       lastName: user.surname,
+                     })
+                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1)
+                     resolve(
+                       users
+                        .map(mapUser)
+                        .filter(filterOutRooms)
+                     );
+                   });
+          });
+    });
+
+  }
+
+  listExternalUsers(): Promise<Array<any>> {
+    const bookitServiceUserId = getServiceUser('buildit');
+    const externalTeam = getExternalTeam('buildit');
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
@@ -37,8 +74,16 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
-                     const users = response.body;
-                     resolve(users);
+                     const users = response.body.value;
+                     const mapUser = (user: any) => ({
+                       email: user.emailAddresses[0].address,
+                       team: externalTeam,
+                       roles: user.categories,
+                       createdDateTime: user.createdDateTime,
+                       firstName: '',
+                       lastName: '',
+                     })
+                     resolve(users.map(mapUser));
                    });
           });
     });

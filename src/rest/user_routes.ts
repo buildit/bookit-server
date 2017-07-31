@@ -11,10 +11,12 @@ export function configureUsersRoutes(app: Express,
                                      mailSvc: MailService): Express {
 
   app.get('/users', (req, res) => {
-    // Currently we are only returning the external (i.e. Wipro) users
-    // Will need to also return the internal (i.e. Designit) users
-    userSvc.listExternalUsers()
-      .then(users => {
+    Promise.all([
+      userSvc.listInternalUsers(),
+      userSvc.listExternalUsers()
+    ])
+      .then(userLists => {
+        const users = userLists[0].concat(userLists[1])
         res.json(users);
       })
       .catch(err => {
