@@ -70,7 +70,6 @@ There is a secret for each identity that is << identity >>_SECRET.  Once again, 
 BUILDIT_SECRET=secret-obtained-from-aws
 ```
 
-
 ## Azure administration
 
 If you need to access the administration user and password details for a particular identity, you can get that from AWS as well.  
