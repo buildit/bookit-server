@@ -114,8 +114,16 @@ export class CachedMeetingService implements MeetingsService {
 
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', id);
+    const originalMeeting = this.getCacheForOwner(owner).get(id);
     return this.delegatedMeetingsService
                .updateUserMeeting(id, subj, start, duration, owner, room)
+               .then(userMeeting => {
+                 return this.evictRoomMeetingForUserMeeting(originalMeeting)
+                            .then(roomMeeting => {
+                              logger.info('Evicted', roomMeeting.id);
+                              return userMeeting;
+                            });
+               })
                .then(userMeeting => {
                  // MS has a different meeting id for each version of a meeting so we need to evict the old id
                  this.evictUserMeeting(id);
@@ -161,25 +169,27 @@ export class CachedMeetingService implements MeetingsService {
                .deleteUserMeeting(userMeeting.owner, userMeeting.id)
                .then(() => {
                  const userMeeting = this.evictUserMeeting(id);
-                 const roomCache = this.getRoomCacheForMeeting(userMeeting);
-                 const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
-                 logger.info(`Deleted user meeting ${userMeeting.id}`);
-                 return roomCache.getMeetings(searchStart, searchEnd)
-                                 .then(roomMeetings => {
-                                   logger.info('Got room meetings', roomMeetings.length);
-                                   return matchMeeting(userMeeting, roomMeetings);
-                                 })
-                                 .then(roomMeeting => {
-                                   logger.info(`Will evict room meeting ${roomMeeting.id}`);
-                                   this.evictMeeting(roomMeeting.id);
-                                 })
-                                 .then(() => userMeeting);
+                 return this.evictRoomMeetingForUserMeeting(userMeeting);
                })
                .then(meeting => {
                  return meeting;
                });
   }
 
+
+  private evictRoomMeetingForUserMeeting(userMeeting: Meeting): Promise<Meeting> {
+    const roomCache = this.getRoomCacheForMeeting(userMeeting);
+    const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
+    return roomCache.getMeetings(searchStart, searchEnd)
+                    .then(roomMeetings => {
+                      logger.info('Got room meetings', roomMeetings.length);
+                      return matchMeeting(userMeeting, roomMeetings);
+                    })
+                    .then(roomMeeting => {
+                      logger.info(`Will evict room meeting ${roomMeeting.id}`);
+                      return this.evictRoomMeeting(roomMeeting.id);
+                    });
+  }
 
   doSomeShiznit(test: any): Promise<any> {
     return this.delegatedMeetingsService.doSomeShiznit(test);
