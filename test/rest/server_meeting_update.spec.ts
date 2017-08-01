@@ -42,7 +42,7 @@ const bruceCredentials = {
 };
 
 
-describe.only('update meeting routes', function testMeetingRoutes() {
+describe('update meeting routes', function testMeetingUpdateRoutes() {
 
 
   it('updates a meetings subject', function testUpdateMeetingSubject() {
@@ -103,7 +103,7 @@ describe.only('update meeting routes', function testMeetingRoutes() {
   });
 
 
-  it.only('updates a meetings start time', function testUpdateMeetingSubject() {
+  it('updates a meetings start time', function testUpdateMeetingStart() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -168,7 +168,7 @@ describe.only('update meeting routes', function testMeetingRoutes() {
                          });
   });
 
-  it.only('updates a meetings start time', function testUpdateMeetingSubject() {
+  it('updates a meetings end time', function testUpdateMeetingEnd() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 

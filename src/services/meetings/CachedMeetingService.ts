@@ -120,7 +120,10 @@ export class CachedMeetingService implements MeetingsService {
                .then(userMeeting => {
                  return this.evictRoomMeetingForUserMeeting(originalMeeting)
                             .then(roomMeeting => {
-                              logger.info('Evicted', roomMeeting.id);
+                              if (roomMeeting) {
+                                logger.info('Evicted', roomMeeting.id);
+                              }
+
                               return userMeeting;
                             });
                })
@@ -182,12 +185,20 @@ export class CachedMeetingService implements MeetingsService {
     const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
     return roomCache.getMeetings(searchStart, searchEnd)
                     .then(roomMeetings => {
-                      logger.info('Got room meetings', roomMeetings.length);
-                      return matchMeeting(userMeeting, roomMeetings);
+                      if (roomMeetings) {
+                        logger.info('Got room meetings', roomMeetings.length);
+                        return matchMeeting(userMeeting, roomMeetings);
+                      }
+
+                      return null;
                     })
                     .then(roomMeeting => {
-                      logger.info(`Will evict room meeting ${roomMeeting.id}`);
-                      return this.evictRoomMeeting(roomMeeting.id);
+                      if (roomMeeting) {
+                        logger.info(`Will evict room meeting ${roomMeeting.id}`);
+                        return this.evictRoomMeeting(roomMeeting.id);
+                      }
+
+                      return null;
                     });
   }
 
@@ -508,9 +519,6 @@ class MockGraphMeetingService implements MeetingsService {
   deleteUserMeeting(owner: Participant, id: string): Promise<any> {
     const userMeeting = this.userMeetingCache.get(id);
     this.userMeetingCache.remove(userMeeting);
-
-    const roomMeeting = this.roomMeetingCache.get(userMeeting.userMeetingId);
-    this.roomMeetingCache.remove(roomMeeting);
 
     return Promise.resolve();
   }

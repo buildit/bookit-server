@@ -209,7 +209,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
     return meetingService.createUserMeeting('test delete', momentStart, meetingDuration, bruceOwner, whiteRoom)
                          .then((meeting: Meeting) => {
-                           logger.info('meeting to delete created!');
+                           logger.info('meeting to delete created!', meeting.id);
                            const meetingRoom = whiteRoom.email;
                            const meetingId = meeting.id;
 
