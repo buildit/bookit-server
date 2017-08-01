@@ -1,6 +1,10 @@
 import {Participant} from './Participant';
-import * as moment from 'moment';
+import {Moment} from 'moment';
 
+export enum Perspective {
+  ROOM,
+  USER
+}
 export class Location {
   displayName: string;
   address?: any;
@@ -13,8 +17,8 @@ export class Meeting {
   location: Location;
   owner: Participant;
   participants: Participant[];
-  start: moment.Moment;
-  end: moment.Moment;
+  start: Moment;
+  end: Moment;
 }
 
 

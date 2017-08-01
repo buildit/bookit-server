@@ -102,68 +102,6 @@ describe('meeting routes operations', function testMeetingRoutes() {
   });
 
 
-  it('updates an existing meeting', function testUpdateMeeting() {
-    const meetingStart = '2013-05-08 10:00:00';
-    const meetingEnd = '2013-05-08 10:45:00';
-
-
-    const searchStart = '2013-05-08 09:00:00';
-    const searchEnd = '2013-05-08 12:00:00';
-
-    const original = {
-      title: 'original meeting title',
-      start: moment(meetingStart),
-      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
-      bruceOwner,
-      whiteRoom
-    };
-
-    const token = jwtTokenProvider.provideToken(bruceCredentials);
-
-    return meetingService.createUserMeeting(original.title,
-                                            original.start,
-                                            original.duration,
-                                            original.bruceOwner,
-                                            original.whiteRoom)
-                         .then(created => {
-                           const updatedMeeting: MeetingRequest = {
-                             id: created.id,
-                             title: 'this is new',
-                             start: meetingStart,
-                             end: meetingEnd,
-                           };
-
-                           return request(app).put(`/room/${whiteRoom.email}/meeting/${updatedMeeting.id}`)
-                                              .set('Content-Type', 'application/json')
-                                              .set('x-access-token', token)
-                                              .send(updatedMeeting)
-                                              .expect(200)
-                                              .then(() => {
-                                                return request(app)
-                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                  .set('x-access-token', token)
-                                                  .expect(200)
-                                                  .then(response => {
-                                                    const roomMeetings = response.body as RoomMeetings[];
-                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                      acc.push.apply(acc, room.meetings);
-                                                      return acc;
-                                                    }, []);
-
-                                                    meetingService.clearCaches();
-
-                                                    const meeting = allMeetings[0];
-                                                    return expect(meeting.title).to.be.eq(updatedMeeting.title);
-                                                  });
-                           });
-
-                         });
-
-
-
-  });
-
-
   it('has expected meeting visibility without a token', function testMeetingVisibilityWithoutToken() {
     const meetingStart = '2013-02-08 09:00:00';
     const meetingEnd = '2013-02-08 09:30:00';
@@ -179,8 +117,6 @@ describe('meeting routes operations', function testMeetingRoutes() {
       bruceOwner,
       whiteRoom
     };
-
-    logger.info('INVISIBILITY WANT TO CREATE', meetingToCreate.title);
 
     return meetingService.createUserMeeting(meetingToCreate.title,
                                             meetingToCreate.start,

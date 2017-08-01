@@ -3,7 +3,7 @@ import {Duration, Moment} from 'moment';
 import * as request from 'superagent';
 
 import {RootLog as logger} from '../../utils/RootLogger';
-import {findById, Meeting} from '../../model/Meeting';
+import {findById, Meeting, Perspective} from '../../model/Meeting';
 import {Room} from '../../model/Room';
 import {MeetingsService} from './MeetingService';
 import {MSGraphBase} from '../MSGraphBase';
@@ -24,16 +24,18 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
 
   clearCaches() {
+    // Nothing to do
     return true;
   }
 
+
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
-    return this._getMeetings(room.email, start, end);
+    return this._getMeetings(Perspective.ROOM, room.email, start, end);
   }
 
 
   getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
-    return this._getMeetings(user.email, start, end);
+    return this._getMeetings(Perspective.USER, user.email, start, end);
   }
 
 
@@ -55,7 +57,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                        return;
                      }
 
-                     resolve(MSGraphMeetingService._mapMeeting(response.body));
+                     resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
                    });
           });
     });
@@ -85,7 +87,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                        return;
                      }
 
-                     resolve(MSGraphMeetingService._mapMeeting(response.body));
+                     resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
                    });
           });
     });
@@ -119,9 +121,13 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   ###############################################################################################################
    */
 
-  private _getMeetings(user: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+  private _getMeetings(perspective: Perspective, user: string, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     const startDateTime = start.toISOString();
     const endDateTime = end.toISOString();
+
+    function mapMeeting(meeting: any): Meeting {
+      return MSGraphMeetingService._mapMeeting(perspective, meeting);
+    }
 
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
@@ -137,7 +143,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                      }
 
                      // logger.info('Response', response);
-                     const meetings = response.body.value.map((meeting: any) => MSGraphMeetingService._mapMeeting(meeting));
+                     const meetings = response.body.value.map(mapMeeting);
                      resolve(meetings);
                    });
           });
@@ -175,49 +181,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
   }
 
-  /*
-  The various cancels/declines/etc will be promoted to proper calls in the interface.  Also, we will be gutting
-  the client.api stuff
-   */
-  private _cancelMeeting(owner: Participant, id: string): Promise<any> {
-    const URL = `/users/${owner.email}/calendar/events/${id}/cancel`;
-    console.info('BOOK IT CANCEL', URL);
-    return this.client
-               .api(URL)
-               .post({'Comment': 'BookIt canceling meeting'})
-               .then((result) => {
-                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
-                 return result;
-               }) as Promise<any>;
-  }
-
-
-  private _cancelViaUpdate(owner: Participant, id: string): Promise<any> {
-    const URL = `/users/${owner.email}/calendar/events/${id}/update`;
-    console.info('BOOK IT CANCEL', URL);
-    return this.client
-               .api(URL)
-               .patch({'Comment': 'BookIt canceling meeting'})
-               .then((result) => {
-                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
-                 return result;
-               }) as Promise<any>;
-  }
-
-
-  private _declineMeeting(owner: Participant, id: string): Promise<any> {
-    const URL = `/users/${owner.email}/calendar/events/${id}/decline`;
-    console.info('BOOK IT DECLINE', URL);
-    return this.client
-               .api(URL)
-               .post({'sendResponse': true})
-               .then((result) => {
-                 logger.info('API Returned!!!!!!@@@@@@@@@@############$$$$$$$$$$$$', result);
-                 return result;
-               }) as Promise<any>;
-  }
-
-
   private _deleteMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.tokenOperations.withToken()
@@ -253,7 +216,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   };
 
 
-  private static _mapMeeting(meeting: any): Meeting {
+  private static _mapMeeting(perspective: Perspective, meeting: any): Meeting {
     const mapToParticipant = (attendee: any) => {
       return new Participant(attendee.emailAddress.address, attendee.emailAddress.name);
     };
@@ -266,6 +229,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
     const mappedMeeting = {
       id: meeting.id as string,
+      perspective: perspective,
       userMeetingId: meeting.userMeetingId as string,
       title: meeting.subject as string,
       owner: mapToParticipant(meeting.organizer),
@@ -275,7 +239,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
     return mappedMeeting;
   }
 }

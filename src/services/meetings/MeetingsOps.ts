@@ -63,14 +63,8 @@ export function createMeetingOperation(meetingService: MeetingsService,
                                        owner: Participant,
                                        room: Room): Promise<Meeting> {
 
-  return new Promise((resolve, reject) => {
-    const ifAvailable = checkTimeIsAvailable(meetingService, room, start, duration);
-
-    ifAvailable.then(() => meetingService.createUserMeeting(subj, start, duration, owner, room)
-                                         .then(resolve)
-                                         .catch(reject))
-               .catch(reject);
-  });
+    return checkTimeIsAvailable(meetingService, room, start, duration)
+      .then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
 }
 
 export function updateMeetingOperation(meetingService: MeetingsService,

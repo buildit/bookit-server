@@ -90,8 +90,8 @@ export class SubCache<T extends Attendee> {
   }
 
 
-  remove(meetingId: string) {
-    this.evictMeeting(meetingId);
+  remove(meetingId: string): Meeting|null {
+    return this.evictMeeting(meetingId);
   }
 
 
@@ -183,10 +183,10 @@ export class SubCache<T extends Attendee> {
   }
 
 
-  private evictMeeting(id: string) {
+  private evictMeeting(id: string): Meeting|null {
     const meeting = this.idCache.get(id);
     if (!meeting) {
-      return;
+      return null;
     }
 
     logger.info(`Evicting meeting ${this.attendee.email}`, id);

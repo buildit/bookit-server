@@ -224,7 +224,7 @@ export function assignProperties(roomMeeting: Meeting, userMeeting: Meeting) {
 Can't match by meeting id when using different user perspectives
 Don't match by location since bookings by BookIt and Outlook are different
  */
-export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
+export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meeting {
   function meetingsMatch(some: Meeting, other: Meeting): boolean {
     const areStartsMismatching = () => !some.start.isSame(other.start);
     const areEndsMismatching = () => !some.end.isSame(other.end);
@@ -235,7 +235,7 @@ export function matchMeeting(meeting: Meeting, userMeetings: Meeting[]) {
     return !anyFailed;
   }
 
-  return userMeetings.find(user => meetingsMatch(user, meeting));
+  return otherMeetings.find(user => meetingsMatch(user, meeting));
 }
 
 
@@ -248,8 +248,12 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
     return toReturn;
   }
 
+  // logger.info('Meetings for room', meetingsForRoom);
   roomCache.remove(meeting);
   assignProperties(toReturn, userMeeting);
+
+  const meetingsForRoomAfter = roomCache.get(roomEmail);
+  // logger.info('Meetings for room after', meetingsForRoomAfter);
   return toReturn;
 }
 
@@ -270,6 +274,7 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   const leftOverMeetings = roomCache.get(roomId);
   if (leftOverMeetings.length > 0) {
     logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${leftOverMeetings.length}`);
+    // logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings`, leftOverMeetings);
   }
 
   return mergedMeetings;
