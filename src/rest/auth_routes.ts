@@ -57,7 +57,6 @@ export function configureAuthenticationRoutes(app: Express,
                token: token,
                email: decoded.unique_name,
                name: decoded.name,
-               id: passwordStore.getUserId(decoded.unique_name)
     });
   });
 

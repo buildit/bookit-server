@@ -1,6 +1,8 @@
 import * as chai from 'chai';
 import * as chai_as_promised from 'chai-as-promised';
 
+import {NockManager} from '../NockManager';
+
 const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.should();
@@ -30,6 +32,10 @@ const app = configureRoutes(
 
 
 describe('tests authentication', () => {
+  const nockManager = new NockManager();
+  beforeEach(() => {
+    nockManager.setupContactList();
+  });
 
   it('validates an unknown user is rejected', function testUnknownUser() {
     const unknownUser = {
@@ -49,7 +55,7 @@ describe('tests authentication', () => {
 
   it('validates a token operations', function testValidCredentials() {
     const totallyBruce = {
-      code: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMjM5OTljNS03NzFkLTQxMzYtOWQ4Ny1iNWZjMDNmMzI2NmUiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUvIiwiaWF0IjoxNDk4MjM3NzYzLCJuYmYiOjE0OTgyMzc3NjMsImV4cCI6MTQ5ODUwNDIxOCwiYWlvIjoiWTJaZ1lFaDVPelBsOVBiU0JtYW5vNlpQQmVTazkyMytYblpRVHFIRk55V3pxcVY1NDNZQSIsImFtciI6WyJwd2QiXSwiaXBhZGRyIjoiNjkuMTEyLjIzLjg0IiwibmFtZSI6ImJydWNlIiwibm9uY2UiOiIxMjM0NSIsIm9pZCI6ImFhZTQ2NzA0LWI0MjgtNDJlNy1iOWI4LWNlZjQ3MDVhNTgzZCIsInBsYXRmIjoiNSIsInN1YiI6IjFmZ212bmptZ2N0UndUcC1XeG1vaWhiZ3A0eFZhemtkUl9kbFFjR2VBbFEiLCJ0aWQiOiI1NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUiLCJ1bmlxdWVfbmFtZSI6ImJydWNlQG15ZXdzLm9ubWljcm9zb2Z0LmNvbSIsInVwbiI6ImJydWNlQG15ZXdzLm9ubWljcm9zb2Z0LmNvbSIsInV0aSI6Ik1sd1V0bHc1bjB5Q25TTFBSeXdXQUEiLCJ2ZXIiOiIxLjAiLCJqdGkiOiI2NzQxMGQ4Ny1kODY2LTQyOTUtOTJkOC0yNzEyNDBmZTUyZjgifQ.LS7Ruw7-bOm2gwV36zhuJ90BpwA-hiftSPs0XLRuduo'
+      code: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMjM5OTljNS03NzFkLTQxMzYtOWQ4Ny1iNWZjMDNmMzI2NmUiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUvIiwiaWF0IjoxNDk4MjM3NzYzLCJuYmYiOjE0OTgyMzc3NjMsImV4cCI6MTQ5ODUwNDIxOCwiYWlvIjoiWTJaZ1lFaDVPelBsOVBiU0JtYW5vNlpQQmVTazkyMytYblpRVHFIRk55V3pxcVY1NDNZQSIsImFtciI6WyJwd2QiXSwiaXBhZGRyIjoiNjkuMTEyLjIzLjg0IiwibmFtZSI6ImJydWNlIiwibm9uY2UiOiIxMjM0NSIsIm9pZCI6ImFhZTQ2NzA0LWI0MjgtNDJlNy1iOWI4LWNlZjQ3MDVhNTgzZCIsInBsYXRmIjoiNSIsInN1YiI6IjFmZ212bmptZ2N0UndUcC1XeG1vaWhiZ3A0eFZhemtkUl9kbFFjR2VBbFEiLCJ0aWQiOiI1NzVjNWI5OC1jMDY5LTQ0NzUtOTlkOS1jZmIzMmUzOWQyNGUiLCJ1bmlxdWVfbmFtZSI6ImJydWNlQGJ1aWxkaXRjb250b3NvLm9ubWljcm9zb2Z0LmNvbSIsInVwbiI6ImJydWNlQGJ1aWxkaXRjb250b3NvLm9ubWljcm9zb2Z0LmNvbSIsInV0aSI6Ik1sd1V0bHc1bjB5Q25TTFBSeXdXQUEiLCJ2ZXIiOiIxLjAiLCJqdGkiOiI2NzQxMGQ4Ny1kODY2LTQyOTUtOTJkOC0yNzEyNDBmZTUyZjgifQ.rCHGgod5jX6CGUAf-qWu48eauGsx75u5nZjr5eA28tI'
     };
 
     return request(app).post(`/authenticate`)
@@ -60,9 +66,8 @@ describe('tests authentication', () => {
                          const details = JSON.parse(res.text) as UserDetail;
 
                          expect(details.token.length > 0).to.be.true;
-                         expect(details.id).to.be.equal(1);
                          expect(details.name).to.be.equal('bruce');
-                         expect(details.email).to.be.equal('bruce@myews.onmicrosoft.com');
+                         expect(details.email).to.be.equal('bruce@builditcontoso.onmicrosoft.com');
 
                          console.info('authenticated with token:', details.token);
                          return details.token;
@@ -73,7 +78,7 @@ describe('tests authentication', () => {
                                             .expect(200)
                                             .then(res => {
                                               expect(res.text).to.be.equal(
-                                                'You had a token and you are bruce@myews.onmicrosoft.com');
+                                                'You had a token and you are bruce@builditcontoso.onmicrosoft.com');
                                               return token;
                                             });
                        })

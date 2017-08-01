@@ -2,7 +2,7 @@ import {EnvironmentConfig} from '../../model/EnvironmentConfig';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 
 import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTokenProvider';
-import {MockUserService} from '../../services/users/MockUserService';
+import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 
 import {generateTestRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
@@ -25,7 +25,7 @@ export function provideUnitRuntime(environment: EnvironmentConfig): RuntimeConfi
                            new MockGraphTokenProvider(),
                            jwtTokenProvider,
                            () => new MockDeviceService(),
-                           () => new MockUserService(),
+                           () => new MSGraphUserService(new MockGraphTokenProvider()),
                            () => new MockMailService(),
                            () => new MockGroupService(new Array<MSGroup>(), new Map<string, MSUser[]>()),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),

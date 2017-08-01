@@ -38,8 +38,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        createdDateTime: '',
                        firstName: user.givenName,
                        lastName: user.surname,
-                     })
-                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1)
+                     });
+                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1);
                      resolve(
                        users
                         .map(mapUser)
@@ -75,7 +75,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        createdDateTime: user.createdDateTime,
                        firstName: '',
                        lastName: '',
-                     })
+                     });
                      resolve(users.map(mapUser));
                    });
           });
@@ -93,8 +93,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
     // TODO: Explain why we use user.emailAddresses[0].address, probably.
     return this.listExternalUsers()
-      .then((users: Array<any>) => users.filter(user => user.emailAddresses[0].address === email).length > 0)
-      .catch(() => false);
+      .then((users: Array<any>) => users.filter(user => user.email === email).length > 0)
+      .catch((err) => { console.log(err); return false; });
   };
 
   postUser(user: BookitUser): Promise<MSUser> {
@@ -119,6 +119,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
+                     console.log(response.body);
+
                      const user = {
                        name: response.body.givenName,
                        email: response.body.emailAddresses[0].address,
