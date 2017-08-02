@@ -28,7 +28,8 @@
     "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/rest/index.js",
     "server": "npm run watch:start",
     "spring": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/spring.js",
-    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js"
+    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js",
+    "postinstall": "nvmrc-check --node $(cat .nvmrc)"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
@@ -46,7 +47,8 @@
     "nock": "^9.0.14",
     "request": "^2.81.0",
     "superagent": "^3.5.2",
-    "superagent-debugger": "^1.2.9"
+    "superagent-debugger": "^1.2.9",
+    "verify-node-version": "0.0.7"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "0.4.1",
@@ -57,19 +59,20 @@
     "@types/cors": "2.8.1",
     "@types/dotenv": "2.0.20",
     "@types/express": "4.0.35",
+    "@types/jsonwebtoken": "7.2.0",
     "@types/log4js": "0.0.32",
     "@types/mocha": "2.2.41",
+    "@types/morgan": "1.7.32",
     "@types/node": "7.0.22",
     "@types/request": "0.0.42",
     "@types/supertest": "2.0.0",
     "@types/uuid": "3.0.0",
-    "@types/jsonwebtoken": "7.2.0",
-    "@types/morgan": "1.7.32",
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
     "concurrently": "3.4.0",
     "mocha": "3.4.2",
     "nodemon": "1.11.0",
+    "nvmrc-check": "^1.0.2",
     "nyc": "10.3.2",
     "rimraf": "2.6.1",
     "source-map-support": "0.4.15",
