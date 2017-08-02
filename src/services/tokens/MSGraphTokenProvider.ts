@@ -46,9 +46,12 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
 
   private acquireNew(): Promise<string> {
     const clearToken = (_timeout: string) => {
-      if (this._reuseTokens) {
+      if (!this._reuseTokens) {
         const timeout = (Number(_timeout) - 10) * 1000;
-        setTimeout(() => this.token = null, timeout);
+        setTimeout(() => {
+          this.token = null;
+          logger.error('Cleared token!');
+        }, timeout);
       }
     };
 

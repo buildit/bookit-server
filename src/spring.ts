@@ -7,7 +7,6 @@ import {Participant} from './model/Participant';
 import {generateMSRoomResource} from './config/bootstrap/rooms';
 import {Meeting} from './model/Meeting';
 import {handleMeetingFetch} from './rest/meetings/meeting_functions';
-import {MeetingsOps} from './services/meetings/MeetingsOps';
 import {Credentials} from './model/Credentials';
 import {log} from 'util';
 
@@ -20,7 +19,6 @@ const meetingService = Runtime.meetingService;
 
 const domain = meetingService.domain();
 
-const meetingOps = new MeetingsOps(meetingService);
 const room = generateMSRoomResource('Red', domain);
 
 function testGetDevices() {
@@ -81,7 +79,7 @@ async function testMeetingCreate() {
 
   logger.info('start time', start);
 
-  return meetingService.createMeeting(`Springboard meeting at ${start}`, start, duration, owner, room);
+  return meetingService.createUserMeeting(`Springboard meeting at ${start}`, start, duration, owner, room);
 }
 
 
@@ -92,7 +90,7 @@ async function testMeetingDelete(meeting: Meeting) {
   // const end = moment().startOf('day').add(1, 'day');
 
   logger.info('Meetings', meeting);
-  return meetingService.deleteMeeting(owner, meeting.id);
+  return meetingService.deleteUserMeeting(owner, meeting.id);
 }
 
 // testMeetingCreate().then(meeting => {
@@ -118,7 +116,7 @@ function testX() {
   const end = moment(searchEnd);
 
 
-  handleMeetingFetch(roomService, meetingOps, undefined, 'nyc', start, end).then(roomMeetings => {
+  handleMeetingFetch(roomService, meetingService, undefined, 'nyc', start, end).then(roomMeetings => {
     logger.info('M', roomMeetings);
   });
 }

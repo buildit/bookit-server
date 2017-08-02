@@ -18,6 +18,7 @@ import {Meeting} from '../../src/model/Meeting';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
+import {retryUntil} from "../../src/utils/retry";
 
 const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
@@ -34,7 +35,7 @@ const app = configureRoutes(express(),
 
 
 const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
-const room = generateMSRoomResource('white', Runtime.meetingService.domain());
+const whiteRoom = generateMSRoomResource('white', Runtime.meetingService.domain());
 
 const bruceCredentials = {
   user: bruceOwner.email,
@@ -52,7 +53,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          return roomService.getRoomList('nyc')
                                            .then(roomList => {
                                              const rooms = roomList.rooms;
-                                             expect(rooms).to.be.deep.equal(res.body);
+                                             return expect(rooms).to.be.deep.equal(res.body);
                                            })
                                            .catch(error => {
                                              logger.error(error);
@@ -60,6 +61,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                            });
                        });
   });
+
 
   it('creates the meeting', function testCreateMeeting() {
     const meetingStart = '2013-02-08 10:00:00';
@@ -79,84 +81,24 @@ describe('meeting routes operations', function testMeetingRoutes() {
       start: moment(meetingReq.start),
       duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-    return request(app).post(`/room/${room.email}/meeting`)
+    return request(app).post(`/room/${whiteRoom.email}/meeting`)
                        .set('Content-Type', 'application/json')
                        .set('x-access-token', token)
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => meetingService.getMeetings(room, searchStart, searchEnd))
+                       .then(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd))
                        .then((meetings) => {
-                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
-
-                         const meeting = meetings[0];
-
-                         expect(meeting.title).to.be.deep.eq(expected.title);
-
                          meetingService.clearCaches();
+
+                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
+                         const meeting = meetings[0];
+                         return expect(meeting.title).to.be.deep.eq(expected.title);
                        });
-  });
-
-  it('updates an existing meeting', function testUpdateMeeting() {
-    const meetingStart = '2013-05-08 10:00:00';
-    const meetingEnd = '2013-05-08 10:45:00';
-
-
-    const searchStart = '2013-05-08 09:00:00';
-    const searchEnd = '2013-05-08 12:00:00';
-
-    const original = {
-      title: 'original meeting title',
-      start: moment(meetingStart),
-      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
-      bruceOwner,
-      room
-    };
-
-    const token = jwtTokenProvider.provideToken(bruceCredentials);
-
-    return meetingService.createMeeting(original.title,
-                                        original.start,
-                                        original.duration,
-                                        original.bruceOwner,
-                                        original.room)
-                         .then(created => {
-                           const updatedMeeting: MeetingRequest = {
-                             id: created.id,
-                             userMeetingId: created.id,
-                             title: 'this is new',
-                             start: meetingStart,
-                             end: meetingEnd,
-                           };
-
-                           return request(app).put(`/room/${room.email}/meeting/${updatedMeeting.id}`)
-                                              .set('Content-Type', 'application/json')
-                                              .set('x-access-token', token)
-                                              .send(updatedMeeting)
-                                              .expect(200)
-                                              .then(() => {
-                             return request(app).get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                .set('x-access-token', token)
-                                                .then(response => {
-                                                  const roomMeetings = response.body as RoomMeetings[];
-                                                  const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                    acc.push.apply(acc, room.meetings);
-                                                    return acc;
-                                                  }, []);
-
-                                                  const meeting = allMeetings[0];
-                                                  return expect(meeting.title).to.be.eq(updatedMeeting.title);
-                                                });
-                           });
-
-                         });
-
-
-
   });
 
 
@@ -167,21 +109,21 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
+    const title = 'meeting without a token';
     const meetingToCreate = {
-      title: 'meeting without a token',
+      title: title,
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
-    return meetingService.createMeeting(meetingToCreate.title,
-                                        meetingToCreate.start,
-                                        meetingToCreate.duration,
-                                        meetingToCreate.bruceOwner,
-                                        meetingToCreate.room)
+    return meetingService.createUserMeeting(meetingToCreate.title,
+                                            meetingToCreate.start,
+                                            meetingToCreate.duration,
+                                            meetingToCreate.bruceOwner,
+                                            meetingToCreate.whiteRoom)
                          .then((meeting) => {
-                           const meetingId = meeting.id;
                            return request(app)
                              .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
                              .then(query => {
@@ -191,14 +133,17 @@ describe('meeting routes operations', function testMeetingRoutes() {
                                  return acc;
                                }, []);
 
-                               const meetings = allMeetings.filter(m => m.id === meetingId);
-                               expect(meetings.length).to.be.at.least(1);
-                               const expected = expect(meetings[0].title).to.be.equal('bruce');
+                               expect(allMeetings.length).to.be.equal(1);
+                               const meeting = allMeetings[0];
+                               const expected = expect(meeting.title).to.be.equal('bruce');
 
                                meetingService.clearCaches();
 
                                return expected;
                              });
+                         })
+                         .catch(error => {
+                           return expect.fail(error);
                          });
   });
 
@@ -209,22 +154,21 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = '2013-02-08 08:55:00';
     const searchEnd = '2013-02-08 09:35:00';
 
-    const expected = {
+    const meetingToCreate = {
       title: 'meeting with token',
       start: moment(meetingStart),
       duration: moment.duration(moment(meetingEnd).diff(moment(meetingEnd), 'minutes'), 'minutes'),
       bruceOwner,
-      room
+      whiteRoom
     };
 
     const token = jwtTokenProvider.provideToken(bruceCredentials);
-    console.info('Token', token);
 
-    return meetingService.createMeeting(expected.title,
-                                        expected.start,
-                                        expected.duration,
-                                        expected.bruceOwner,
-                                        expected.room)
+    return meetingService.createUserMeeting(meetingToCreate.title,
+                                            meetingToCreate.start,
+                                            meetingToCreate.duration,
+                                            meetingToCreate.bruceOwner,
+                                            meetingToCreate.whiteRoom)
                          .then((meeting) => {
                            const meetingId = meeting.id;
                            return request(app)
@@ -245,6 +189,9 @@ describe('meeting routes operations', function testMeetingRoutes() {
 
                                return expected;
                              });
+                         })
+                         .catch(error => {
+                           return expect.fail(error);
                          });
   });
 
@@ -260,25 +207,30 @@ describe('meeting routes operations', function testMeetingRoutes() {
     const searchStart = momentStart.clone().subtract(5, 'minutes');
     const searchEnd = momentEnd.clone().add(5, 'minutes');
 
-    return meetingService.createMeeting('test delete', momentStart, meetingDuration, bruceOwner, room)
+    return meetingService.createUserMeeting('test delete', momentStart, meetingDuration, bruceOwner, whiteRoom)
                          .then((meeting: Meeting) => {
-                           logger.info('meeting to delete created!');
-                           const meetingRoom = room.email;
+                           logger.info('meeting to delete created!', meeting.id);
+                           const meetingRoom = whiteRoom.email;
                            const meetingId = meeting.id;
 
                            const token = jwtTokenProvider.provideToken(bruceCredentials);
 
-                           return new Promise<Meeting>((resolve) => {
-                             request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
+                           return request(app).delete(`/room/${meetingRoom}/meeting/${meetingId}`)
                                          .set('x-access-token', token)
+                                         .expect(200)
                                          .then(() => {
                                            logger.info('delete completed');
-                                           resolve(meeting);
+                                            return meeting;
+                                         })
+                                         .catch((e) => {
+                                           throw new Error(`Error deleting meeting ${e}`);
                                          });
-                           });
                          })
                          .then((meeting) => {
-                           return meetingService.findMeeting(room, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                           return meetingService.findMeeting(whiteRoom, meeting.id, searchStart, searchEnd).should.eventually.be.rejected;
+                         })
+                         .catch(e => {
+                           return expect.fail(e.message);
                          });
   });
 
