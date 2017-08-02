@@ -8,6 +8,8 @@ RUN \
 	apk --purge -v del py-pip && \
 	rm /var/cache/apk/*
 
+RUN apk --no-cache add curl
+
 RUN mkdir -p /usr/src/app
 
 # copy the app
