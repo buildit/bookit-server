@@ -45,13 +45,13 @@ describe('User Service', function testReturnRoom() {
 
   it('validates an external user that exists', async function testValidExternalUser() {
     nockManager.setupContactList();
-    const isValid = await service.validateExternalUser('bruce@builditcontoso.onmicrosoft.com')
+    const isValid = await service.validateUser('bruce@builditcontoso.onmicrosoft.com')
     expect(isValid).to.be.true;
   });
 
   it('validates an external user that does not exist', async function testInvalidExternalUser() {
     nockManager.setupContactList();
-    const isValid = await service.validateExternalUser('what@why.com')
+    const isValid = await service.validateUser('what@why.com')
     expect(isValid).to.be.false;
   });
 });

@@ -23,7 +23,7 @@ export interface UserService {
 
   listInternalUsers(): Promise<Array<BookitUser>>;
 
-  validateExternalUser(email: string): Promise<boolean>;
+  validateUser(email: string): Promise<boolean>;
 
   createUser(user: BookitUser): Promise<MSUser>;
 

@@ -83,15 +83,11 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
   // TODO: Supply first condition via configuration
-  validateExternalUser(email: string): Promise<boolean> {
-    // (pure whitelist)
+  validateUser(email: string): Promise<boolean> {
     if (email.endsWith('@builditcontoso.onmicrosoft.com')) {
       return Promise.resolve(true);
     }
 
-    // (pure blacklist) if not mothership then false, otherwise...
-
-    // TODO: Explain why we use user.emailAddresses[0].address, probably.
     return this.listExternalUsers()
       .then((users: Array<any>) => users.filter(user => user.email === email).length > 0)
       .catch((err) => { console.log(err); return false; });

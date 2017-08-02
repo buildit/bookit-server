@@ -19,7 +19,7 @@ export class MockUserService implements UserService {
       throw 'Implement me';
     });
   }
-  validateExternalUser(email: string): Promise<boolean> {
+  validateUser(email: string): Promise<boolean> {
     return Promise.resolve(true);
   }
 
