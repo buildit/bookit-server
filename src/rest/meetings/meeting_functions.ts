@@ -239,20 +239,21 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
 }
 
 
-function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomEmail: string) {
+function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomId: string) {
   const toReturn = obscureMeetingIdentifier(meeting);
 
-  const meetingsForRoom = roomCache.get(roomEmail);
+  const meetingsForRoom = roomCache.get(roomId);
   const userMeeting = matchMeeting(meeting, meetingsForRoom);
   if (!userMeeting) {
+    logger.info(`Unable to match meeting ${roomId}, ${meeting.id}`);
     return toReturn;
   }
 
   // logger.info('Meetings for room', meetingsForRoom);
-  roomCache.remove(meeting);
+  roomCache.remove(userMeeting);
   assignProperties(toReturn, userMeeting);
 
-  const meetingsForRoomAfter = roomCache.get(roomEmail);
+  const meetingsForRoomAfter = roomCache.get(roomId);
   // logger.info('Meetings for room after', meetingsForRoomAfter);
   return toReturn;
 }
@@ -267,13 +268,22 @@ function cacheMeetingsByRoom(meetings: Meeting[]): ListCache<Meeting> {
 
 
 function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings: Meeting[]): Meeting[] {
+  function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
+    return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
+  }
   const roomCache = cacheMeetingsByRoom(userMeetings);
+  // console.log('RoomCache', roomCache);
 
   const roomId = room.name;
   const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
   const leftOverMeetings = roomCache.get(roomId);
   if (leftOverMeetings.length > 0) {
-    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${leftOverMeetings.length}`);
+    const owner = userMeetings[0].owner;
+    const applicable = leftOverMeetings.filter(meeting => matchLeftOver(room.name, owner, meeting));
+
+    const data = leftOverMeetings.map(m => { return `'id': '${m.id}', 'title': '${m.title}', 'loc': '${m.location.displayName}', 'start': '${m.start.format()}', 'end': '${m.end.format()}'`; });
+    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${data}`);
+    mergedMeetings.push.apply(mergedMeetings, applicable);
     // logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings`, leftOverMeetings);
   }
 

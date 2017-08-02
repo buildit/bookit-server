@@ -210,12 +210,12 @@ export class CachedMeetingService implements MeetingsService {
 
   private matchAndReplaceRoomMeeting(meeting: Meeting, room: Room) {
     setTimeout(() => {
-      const opBegin = moment();
+      const opBegin = new Date();
       return this.waitForRoomMeeting(meeting, room)
                  .then((meetings) => {
                    this.evictRoomMeeting(meeting.id);
-                   const opEnd = moment();
-                   logger.info('MATCHED AND REPLACED MEETINGS!!!!!', (opEnd.diff(opBegin, 'milliseconds')),  meetings);
+                   const opEnd = new Date();
+                   logger.info('MATCHED AND REPLACED MEETINGS!!!!!', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
                  });
 
     }, 1000);
