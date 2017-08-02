@@ -215,6 +215,7 @@ export class CachedMeetingService implements MeetingsService {
                  .then((meetings) => {
                    this.evictRoomMeeting(meeting.id);
                    const opEnd = new Date();
+                   this.cacheRoomMeeting(room, meeting);
                    logger.info('MATCHED AND REPLACED MEETINGS!!!!!', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
                  });
 
