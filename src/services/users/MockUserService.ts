@@ -19,12 +19,16 @@ export class MockUserService implements UserService {
       throw 'Implement me';
     });
   }
-
-  getDevices(userId: string): Promise<Array<any>> {
-    return Promise.reject('Unimplemented: MockUserService:getDevices');
+  validateUser(email: string): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
-  postUser(user: BookitUser): Promise<any> {
-    return Promise.reject('Unimplemented: MockUserService:postUser');
+  createUser(user: BookitUser): Promise<any> {
+    return Promise.reject('Unimplemented: MockUserService:createUser');
   }
+
+  updateUser(user: BookitUser): Promise<any> {
+    return Promise.reject('Unimplemented: MockUserService:updateUser');
+  }
+
 }

@@ -23,7 +23,9 @@ export interface UserService {
 
   listInternalUsers(): Promise<Array<BookitUser>>;
 
-  getDevices(userId: string): Promise<Array<any>>;
+  validateUser(email: string): Promise<boolean>;
 
-  postUser(user: BookitUser): Promise<MSUser>;
+  createUser(user: BookitUser): Promise<MSUser>;
+
+  updateUser(user: BookitUser): Promise<MSUser>;
 }

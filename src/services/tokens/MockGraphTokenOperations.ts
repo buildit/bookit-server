@@ -22,7 +22,8 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
 
 
   withToken(): Promise<string> {
-    return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
+    return Promise.resolve('xyzzy');
+    // return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 
 }
