@@ -85,7 +85,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   // TODO: Supply first condition via configuration
   validateExternalUser(email: string): Promise<boolean> {
     // (pure whitelist)
-    if (email.endsWith('@designit.com')) {
+    if (email.endsWith('@builditcontoso.onmicrosoft.com')) {
       return Promise.resolve(true);
     }
 
