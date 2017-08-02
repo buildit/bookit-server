@@ -160,7 +160,8 @@ export class CachedMeetingService implements MeetingsService {
    * @returns {Promise<T>}
    */
   deleteUserMeeting(owner: Participant, id: string): Promise<Meeting> {
-    const userMeeting: Meeting = Array.from(this.ownerSubCaches.values()).reduce((acc, cache) => cache.get(id), undefined);
+    const userMeeting: Meeting = Array.from(this.ownerSubCaches.values())
+                                      .reduce((meeting, cache) => meeting || cache.get(id), undefined);
 
     if (!userMeeting) {
       logger.error('Could not find meeting', owner.email, id);
@@ -242,7 +243,7 @@ export class CachedMeetingService implements MeetingsService {
 
   private getRoomCacheForMeeting(meeting: Meeting): SubCache<Room> {
     return meeting.participants.reduce((cache, participant) => {
-      return this.roomSubCaches.get(participant.email);
+      return cache || this.roomSubCaches.get(participant.email);
     }, undefined);
   }
 
@@ -283,25 +284,9 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
-  // private refreshRoomCache(room: Room, start: Moment, end: Moment): Promise<void> {
-  //   const fetchMeetings = (cache: SubCache<Attendee>,
-  //                          getMeetings: (attendee: Attendee, start: Moment, end: Moment) => Promise<Meeting[]>): Promise<Meeting[]> => {
-  //     const fetchStart = cache.getFetchStart(start);
-  //     const fetchEnd = cache.getFetchEnd(end);
-  //
-  //     logger.info('GET MEETINGS', getMeetings);
-  //     return getMeetings(room, fetchStart, fetchEnd);
-  //   };
-  //
-  //   const roomCache = this.getCacheForRoom(room);
-  //
-  //   return fetchMeetings(roomCache, this.delegatedMeetingsService.getMeetings.bind(this)).then(roomMeetings => {
-  //     logger.debug(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, roomMeetings.length);
-  //     roomCache.cacheMeetings(roomMeetings);
-  //   });
-  // }
-
-
+  /*
+  the next two functions could be refactored for reusability
+   */
   private refreshRoomCache(room: Room, start: Moment, end: Moment): Promise<void> {
     const roomCache = this.getRoomCacheForRoom(room);
 
@@ -365,7 +350,7 @@ export class CachedMeetingService implements MeetingsService {
 
   private evictMeetingFromCache(caches: Map<string, SubCache<Attendee>>, id: string): Meeting|null {
     const cacheList = Array.from(caches.values());
-    return cacheList.reduce((meeting, cache) => cache.remove(id), null);
+    return cacheList.reduce((meeting, cache) => meeting || cache.remove(id), null);
   }
 
   /*
