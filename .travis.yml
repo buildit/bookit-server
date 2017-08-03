@@ -39,10 +39,7 @@ deploy:
       branch: 33-deploy-to-ecs
   - provider: script
     skip_cleanup: true
-    script: ./scripts/ecs-deploy.sh \
-               -c bookit-dev3-mthomas-app-bookit-ECSCluster \
-               -n bookit-dev3-mthomas-app-bookit-BookitServerService-1TOTI1CH7GA93-Service-1H96WYF8NF5Q8 \
-               -i 006393696278.dkr.ecr.us-east-1.amazonaws.com/bookit-dev3-mthomas-app-bookit-ecr-repo:latest
+    script: ./scripts/ecs-deploy.sh  -c bookit-dev3-mthomas-app-bookit-ECSCluster  -n bookit-dev3-mthomas-app-bookit-BookitServerService-1TOTI1CH7GA93-Service-1H96WYF8NF5Q8  -i 006393696278.dkr.ecr.us-east-1.amazonaws.com/bookit-dev3-mthomas-app-bookit-ecr-repo:latest
     on:
       branch: 33-deploy-to-ecs
 
