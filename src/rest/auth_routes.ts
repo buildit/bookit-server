@@ -38,11 +38,13 @@ export function configureAuthenticationRoutes(app: Express,
       decoded = await jwtTokenProvider.verifyOpenId(credentialToken);
     }
     catch (error) {
+      console.log('dying because we could not decode the jwt')
       sendUnauthorized(res, 'Unrecognized user');
     }
 
-    const isValidated = await userService.validateUser(decoded.unique_name);
+    const isValidated = await userService.validateUser(decoded.unique_name.toLowerCase());
     if (!isValidated) {
+        console.log(`dying because ${decoded.unique_name} is not a valid external user`)
         sendUnauthorized(res, 'Unrecognized user');
         return;
     }

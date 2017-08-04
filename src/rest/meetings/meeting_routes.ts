@@ -63,6 +63,7 @@ export function configureMeetingRoutes(app: Express,
 
       createMeeting(req, res, roomService, meetingsService, new Participant(credentials.user));
     } catch (error) {
+      console.log(error);
       return sendValidation(error, res);
     }
   });
@@ -100,6 +101,3 @@ export function configureMeetingRoutes(app: Express,
 
   return app;
 }
-
-
-
