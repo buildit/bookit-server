@@ -252,12 +252,9 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
     return toReturn;
   }
 
-  // logger.info('Meetings for room', meetingsForRoom);
   roomCache.remove(userMeeting);
   assignProperties(toReturn, userMeeting);
 
-  const meetingsForRoomAfter = roomCache.get(roomId);
-  // logger.info('Meetings for room after', meetingsForRoomAfter);
   return toReturn;
 }
 
