@@ -162,7 +162,10 @@ describe('meeting routes operations', function testMeetingRoutes() {
                          });
   });
 
-  it('has expected meetings from varying perspectives', function testExpectedNumberOfMeetings() {
+  it('exposes ids and titles for meetings owned by user and obscures these properties for meetings owned by others.', function testMeetingPropertyVisibility() {
+    // This tests for the behavior specified in the below ticket.
+    // https://kanbanflow.com/t/e5f15264f6292a2cf7f7a213e0953e6f/ep-20170622-as-a-user-i-expect-visibil
+
     const searchStart = '2013-02-08 08:00:00';
     const searchEnd = '2013-02-08 18:00:00';
 
@@ -215,17 +218,22 @@ describe('meeting routes operations', function testMeetingRoutes() {
             return acc;
           }, []);
 
-          expect(allMeetings.length).to.be.equal(2);
-
           const brucesMeetings = allMeetings.filter(m => m.owner.email === bruceOwner.email);
           const bruceMeeting = brucesMeetings[0];
-          expect(bruceMeeting.title).to.be.equal('bruces meeting');
-
-
           const otherMeetings = allMeetings.filter(m => m.owner.email !== bruceOwner.email);
           const otherMeeting = otherMeetings[0];
+
+          expect(allMeetings.length).to.be.equal(2);
+
+          // Titles of meetings owned by the user are exposed. Titles of other meetings are obscured.
+          expect(bruceMeeting.title).to.be.equal('bruces meeting');
+          expect(otherMeeting.title).to.be.equal('babs');
+
+          // Ids of meetings owned by user are exposed. Ids of other meetings are obscured.
+          expect(bruceMeeting.id).to.be.have.string('user');
           expect(otherMeeting.id).to.have.string('obscured');
-          return  expect(otherMeeting.title).to.be.equal('babs');
+
+          return;
         });
     });
 
@@ -242,26 +250,29 @@ describe('meeting routes operations', function testMeetingRoutes() {
             return acc;
           }, []);
 
-          expect(allMeetings.length).to.be.equal(2);
-
           const babsMeetings = allMeetings.filter(m => m.owner.email === babsOwner.email);
           const babsMeeting = babsMeetings[0];
-          expect(babsMeeting.title).to.be.equal('babs meeting');
-
           const otherMeetings = allMeetings.filter(m => m.owner.email !== babsOwner.email);
           const otherMeeting = otherMeetings[0];
+
+          expect(allMeetings.length).to.be.equal(2);
+
+          // Titles of meetings owned by the user are exposed. Titles of other meetings are obscured.
+          expect(babsMeeting.title).to.be.equal('babs meeting');
+          expect(otherMeeting.title).to.be.equal('bruce');
+
+          // Ids of meetings owned by user are exposed. Ids of other meetings are obscured.
+          expect(babsMeeting.id).to.be.have.string('user');
           expect(otherMeeting.id).to.have.string('obscured');
-          return expect(otherMeeting.title).to.be.equal('bruce');
+
+          return;
         });
     });
 
     return Promise.all([bruceQuery, babsQuery])
                   .then(queries => {
-
                     meetingService.clearCaches();
                   });
   });
 
 });
-
-
