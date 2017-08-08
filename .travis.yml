@@ -19,7 +19,7 @@ env:
     - AWS_DEFAULT_REGION=us-east-1
     - ECS_REPO=bookit-dev4-mthomas-bookit-server-ecr-repo
     - ECS_CLUSTER=bookit-dev4-mthomas-bookit-ECSCluster
-    - ECS_SERVICE=bookit-dev4-mthomas-bookit-BookitServerService-1CFXBIE3MDKAY-Service-1IMCA4CM21ORD
+    - ECS_SERVICE=bookit-dev4-mthomas-bookit-BookitServerService-1OPV2HCWZLZG6-Service-E80IMPM62X4J
     # AWS_ACCESS_KEY_ID (buildit.bookit.travis IAM account)
     - secure: Ep0FrO6Enx67YzCG5t1C5E9af2pfuBWNgjgvFNm5jCgyO7p1PZpxIJntEyA9gcDQ+WSACxJQEWbBF2MeJ3KS6k7fkArNSRF8hS5mTL7zH0RU8yhTxVA4wXROidRdcvnwDFKn+48fS7uV6st5vhHfkxI5O/5PojOhGXQolbVOrEbniM9Hh+XOVSdAJjRFX9/N5gdtOtWPKM7jKGlprC7FBo49o0po3wLEqNRyBqpHNApv9NRp/pxwYpFcdQ+S776RVMFDbvIxjQjwwdlQqcI0uA+8EMcLWePcN0WsN97gcmlaFhtuP5vkx3miTzjaHBbRmC1VifGBAMJCB1SfgCnwsz/nKkKR7EoQnXli7cQu5Kve2frUN4ifaTMD+dBnCT3L45XyF/MLDCIKSeZYosolSyzs3RVi0qhFtpaMZZFfnj71Iilb9Bp94XTUvaQM8ID2DEBcU0UM754OBS9xyGOwTXvsdLLo0Guo0QHLEam5G6Ks+zRarROlp7901/enTSrLdJr7naerlUBcdqMScGxjgJZHLNjEyPcqpClIdoC4BYp6rKgO47CJEsR6e5/oM85t9upKnNhwrFeibxTFDNePjCWxuIHhLAdEVisdzGSJ+eebzo2RllA8qvJGlw6tWTeKW28kYOfVsgX/3BQ5zNcqhywmdEmTMQOx+fz+OwcZZgQ=
     # AWS_SECRET_ACCESS_KEY (buildit.bookit.travis IAM account)
