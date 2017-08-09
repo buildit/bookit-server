@@ -28,6 +28,11 @@ env:
 script:
   - npm test
 
+before_deploy:
+  - provider: script
+    skip_cleanup: true
+    script: aws s3 cp s3://rig.mthomas.bookit.dev6.us-east-1.build/app-deployment ./scripts/ --recursive && chmod +x ./scripts/*.sh
+
 deploy:
   - provider: script
     skip_cleanup: true
@@ -36,7 +41,7 @@ deploy:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: ./scripts/build-aws-ecr.sh
+    script: ./scripts/push-to-ecr.sh
     on:
       branch: 33-deploy-to-ecs
   - provider: script
