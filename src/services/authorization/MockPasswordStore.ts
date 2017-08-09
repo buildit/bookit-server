@@ -1,6 +1,5 @@
 import {PasswordStore} from './PasswordStore';
 
-import {testAppADusers} from '../../config/identities/test/credentials';
 import {AppADusers} from '../../config/identities/builditcontoso/credentials';
 
 interface UserDetail {
@@ -18,13 +17,9 @@ userPasswords.set('rasmus@designit.com', {password: 'hey', id: 4});
 userPasswords.set('z', {password: 'z', id: 5});
 userPasswords.set('roodmin@designitcontoso.onmicrosoft.com', {password: 'yo', id: counter++});
 
-Object.keys(testAppADusers).forEach(user => {
-  const userMap = testAppADusers as any;
-  userPasswords.set(user, {password: userMap[user], id: counter++});
-});
 
 Object.keys(AppADusers).forEach(user => {
-  const userMap = testAppADusers as any;
+  const userMap = AppADusers as any;
   userPasswords.set(user, {password: userMap[user], id: counter++});
 });
 

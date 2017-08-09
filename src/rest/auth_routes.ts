@@ -3,9 +3,10 @@ import {Express, Request, Response, Router} from 'express';
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
-import {JWTTokenProvider} from '../services/tokens/TokenProviders';
+import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectedEndpoint} from './filters';
 import {UserService} from '../services/users/UserService';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 
@@ -27,7 +28,8 @@ export interface UserDetail {
 
 export function configureAuthenticationRoutes(app: Express,
                                               userService: UserService,
-                                              jwtTokenProvider: JWTTokenProvider) {
+                                              jwtTokenProvider: JWTTokenProvider,
+                                              graphTokenProvider: GraphTokenProvider) {
 
   app.post('/authenticate', async (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
@@ -46,6 +48,8 @@ export function configureAuthenticationRoutes(app: Express,
         sendUnauthorized(res, 'Unrecognized user');
         return;
     }
+
+    graphTokenProvider.assignUserToken(credentials.user, credentialToken);
 
     const token = jwtTokenProvider.provideToken({
       user: decoded.unique_name,
