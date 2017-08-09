@@ -6,6 +6,11 @@ export const domain: Domain = {
 };
 
 
+// export const creds: GraphAPIParameters = {
+//   identity: 'builditcontoso',
+//   tenantId: '37fcf0e4-ceb8-4866-8e26-293bab1e26a8',
+//   clientId: '5171c8f0-4216-4bbc-9d75-af4c81bbc812',
+// };
 export const creds: GraphAPIParameters = {
   identity: 'builditcontoso',
   tenantId: '37fcf0e4-ceb8-4866-8e26-293bab1e26a8',
@@ -20,5 +25,3 @@ export const AppADusers = {
   'red-room@builditcontoso.onmicrosoft.com': 'Jujo1317',
   'white-room@builditcontoso.onmicrosoft.com': 'Volo5384'
 };
-
-

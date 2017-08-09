@@ -115,7 +115,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
-                     console.log(response.body);
 
                      const user = {
                        name: response.body.givenName,

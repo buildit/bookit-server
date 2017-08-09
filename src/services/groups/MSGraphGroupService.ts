@@ -25,7 +25,6 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
                    .end((error, response) => {
                      if (error) {
                        logger.error(error);
-                       console.log('am i here 1')
                        return reject(new Error(error));
                      }
 
@@ -48,7 +47,6 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
                    .end((error, response) => {
                      if (error) {
                        logger.error(error);
-                       console.log('am i here 2')
                        return reject(new Error(error));
                      }
 
@@ -73,7 +71,6 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
                    .end((error, response) => {
                      if (error) {
                        logger.error(error);
-                       console.log('am i here 3')
                        return reject(new Error(error));
                      }
 
@@ -101,7 +98,6 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
                    .end((error, response) => {
                      if (error) {
                        logger.error(error);
-                       console.log('am i here 4')
                        return reject(new Error(error));
                      }
 

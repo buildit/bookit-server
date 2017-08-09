@@ -53,7 +53,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .send(eventData)
                    .end((error, response) => {
                      if (error) {
-                       console.log('am i here 20')
                        reject(new Error(error));
                        return;
                      }
@@ -84,7 +83,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .send(eventData)
                    .end((error, response) => {
                      if (error) {
-                       console.log('am i here 21')
                        reject(new Error(error));
                        return;
                      }
@@ -102,7 +100,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                .then(meetings => {
                  const meeting = findById(meetings, meetingId);
                  if (!meeting) {
-                   console.log('am i here 22')
                    throw new Error('meeting not found');
                  }
 
@@ -142,10 +139,8 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .query({startDateTime, endDateTime})
                    .end((error, response) => {
                      if (error) {
-                       console.log('am i here 23')
-                       console.log(error)
-                       return reject(new Error(error));
-                      // return resolve([])
+                      //  return reject(new Error(error));
+                      return resolve([])
                      }
 
                      // logger.info('Response', response);
@@ -195,7 +190,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    .set('Authorization', `Bearer ${token}`)
                    .end((error, response) => {
                      if (error) {
-                       console.log('am i here 24')
                        reject(new Error(error));
                      }
                      resolve('Deleted the event');

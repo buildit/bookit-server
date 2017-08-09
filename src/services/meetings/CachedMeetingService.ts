@@ -107,7 +107,6 @@ export class CachedMeetingService implements MeetingsService {
                })
                .catch(error => {
                  logger.error(error);
-                 console.log('am i here 10')
                  throw new Error(error);
                });
   }
@@ -139,7 +138,6 @@ export class CachedMeetingService implements MeetingsService {
                })
                .catch(error => {
                  logger.error(error);
-                 console.log('am i here 11')
                  throw new Error(error);
                });
   }
