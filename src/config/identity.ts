@@ -2,26 +2,22 @@ import AppEnv from './env';
 
 import {RootLog as logger} from '../utils/RootLogger';
 
-import {roman, test, buildit} from './identities';
+import {buildit, w_i_p_r_o} from './identities';
 import {EnvironmentConfig, GraphAPIParameters} from '../model/EnvironmentConfig';
 
 
 function _assignGraphIdentity(env: string): GraphAPIParameters {
   switch (env) {
-    case 'roman': {
-      roman.credentials.clientSecret = AppEnv.ROMAN_SECRET;
-      return roman.credentials;
-    }
-    case 'test': {
-      test.credentials.clientSecret = AppEnv.TEST_SECRET;
-      return test.credentials;
-    }
-    case 'buildit': {
+    case buildit.credentials.identity: {
       buildit.credentials.clientSecret = AppEnv.BUILDIT_SECRET;
       return buildit.credentials;
     }
+    case w_i_p_r_o.credentials.identity: {
+      w_i_p_r_o.credentials.clientSecret = AppEnv.ORPIW_SECRET;
+      return w_i_p_r_o.credentials;
+    }
     default: {
-      throw new Error('Unknown environment found is CLOUD_CONFIG');
+      throw new Error(`Unknown environment ${env} found is CLOUD_CONFIG`);
     }
   }
 }
@@ -40,8 +36,13 @@ export function assignGraphIdentity(_environment: EnvironmentConfig, _identity: 
   _environment.graphAPIIdentity = identity;
   logger.info('Will access MS Graph using identity:', identity);
   _environment.graphAPIParameters = _assignGraphIdentity(identity);
-  logger.info('Will access MS Graph using parameters:', _environment.graphAPIParameters);
+
+  const external = new Map<string, GraphAPIParameters>();
+  external.set(w_i_p_r_o.credentials.identity, _assignGraphIdentity(w_i_p_r_o.credentials.identity));
+  _environment.externalGraphParameters = external;
+  logger.info('Will access MS Graph using parameters:', _environment);
 }
+
 
 export function getServiceUser(env: string) {
   switch (env) {
@@ -54,6 +55,7 @@ export function getServiceUser(env: string) {
   }
 }
 
+
 export function getExternalTeam(env: string) {
   switch (env) {
     case 'buildit': {
@@ -64,6 +66,7 @@ export function getExternalTeam(env: string) {
     }
   }
 }
+
 
 export function getInternalTeam(env: string) {
   switch (env) {

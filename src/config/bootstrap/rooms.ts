@@ -18,7 +18,7 @@ export function getRoomEmail(name: string, domain: string) {
 
 function makeRoom(color: string, domain: string): Room {
   const mail = getRoomEmail(color, domain);
-  return {id: '' + counter++, name: color, mail, email: mail};
+  return {id: '' + counter++, name: color, mail, email: mail, domain: domain};
 }
 
 

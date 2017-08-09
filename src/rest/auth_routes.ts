@@ -6,6 +6,7 @@ import {Credentials} from '../model/Credentials';
 import {JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectedEndpoint} from './filters';
 import {UserService} from '../services/users/UserService';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 
@@ -46,6 +47,8 @@ export function configureAuthenticationRoutes(app: Express,
         sendUnauthorized(res, 'Unrecognized user');
         return;
     }
+
+    jwtTokenProvider.assignUserToken(credentials.user, credentialToken);
 
     const token = jwtTokenProvider.provideToken({
       user: decoded.unique_name,

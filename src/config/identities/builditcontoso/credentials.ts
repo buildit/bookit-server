@@ -1,13 +1,13 @@
 import {Domain, GraphAPIParameters} from '../../../model/EnvironmentConfig';
 
 export const domain: Domain = {
-  domainName: 'builditcontoso',
+  domainName: 'builditcontoso.onmicrosoft.com',
   sites: ['nyc']
 };
 
 
 export const creds: GraphAPIParameters = {
-  identity: 'builditcontoso',
+  identity: 'buildit',
   tenantId: '37fcf0e4-ceb8-4866-8e26-293bab1e26a8',
   clientId: '1be035ba-835c-498a-b1d3-786e4cfd77bc',
 };

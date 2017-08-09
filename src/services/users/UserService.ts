@@ -7,6 +7,7 @@ export class MSUser {
   displayName: string;
   mail: string;
   email: string;
+  domain: string;
 
   constructor(id: string, displayName: string, description: string, mail: string) {
     this.id = id;
@@ -15,6 +16,9 @@ export class MSUser {
     this.description = description;
     this.mail = mail;
     this.email = mail;
+
+    const parts = mail.split('@');
+    this.domain = parts[1];
   }
 }
 
