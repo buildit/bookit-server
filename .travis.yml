@@ -28,19 +28,17 @@ env:
 script:
   - npm test
 
-before_deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/get-deployment-scripts.sh
-    on:
-      branch: 33-deploy-to-ecs
-
 deploy:
   - provider: script
     skip_cleanup: true
     script: ./scripts/build-and-deploy.sh
     on:
       branch: master
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/get-deployment-scripts.sh
+    on:
+      branch: 33-deploy-to-ecs
   - provider: script
     skip_cleanup: true
     script: ./scripts/push-to-ecr.sh
