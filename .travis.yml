@@ -32,6 +32,8 @@ before_deploy:
   - provider: script
     skip_cleanup: true
     script: ./scripts/get-deployment-scripts.sh
+    on:
+      branch: 33-deploy-to-ecs
 
 deploy:
   - provider: script
