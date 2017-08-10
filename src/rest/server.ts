@@ -24,6 +24,7 @@ function configureExpress(app: Express) {
   app.use(bodyParser.json());
   app.use(morgan('dev'));
   app.use(cors());
+  app.options('*', cors());
 }
 
 
