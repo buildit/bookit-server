@@ -18,6 +18,7 @@ import {Meeting} from '../../model/Meeting';
 import {Moment} from 'moment';
 import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
+import {v4 as uuid} from 'uuid';
 
 
 
@@ -142,11 +143,13 @@ function getMergedRoomListUserMeetings(meetingService: MeetingsService,
                                      end: moment.Moment,
                                      userMeetings: Meeting[]): Promise<RoomMeetings[]> {
 
-  const mergedMeetings = roomList.rooms.map(room => getRoomAndMergeUserMeetings(meetingService,
-                                                                                room,
-                                                                                start,
-                                                                                end,
-                                                                                userMeetings));
+  const mergeRoom = (room: Room) => getRoomAndMergeUserMeetings(meetingService,
+                                                                room,
+                                                                start,
+                                                                end,
+                                                                userMeetings);
+
+  const mergedMeetings = roomList.rooms.map(room => mergeRoom(room));
   return Promise.all(mergedMeetings);
 }
 
@@ -205,7 +208,7 @@ export function obscureMeetingDetails(meeting: Meeting) {
 
 export function obscureMeetingIdentifier(meeting: Meeting) {
   const toReturn = Object.assign({}, meeting);
-  toReturn.id = undefined;
+  toReturn.id = 'obscured' + uuid();
 
   return toReturn;
 }
@@ -249,12 +252,9 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
     return toReturn;
   }
 
-  // logger.info('Meetings for room', meetingsForRoom);
   roomCache.remove(userMeeting);
   assignProperties(toReturn, userMeeting);
 
-  const meetingsForRoomAfter = roomCache.get(roomId);
-  // logger.info('Meetings for room after', meetingsForRoomAfter);
   return toReturn;
 }
 
