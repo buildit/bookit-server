@@ -44,9 +44,12 @@ export function assignGraphIdentity(_environment: EnvironmentConfig, _identity: 
 }
 
 
+/*
+This should be deprecated and be part of the identity
+ */
 export function getServiceUser(env: string) {
   switch (env) {
-    case 'buildit': {
+    case buildit.domain.domainName: {
       return buildit.serviceUserEmail;
     }
     default: {
@@ -56,9 +59,12 @@ export function getServiceUser(env: string) {
 }
 
 
+/*
+This should be deprecated and be part of the identity
+ */
 export function getExternalTeam(env: string) {
   switch (env) {
-    case 'buildit': {
+    case buildit.domain.domainName: {
       return buildit.externalTeam;
     }
     default: {
@@ -70,7 +76,7 @@ export function getExternalTeam(env: string) {
 
 export function getInternalTeam(env: string) {
   switch (env) {
-    case 'buildit': {
+    case buildit.domain.domainName: {
       return buildit.internalTeam;
     }
     default: {

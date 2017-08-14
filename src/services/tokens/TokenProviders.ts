@@ -11,7 +11,7 @@ export interface GraphTokenProvider {
 
   assignUserToken(user: string, token: string): void;
   withToken(): Promise<string>;
-  withDelegatedToken(attendee: Attendee): Promise<string>;
+  withDelegatedToken(user: string): Promise<string>;
 }
 
 

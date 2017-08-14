@@ -46,7 +46,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     console.info('POST', URL, eventData);
 
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
+      this.tokenOperations.withDelegatedToken(owner.email.toLowerCase())
           .then(token => {
             request.post(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -129,25 +129,35 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       return MSGraphMeetingService._mapMeeting(perspective, meeting);
     }
 
+    const getToken = () => {
+      if (perspective === Perspective.ROOM) {
+        return this.tokenOperations.withToken();
+      }
+
+      const token = this.tokenOperations.withDelegatedToken(user);
+      logger.info('Will use token for user', user, token);
+      return token;
+    };
+
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
-          .then(token => {
-            request.get(URL)
-                   .set('Authorization', `Bearer ${token}`)
-                   .query({startDateTime, endDateTime})
-                   .end((error, response) => {
-                     if (error) {
-                      //  return reject(new Error(error));
-                      return resolve([])
-                     }
+      getToken().then(token => {
+        request.get(URL)
+               .set('Authorization', `Bearer ${token}`)
+               .query({startDateTime, endDateTime})
+               .end((error, response) => {
+                 if (error) {
+                   logger.error('Failed to get user meetings', error);
+                   // return reject(new Error(error));
+                   return resolve([]);
+                 }
 
-                     // logger.info('Response', response);
-                     const meetings = response.body.value.map(mapMeeting);
-                     resolve(meetings);
-                   });
-          });
+                 // logger.info('Response', response);
+                 const meetings = response.body.value.map(mapMeeting);
+                 resolve(meetings);
+               });
+      });
     });
   }
 
@@ -240,7 +250,10 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    if (perspective === Perspective.USER) {
+      // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    }
+
     return mappedMeeting;
   }
 }

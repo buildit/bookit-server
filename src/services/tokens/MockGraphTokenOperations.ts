@@ -29,8 +29,8 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
     // return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 
-  withDelegatedToken(attendee: Attendee): Promise<string> {
-    return Promise.resolve(`x${attendee.email}x`);
+  withDelegatedToken(user: string): Promise<string> {
+    return Promise.resolve(`x${user}x`);
     // return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 

@@ -14,9 +14,10 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
     logger.info('Constructing MSGraphUserService');
   }
 
+
   listInternalUsers(): Promise<Array<any>> {
-    const bookitServiceUserId = getServiceUser('buildit');
-    const internalTeam = getInternalTeam('buildit');
+    logger.info('listInternalUsers', this.domain());
+    const internalTeam = getInternalTeam(this.domain());
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/`;
@@ -52,8 +53,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
 
   listExternalUsers(): Promise<Array<any>> {
-    const bookitServiceUserId = getServiceUser('buildit');
-    const externalTeam = getExternalTeam('buildit');
+    const bookitServiceUserId = getServiceUser(this.domain());
+    const externalTeam = getExternalTeam(this.domain());
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${bookitServiceUserId}/contacts`;
@@ -68,6 +69,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        return;
                      }
                      const users = response.body.value;
+                     logger.info('Users', users);
                      const mapUser = (user: any) => ({
                        email: user.emailAddresses[0].address,
                        team: externalTeam,
@@ -82,6 +84,48 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
     });
   }
 
+
+  getUserDetails(user: string): Promise<MSUser> {
+    const getToken = () => {
+      return this.listInternalUsers()
+                 .then(internal => {
+                   const found = internal.find(user => user.name === user);
+                   logger.info('Found internal user', user, found);
+
+                   return found ? this.tokenOperations.withToken() : this.tokenOperations.withDelegatedToken(user);
+                 });
+    };
+
+
+    return new Promise((resolve, reject) => {
+      const URL = `https://graph.microsoft.com/v1.0/users/${user}`;
+      logger.info('GET', URL);
+      getToken().then(token => {
+        request.get(URL)
+               .set('Authorization', `Bearer ${token}`)
+               .end((error, response) => {
+                 if (error) {
+                   reject(error);
+                   return;
+                 }
+                 const user = response.body;
+                 logger.info('Found user', response.body);
+                 const mapUser = (user: any) => ({
+                   email: user.mail,
+                   team: 'internal',
+                   roles: [''], // How to get this in the context of a "user"?
+                   createdDateTime: '',
+                   firstName: user.givenName,
+                   lastName: user.surname,
+                 });
+
+                 resolve(mapUser(user));
+               });
+      });
+    });
+  }
+
+
   // TODO: Supply first condition via configuration
   validateUser(email: string): Promise<boolean> {
     if (email.endsWith(`@${this.domain()}`)) {
@@ -93,7 +137,21 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
       .catch((err) => { console.log(err); return false; });
   };
 
-  postUser(user: BookitUser): Promise<MSUser> {
+
+
+  createUser(user: BookitUser): Promise<MSUser> {
+    return this.postUser(user);
+  }
+
+
+  updateUser(user: BookitUser): Promise<MSUser> {
+    // Get user from listExternalContacts(?) then filter + use id to udpate
+    // user.id = resolvedExternalUser.id! BEEP BOOP!
+    return this.postUser(user);
+  }
+
+
+  private postUser(user: BookitUser): Promise<MSUser> {
     const bookitServiceUserId = getServiceUser('buildit');
 
     const userObjectThatMSLikesWAntsNEEDz = {
@@ -125,22 +183,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
           });
     });
 
-  }
-
-  getUser(): any {
-
-  }
-
-
-  createUser(user: BookitUser): Promise<MSUser> {
-    return this.postUser(user);
-  }
-
-
-  updateUser(user: BookitUser): Promise<MSUser> {
-    // Get user from listExternalContacts(?) then filter + use id to udpate
-    // user.id = resolvedExternalUser.id! BEEP BOOP!
-    return this.postUser(user);
   }
 
 }

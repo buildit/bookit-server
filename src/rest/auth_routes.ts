@@ -35,31 +35,45 @@ export function configureAuthenticationRoutes(app: Express,
     const credentials = req.body as Credentials;
 
     const credentialToken = credentials.code;
-    let decoded;
+    let decoded: any;
     try {
       decoded = await jwtTokenProvider.verifyOpenId(credentialToken);
     }
     catch (error) {
+      logger.error('Unable to validate open id');
       sendUnauthorized(res, 'Unrecognized user');
     }
 
-    const isValidated = await userService.validateUser(decoded.preferred_username.toLowerCase());
+    logger.info('Decoded token', decoded);
+    logger.info('Credentials', credentials);
+    const rawUserName = decoded.preferred_username || decoded.upn;
+    const userName = rawUserName.toLowerCase();
+
+    const isValidated = await userService.validateUser(userName);
     if (!isValidated) {
-        sendUnauthorized(res, 'Unrecognized user');
-        return;
+      logger.error(`Error validating user ${userName}`);
+      sendUnauthorized(res, 'Unrecognized user');
+      return;
     }
 
-    graphTokenProvider.assignUserToken(credentials.user, credentialToken);
+    graphTokenProvider.assignUserToken(userName, credentialToken);
 
-    const token = jwtTokenProvider.provideToken({
-      user: decoded.unique_name,
-    });
-    logger.info('Successfully authenticated: ', decoded.preferred_username);
-    res.json({
-               token: token,
-               email: decoded.preferred_username,
-               name: decoded.name,
-    });
+    userService.getUserDetails(userName)
+               .then(userDetails => {
+                 logger.info('Found user info', userDetails);
+               })
+               .then(() => {
+                 const token = jwtTokenProvider.provideToken({
+                                                               user: userName,
+                                                             });
+                 logger.info('Successfully authenticated: ', userName);
+                 res.json({
+                            token: token,
+                            email: rawUserName,
+                            name: decoded.name,
+                          });
+               });
+
   });
 
 

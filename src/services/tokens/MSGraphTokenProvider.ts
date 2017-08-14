@@ -47,8 +47,10 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
   }
 
 
-  public withDelegatedToken(attendee: Attendee): Promise<string> {
-    return Promise.resolve(this.tokenMap.get(attendee.email));
+  public withDelegatedToken(user: string): Promise<string> {
+    const token = this.tokenMap.get(user);
+    logger.info('Getting token for ', user, token);
+    return Promise.resolve(token);
   }
 
 

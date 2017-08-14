@@ -1,6 +1,6 @@
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {UserService} from './UserService';
+import {MSUser, UserService} from './UserService';
 import {BookitUser} from '../../model/BookitUser';
 
 export class MockUserService implements UserService {
@@ -19,6 +19,7 @@ export class MockUserService implements UserService {
       throw 'Implement me';
     });
   }
+
   validateUser(email: string): Promise<boolean> {
     return Promise.resolve(true);
   }
@@ -30,5 +31,10 @@ export class MockUserService implements UserService {
   updateUser(user: BookitUser): Promise<any> {
     return Promise.reject('Unimplemented: MockUserService:updateUser');
   }
+
+  getUserDetails(user: string): Promise<MSUser> {
+    return Promise.reject('Unimplemented: MockUserService:getUserDetails');
+  }
+
 
 }

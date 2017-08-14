@@ -17,6 +17,7 @@ export class MSUser {
     this.mail = mail;
     this.email = mail;
 
+    console.info('MSUser', mail);
     const parts = mail.split('@');
     this.domain = parts[1];
   }
@@ -32,4 +33,6 @@ export interface UserService {
   createUser(user: BookitUser): Promise<MSUser>;
 
   updateUser(user: BookitUser): Promise<MSUser>;
+
+  getUserDetails(user: string): Promise<MSUser>;
 }
