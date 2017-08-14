@@ -36,7 +36,7 @@ export function configureUsersRoutes(app: Express,
         logger.info('Created a new user:', user);
 
         const senderEmail = getServiceUser('buildit'); // How to get the environment/mode?
-        mailSvc.sendMail(senderEmail, user.email, 'wipro_user_invitation')
+        mailSvc.sendMail(senderEmail, user.email, 'external_user_invitation')
           .then(() => {
             logger.info('Sent invitation to:', user.email);
             res.json(user);

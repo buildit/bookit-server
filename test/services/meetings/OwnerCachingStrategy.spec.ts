@@ -18,9 +18,9 @@ import {OwnerCachingStrategy} from '../../../src/services/meetings/OwnerCachingS
 
  */
 
-const andrew = new Participant('andrew@wipro.com');
-const paul = new Participant('paul@wipro.com');
-const alex = new Participant('alex@wipro.com');
+const andrew = new Participant('andrew@orpiw.com');
+const paul = new Participant('paul@orpiw.com');
+const alex = new Participant('alex@orpiw.com');
 
 const redRoom = {displayName: 'Red'};
 
@@ -77,16 +77,16 @@ describe('owner caching suite', function filterSuite() {
 
     [andrewFirst, alexFirst, paulFirst, alexSecond].forEach(meeting => ownerCacher.put(cache, meeting));
 
-    const andrewList = ownerCacher.get(cache, 'andrew@wipro.com');
+    const andrewList = ownerCacher.get(cache, 'andrew@orpiw.com');
     expect(andrewList.length).to.be.equal(1);
     expect(andrewList[0].title).to.be.equal('My first meeting');
 
-    const alexList = ownerCacher.get(cache, 'alex@wipro.com');
+    const alexList = ownerCacher.get(cache, 'alex@orpiw.com');
     expect(alexList.length).to.be.equal(2);
     expect(alexList[0].title).to.be.equal('My second meeting');
     expect(alexList[1].title).to.be.equal('My fourth meeting');
 
-    const paulList = ownerCacher.get(cache, 'paul@wipro.com');
+    const paulList = ownerCacher.get(cache, 'paul@orpiw.com');
     expect(paulList.length).to.be.equal(1);
     expect(paulList[0].title).to.be.equal('My third meeting');
   });
@@ -101,16 +101,16 @@ describe('owner caching suite', function filterSuite() {
 
     ownerCacher.remove(cache, andrewFirst);
 
-    expect(ownerCacher.get(cache, 'andrew@wipro.com').length).to.be.equal(0);
+    expect(ownerCacher.get(cache, 'andrew@orpiw.com').length).to.be.equal(0);
 
     ownerCacher.remove(cache, alexFirst);
-    expect(ownerCacher.get(cache, 'alex@wipro.com').length).to.be.equal(1);
+    expect(ownerCacher.get(cache, 'alex@orpiw.com').length).to.be.equal(1);
 
     ownerCacher.remove(cache, alexSecond);
-    expect(ownerCacher.get(cache, 'alex@wipro.com').length).to.be.equal(0);
+    expect(ownerCacher.get(cache, 'alex@orpiw.com').length).to.be.equal(0);
 
     ownerCacher.remove(cache, paulFirst);
-    expect(ownerCacher.get(cache, 'paul@wipro.com').length).to.be.equal(0);
+    expect(ownerCacher.get(cache, 'paul@orpiw.com').length).to.be.equal(0);
   });
 
 });

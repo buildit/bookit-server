@@ -8,9 +8,9 @@ import {Participant} from '../../../src/model/Participant';
 import {StartDateCachingStrategy} from '../../../src/services/meetings/StartDateCachingStrategy';
 import {EndDateCachingStrategy} from '../../../src/services/meetings/EndDateCachingStrategy';
 
-const andrew = new Participant('andrew@wipro.com');
-const paul = new Participant('paul@wipro.com');
-const alex = new Participant('alex@wipro.com');
+const andrew = new Participant('andrew@orpiw.com');
+const paul = new Participant('paul@orpiw.com');
+const alex = new Participant('alex@orpiw.com');
 
 const redRoom = {displayName: 'Red'};
 const blueRoom = {displayName: 'Blue'};

@@ -18,8 +18,8 @@ import * as moment from 'moment';
 
 const redRoom = {displayName: 'Red'};
 
-const andrew = new Participant('andrew@wipro.com');
-const karsten = new Participant('karsten@wipro.com');
+const andrew = new Participant('andrew@orpiw.com');
+const karsten = new Participant('karsten@orpiw.com');
 
 const first: Meeting = {
   id: '1',

@@ -16,7 +16,7 @@ mailMessages.set(
 );
 
 mailMessages.set(
-  'wipro_user_invitation',
+  'external_user_invitation',
   {
     subject: 'Welcome to Bookit',
     content: `

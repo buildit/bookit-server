@@ -6,9 +6,9 @@ import {Participant} from '../../../src/model/Participant';
 import {IdCachingStrategy} from '../../../src/services/meetings/IdCachingStrategy';
 
 
-const andrew = new Participant('andrew@wipro.com');
-const karsten = new Participant('karsten@wipro.com');
-const alex = new Participant('alex@wipro.com');
+const andrew = new Participant('andrew@orpiw.com');
+const karsten = new Participant('karsten@orpiw.com');
+const alex = new Participant('alex@orpiw.com');
 
 const redRoom = {displayName: 'Red'};
 
