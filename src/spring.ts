@@ -73,7 +73,7 @@ function testGetRooms() {
 
 
 async function testMeetingCreate() {
-  const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
+  const owner = new Participant(`bruce@${domain}`);
   const start = moment().startOf('hour').add(1, 'hour');
   const duration = moment.duration(1, 'hour');
 
@@ -84,7 +84,7 @@ async function testMeetingCreate() {
 
 
 async function testMeetingDelete(meeting: Meeting) {
-  const owner = new Participant(`bruce@${domain}.onmicrosoft.com`);
+  const owner = new Participant(`bruce@${domain}`);
   // const room = generateMSRoomResource('Red', 'builditcontoso');
   // const start = moment().startOf('day').subtract(1, 'day');
   // const end = moment().startOf('day').add(1, 'day');
@@ -105,7 +105,7 @@ async function testMeetingDelete(meeting: Meeting) {
 // testGetUsers();
 
 const bruceCreds: Credentials = {
-  user: `bruce@${domain}.onmicrosoft.com`
+  user: `bruce@${domain}`
 };
 
 function testX() {

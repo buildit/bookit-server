@@ -257,7 +257,7 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
 
     const matched = !anyFailed;
     if (matched) {
-      logger.info(`Matched `)
+      logger.info(`Matched ${meeting.id} to ${some.id}`);
     }
 
     return matched;

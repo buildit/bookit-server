@@ -7,7 +7,7 @@ let counter = 1;
 
 
 export function getEmail(name: string, domain: string) {
-  return `${name.toLowerCase()}@${domain}.onmicrosoft.com`;
+  return `${name.toLowerCase()}@${domain}`;
 }
 
 
