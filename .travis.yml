@@ -20,10 +20,10 @@ env:
     - ECS_REPO=mthomas-bookit-dev6-server-ecr-repo
     - ECS_CLUSTER=mthomas-bookit-dev6-ECSCluster
     - ECS_SERVICE=mthomas-bookit-dev6-app-BookitServerService-16FGWD83CFX0I-Service-7QTKRQLFZNO5
-    # AWS_ACCESS_KEY_ID (buildit.bookit.travis IAM account)
-    - secure: Ep0FrO6Enx67YzCG5t1C5E9af2pfuBWNgjgvFNm5jCgyO7p1PZpxIJntEyA9gcDQ+WSACxJQEWbBF2MeJ3KS6k7fkArNSRF8hS5mTL7zH0RU8yhTxVA4wXROidRdcvnwDFKn+48fS7uV6st5vhHfkxI5O/5PojOhGXQolbVOrEbniM9Hh+XOVSdAJjRFX9/N5gdtOtWPKM7jKGlprC7FBo49o0po3wLEqNRyBqpHNApv9NRp/pxwYpFcdQ+S776RVMFDbvIxjQjwwdlQqcI0uA+8EMcLWePcN0WsN97gcmlaFhtuP5vkx3miTzjaHBbRmC1VifGBAMJCB1SfgCnwsz/nKkKR7EoQnXli7cQu5Kve2frUN4ifaTMD+dBnCT3L45XyF/MLDCIKSeZYosolSyzs3RVi0qhFtpaMZZFfnj71Iilb9Bp94XTUvaQM8ID2DEBcU0UM754OBS9xyGOwTXvsdLLo0Guo0QHLEam5G6Ks+zRarROlp7901/enTSrLdJr7naerlUBcdqMScGxjgJZHLNjEyPcqpClIdoC4BYp6rKgO47CJEsR6e5/oM85t9upKnNhwrFeibxTFDNePjCWxuIHhLAdEVisdzGSJ+eebzo2RllA8qvJGlw6tWTeKW28kYOfVsgX/3BQ5zNcqhywmdEmTMQOx+fz+OwcZZgQ=
-    # AWS_SECRET_ACCESS_KEY (buildit.bookit.travis IAM account)
-    - secure: LjrP1fYqDjsF/a/vtt1bplCed0Q26L3NadYaveI6CG+MDwFB0n2naPUTIRXDrd4emggldv2sxCQgtJPG2ftmFOzI/G10KvrJcxZI+5cSecrHiWCn6JhANy6+ixeQUB2WRv4qRKteSvRNZWizOkciceMqErh3yvIDXcctgyzEnsjw2+qLuVfWHZf/pJ+xNzdma8/bQfgjoraMmZcHXH1psiBh6u+D4uk3fG25Ht3pg4ykD8RuLBeGtWvcaWu5Cb2ozVFMFtoSirqAuLLzxPl4RjK4RZi80Dp5BrA9mA8AdiLOJlJXP4TjfvBtTVopIMzV+oHEqL03UAM09mZw90n3ofBpUGl6O8pI0DStFNYnk8nQ9JJ5qkQXLFXSwX5YEn9ANRF1vLKKIS6ee8WTYd9gHYvh9WcoTwqgxqUKOjsXXvBmljY0XiqhqLT8zSHnWc7ZUIGgypKxLPVBOzmIwfsNWudf0FdCalp40WJMu2Hhj3QqaT/qmznIgcPFRwKcxW0Xv+Z9yD45gSJU0a45ilO9r3nirJIfVL7g6QW+Rvj8syfkwFd6zKCQ/lg2vKY7yxQgVTQqET6/661qv44R8DBB5NCkDaLuuB3tCE+2yDEYZKDvjh4RxNRARQGyL8hC3pygstpqGW6DvK3p2byBBVVJdm+ObAadGpbyXLlECLqILVQ=
+    # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
+    - secure: 1A7F5ZCZ/7zo2kxVxM5U6Ct88vnuu4QhJukjWO47Um4bcUBwVuC07UDO/CjAp+jtM6LepJYBeDCc0Mjxp9xO/yUDXr7W6XtLFJzn/5kHeI4u8wq+aaM7al+kWqzeMH5pYUs8QbH7khpP+UgXXK6Q7S+/kppnFwQMzjPVvroBEfluRY1CBTm2XL0Z+Q0XqdKh0nEbYRBtKlBoqw6cI46TSyc4yxqDRVWubhghBCJ+QipLUayAditzyN4IHpBf+SAZcz3BJpNITmjaHPKjLOn8moP8RHZmn4tpMD8CRJeJDAKV7oXqWr0+hyu4kV+eY6UaiflnRkdXfeBnAuVqqkNN3bbG02ceIj0/ihKf5xbyaSID6FA0wT4Ugb84YWdh6awJdVuTeed0oxVVdtw/pDfZXG94s7kIwtyEB5AYncX3Er+sCWDL+mCpj6g2caldfvEDZLE5h5/U3UHrNfCVhMjtPBTupm3LpYKRffURclijZpn/7GLnBG4m9P9Dr5EVbrMDxiphJpmCFb5YR2sNxeCJZ6PPPusOUJhOOez7eNRnlH/gCKaCgj3sD60modnvuuqDRBqGwuAckAYBEpxilw/GSF0c74c+knPj2hvXZgZhddYpuKShuZh3t9s7+4cYWM6LEhhydU7eGUdH3G550eLhy/Sxd7bRp0Wk0A0kEHbnWpA=
+    # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
+    - secure: LrwTR1TZ4WO4W0A+b6FJV+oarv9VuzsZqXu+JBJW97YxzJkHhjegalLcHkDbtBV04Iil9ipzX7cNMHEWBWa2qsh11yvyAQEOrSH788TSHH9GnsHVgHk0ZhUr1glrDstPxBu5NqZz4uBFLbK5dY1v5uZqxh0HH7rF3ph4vh0WRJ5rBPeJ/a5HUsdu3KUWbz0GVKHTgryh+pM5Ca3jcHJOsnAcQ46UdZR/NOeqHKYhJ3RSKtpQiqNwWj+shbgFUk2Spw/c/vWJTxE7iy29sqbtoexI+gOzEF0pcvadKAjn/mxq7p9XRWiid1d/Mkg4AaqMgorf/aVfp68aZtBMASQDZIxW7JDJAuB/FsokjP0Oa49j+lL8m6x4+5Z5jPVjVGWnL9/hpfQ4N7lX2GmYMRWRnuTaggtzRgVUFSovCBmnNaYuzN5KVJ8O73IubdBT0C1sFv+emFYXjDryzut4slL4Z1ICnhhahxWt7F0acYsYXkdnSqvIeKaHfFi93PjNdZhMcYnEQRrcOqRN8RuZjanByLLiVLyYwpWx9sGgq4PJV062DyBS6ebsFlvyDVGu4qlYXL6LN9ywi5h5g6jmV8CiEbXLsjoV0S2l9RkGzoTdTkKFDDhOZeyLx2GBmlIob+wgfVvgJ7UVw2c/MAG41mGHHxbGOTtr7FH1pMhqiyB+0DQ=
 
 script:
   - npm test
@@ -38,17 +38,17 @@ deploy:
     skip_cleanup: true
     script: ./scripts/get-deployment-scripts.sh
     on:
-      branch: 74-aws-integrate-web-to-api
+      branch: 75-automate-create-travis-iam-user
   - provider: script
     skip_cleanup: true
     script: ./scripts/push-to-ecr.sh
     on:
-      branch: 74-aws-integrate-web-to-api
+      branch: 75-automate-create-travis-iam-user
   - provider: script
     skip_cleanup: true
     script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}
     on:
-      branch: 74-aws-integrate-web-to-api
+      branch: 75-automate-create-travis-iam-user
 
 notifications:
   slack:
