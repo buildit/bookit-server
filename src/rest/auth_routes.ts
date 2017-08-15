@@ -48,6 +48,7 @@ export function configureAuthenticationRoutes(app: Express,
     logger.info('Credentials', credentials);
     const rawUserName = decoded.preferred_username || decoded.upn;
     const userName = rawUserName.toLowerCase();
+    const userId = decoded.tid;
 
     const isValidated = await userService.validateUser(userName);
     if (!isValidated) {
@@ -56,22 +57,29 @@ export function configureAuthenticationRoutes(app: Express,
       return;
     }
 
-    graphTokenProvider.assignUserToken(userName, credentialToken);
+    if (!userService.isInternalUser(userName)) {
+      graphTokenProvider.assignUserToken(userName, credentialToken);
+    }
 
     userService.getUserDetails(userName)
                .then(userDetails => {
                  logger.info('Found user info', userDetails);
+                 return userDetails;
                })
-               .then(() => {
-                 const token = jwtTokenProvider.provideToken({
-                                                               user: userName,
-                                                             });
-                 logger.info('Successfully authenticated: ', userName);
-                 res.json({
-                            token: token,
-                            email: rawUserName,
-                            name: decoded.name,
-                          });
+               .then((userDetails) => {
+                 const userEmail = userDetails.email;
+                 const token = jwtTokenProvider.provideToken({user: userEmail});
+                 graphTokenProvider.assignUserToken(userEmail, credentialToken);
+
+                 const response = {
+                   token: token,
+                   email: userEmail,
+                   name: decoded.name,
+                 };
+
+                 logger.info('Successfully authenticated: ', response);
+
+                 res.json(response);
                });
 
   });

@@ -5,12 +5,12 @@ import {Attendee} from '../../model/Attendee';
 export class MockGraphTokenProvider implements GraphTokenProvider {
   private tokenMap = new Map<string, string>();
 
-  constructor() {
+  constructor(private _domain: string) {
   }
 
 
   domain(): string {
-    throw new Error('Should not be called');
+    return this._domain;
   }
 
 

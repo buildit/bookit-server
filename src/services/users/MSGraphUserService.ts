@@ -68,32 +68,30 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
-                     const users = response.body.value;
-                     logger.info('Users', users);
-                     const mapUser = (user: any) => ({
-                       email: user.emailAddresses[0].address,
-                       team: externalTeam,
-                       roles: user.categories,
-                       createdDateTime: user.createdDateTime,
-                       firstName: '',
-                       lastName: '',
-                     });
-                     resolve(users.map(mapUser));
+                     const contacts = response.body.value;
+                     // logger.info('Users', users);
+                     resolve(contacts.map((contact: any) => this.mapContactToUser(contact, externalTeam)));
                    });
           });
     });
   }
 
+  private mapContactToUser(contact: any, team: string) {
+    return {
+      email: contact.emailAddresses[0].address,
+      team: team,
+      roles: contact.categories,
+      createdDateTime: contact.createdDateTime,
+      firstName: '',
+      lastName: '',
+    };
+  }
+
 
   getUserDetails(user: string): Promise<MSUser> {
+    logger.info(`Attempting to get user details ${user}`);
     const getToken = () => {
-      return this.listInternalUsers()
-                 .then(internal => {
-                   const found = internal.find(user => user.name === user);
-                   logger.info('Found internal user', user, found);
-
-                   return found ? this.tokenOperations.withToken() : this.tokenOperations.withDelegatedToken(user);
-                 });
+      return this.isInternalUser(user) ? this.tokenOperations.withToken() : this.tokenOperations.withDelegatedToken(user);
     };
 
 
@@ -126,9 +124,14 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
 
+  isInternalUser(email: string): boolean {
+    return email.endsWith(`@${this.domain()}`);
+  }
+
+
   // TODO: Supply first condition via configuration
   validateUser(email: string): Promise<boolean> {
-    if (email.endsWith(`@${this.domain()}`)) {
+    if (this.isInternalUser(email)) {
       return Promise.resolve(true);
     }
 

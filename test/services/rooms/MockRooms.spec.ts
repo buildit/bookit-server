@@ -6,18 +6,14 @@ chai.use(chai_as_promised);
 chai.should();
 
 import {MockRoomService} from '../../../src/services/rooms/MockRoomService';
+import {Participant} from '../../../src/model/Participant';
 
 const svc = new MockRoomService([
   {
     id: '1',
     name: 'room list',
-    rooms: [
-      {
-        id: '2',
-        name: 'room1',
-        email: 'test@test',
-        mail: 'test@test'
-      }]}
+    rooms: [ new Participant('test@test', 'room1') ]
+  }
 ]);
 
 describe('Room list', function testReturnRoom() {

@@ -23,7 +23,7 @@ const meetingService = Runtime.meetingService;
 
 const app = configureRoutes(
   express(),
-  Runtime.passwordStore,
+  Runtime.graphTokenProvider,
   Runtime.jwtTokenProvider,
   Runtime.roomService,
   Runtime.userService,
@@ -35,6 +35,7 @@ describe('tests authentication', () => {
   const nockManager = new NockManager();
   beforeEach(() => {
     nockManager.setupContactList();
+    nockManager.setupGetBruceUser();
   });
 
   it('validates an unknown user is rejected', function testUnknownUser() {
@@ -48,6 +49,7 @@ describe('tests authentication', () => {
                        .expect(403)
                        .then(res => {
                          expect(JSON.parse(res.text).message).to.be.equal('Unrecognized user');
+                         return;
                        });
 
   });
@@ -89,6 +91,7 @@ describe('tests authentication', () => {
                                             .then(res => {
                                               const message = JSON.parse(res.text).message;
                                               expect(message).to.be.equal('Unauthorized');
+                                              return;
                                             });
                        });
 

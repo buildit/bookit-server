@@ -20,6 +20,11 @@ export class NockManager {
       .reply(200, internalUsersListMock);
   }
 
+  setupGetBruceUser() {
+    nock('https://graph.microsoft.com')
+      .get('/v1.0/users/bruce@builditcontoso.onmicrosoft.com')
+      .reply(200, bruceUser);
+  }
 }
 
 const contactsListMock = { 'value': [
@@ -74,7 +79,7 @@ const internalUsersListMock = {
        displayName: <any>'Barbra Striesand',
        givenName: <any>null,
        jobTitle: <any>null,
-       mail: <any>null,
+       mail: <any>'babs@builditcontoso.onmicrosoft.com',
        mobilePhone: <any>null,
        officeLocation: <any>null,
        preferredLanguage: <any>null,
@@ -82,6 +87,8 @@ const internalUsersListMock = {
        userPrincipalName: <any>'babs@builditcontoso.onmicrosoft.com' },
   ]
 };
+
+
 const internalUsersListWithRoomMock = {
   value: [
     { id: <any>'9994edb3-9361-4d6e-a023-5032a2e493af',
@@ -108,3 +115,18 @@ const internalUsersListWithRoomMock = {
       userPrincipalName: <any>'red-room@builditcontoso.onmicrosoft.com' },
   ]
 };
+
+const bruceUser = {
+  id: <any>'9994edb3-9361-4d6e-a023-5032a2ebruce',
+  businessPhones: <any>[],
+  displayName: <any>'Bruce Springsteen',
+  givenName: <any>null,
+  jobTitle: <any>null,
+  mail: <any>'bruce@builditcontoso.onmicrosoft.com',
+  mobilePhone: <any>null,
+  officeLocation: <any>null,
+  preferredLanguage: <any>null,
+  surname: <any>null,
+  userPrincipalName: <any>'bruce@builditcontoso.onmicrosoft.com'
+};
+
