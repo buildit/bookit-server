@@ -222,20 +222,26 @@ export function assignProperties(roomMeeting: Meeting, userMeeting: Meeting) {
   return roomMeeting;
 }
 
+const DATE_TIME_FORMAT = 'YYYYMMDD h:mm:ss';
+
+function formatMoment(moment: Moment)
+{
+  return moment.format(DATE_TIME_FORMAT);
+}
 
 /*
 Can't match by meeting id when using different user perspectives
  */
 export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meeting {
 
-  const otherStart = meeting.start.format('MMMM Do YYYY, h:mm:ss');
-  const otherEnd = meeting.end.format('MMMM Do YYYY, h:mm:ss');
+  const otherStart = formatMoment(meeting.start);
+  const otherEnd = formatMoment(meeting.end);
   const otherEmail = meeting.owner.email;
   const otherLocation = meeting.location.displayName;
 
   function meetingsMatch(some: Meeting): boolean {
-    const areStartsMismatching = () => some.start.format('MMMM Do YYYY, h:mm:ss') !== otherStart;
-    const areEndsMismatching = () => some.end.format('MMMM Do YYYY, h:mm:ss') !== otherEnd;
+    const areStartsMismatching = () => formatMoment(some.start) !== otherStart;
+    const areEndsMismatching = () => formatMoment(some.end) !== otherEnd;
     const areOwnersMismatching = () => some.owner.email !== otherEmail;
     const areLocationsMismatching = () => some.location.displayName !== otherLocation;
 
@@ -243,12 +249,18 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
     const anyFailed = predicates.some(predicate => {
       const res = predicate();
       if (!res) {
-        logger.trace(`Mismatched on ${predicate.name}`);
+        logger.info(`Mismatched on ${predicate.name}`);
       }
 
       return res;
     });
-    return !anyFailed;
+
+    const matched = !anyFailed;
+    if (matched) {
+      logger.info(`Matched `)
+    }
+
+    return matched;
   }
 
   return otherMeetings.find(meetingsMatch);
