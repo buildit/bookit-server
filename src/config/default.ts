@@ -21,7 +21,7 @@ const environment: EnvironmentConfig = {};
 
 environment.domain = getDomain(AppEnv.CLOUD_CONFIG);
 
-logger.info('Using cloud?', AppEnv.USE_AZURE);
+logger.info('Using azure?', AppEnv.USE_AZURE);
 if (AppEnv.USE_AZURE && AppEnv.USE_AZURE === 'true') {
   logger.info('About to assign identity');
   assignGraphIdentity(environment, AppEnv.CLOUD_CONFIG);
