@@ -10,7 +10,7 @@ if [ -z "${AWS_REGION}" ]; then
 fi
 echo "AWS_REGION is ${AWS_REGION}"
 
-USE_CLOUD=true \
+USE_AZURE=true \
 CLOUD_CONFIG=$(awsparam CLOUD_CONFIG) \
 BUILDIT_SECRET=$(awsparam BUILDIT_SECRET) \
 npm start
