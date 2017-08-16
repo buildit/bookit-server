@@ -55,7 +55,7 @@ defining the following variables.
 
 ##### Toggle usage of the Graph API backend
 ```
-USE_CLOUD=true
+USE_AZURE=true
 ```
 
 ##### MICROSOFT GRAPH SETTINGS

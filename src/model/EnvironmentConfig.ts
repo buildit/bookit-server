@@ -3,7 +3,7 @@ Expected environment variables from the .env file
  */
 
 export interface Env {
-  readonly USE_CLOUD: string;
+  readonly USE_AZURE: string;
   readonly CLOUD_CONFIG: string;
   readonly ROMAN_SECRET?: string;
   readonly TEST_SECRET?: string;
