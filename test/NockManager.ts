@@ -22,23 +22,23 @@ export class NockManager {
 
 }
 
-const contactsListMock = { "value": [
+const contactsListMock = { 'value': [
     {
-      "@odata.etag": <any>"W/EQAAABYAAABKB99Tm01+Q6waLYtxfsHMAAAEgnPn",
-      id: <any>"AAMkAGMzMzk0MmRlLWI5Y2EtNGExOS04M2Y1LTQyNDQ4YTFjYmRhYgBGAAAAAABWLwsofOohSqdSMFArzj98BwBKB99Tm01_Q6waLYtxfsHMAAAAAAEOAABKB99Tm01_Q6waLYtxfsHMAAAEgeO2AAA=",
-      createdDateTime: <any>"2017-07-31T18:04:13Z",
-      lastModifiedDateTime: <any>"2017-07-31T18:04:14Z",
-      changeKey: <any>"EQAAABYAAABKB99Tm01+Q6waLYtxfsHMAAAEgnPn",
+      '@odata.etag': <any>'W/EQAAABYAAABKB99Tm01+Q6waLYtxfsHMAAAEgnPn',
+      id: <any>'AAMkAGMzMzk0MmRlLWI5Y2EtNGExOS04M2Y1LTQyNDQ4YTFjYmRhYgBGAAAAAABWLwsofOohSqdSMFArzj98BwBKB99Tm01_Q6waLYtxfsHMAAAAAAEOAABKB99Tm01_Q6waLYtxfsHMAAAEgeO2AAA=',
+      createdDateTime: <any>'2017-07-31T18:04:13Z',
+      lastModifiedDateTime: <any>'2017-07-31T18:04:14Z',
+      changeKey: <any>'EQAAABYAAABKB99Tm01+Q6waLYtxfsHMAAAEgnPn',
       categories: <any>[],
-      parentFolderId: <any>"AAMkAGMzMzk0MmRlLWI5Y2EtNGExOS04M2Y1LTQyNDQ4YTFjYmRhYgAuAAAAAABWLwsofOohSqdSMFArzj98AQBKB99Tm01_Q6waLYtxfsHMAAAAAAEOAAA=",
+      parentFolderId: <any>'AAMkAGMzMzk0MmRlLWI5Y2EtNGExOS04M2Y1LTQyNDQ4YTFjYmRhYgAuAAAAAABWLwsofOohSqdSMFArzj98AQBKB99Tm01_Q6waLYtxfsHMAAAAAAEOAAA=',
       birthday: <any>null,
-      fileAs: <any>"Springsteen, Bruce",
-      displayName: <any>"Bruce Springsteen",
-      givenName: <any>"Bruce",
+      fileAs: <any>'Springsteen, Bruce',
+      displayName: <any>'Bruce Springsteen',
+      givenName: <any>'Bruce',
       initials: <any>null,
       middleName: <any>null,
       nickName: <any>null,
-      surname: <any>"Springsteen",
+      surname: <any>'Springsteen',
       title: <any>null,
       yomiGivenName: <any>null,
       yomiSurname: <any>null,
@@ -57,9 +57,9 @@ const contactsListMock = { "value": [
       mobilePhone: <any>null,
       businessPhones: <any>[],
       spouseName: <any>null,
-      personalNotes: <any>"",
+      personalNotes: <any>'',
       children: <any>[],
-      emailAddresses: <any>[{"name":"bruce@builditcontoso.onmicrosoft.com","address":"bruce@builditcontoso.onmicrosoft.com"}],
+      emailAddresses: <any>[{'name': 'bruce@builditcontoso.onmicrosoft.com', 'address': 'bruce@builditcontoso.onmicrosoft.com'}],
       homeAddress: <any>{},
       businessAddress: <any>{},
       otherAddress: <any>{}
