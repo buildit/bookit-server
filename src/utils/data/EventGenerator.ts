@@ -66,7 +66,7 @@ function regenerateEvents(room: Room, start: Moment, end: Moment, svc: MeetingsS
                               const eventDate = currentDate.clone();
                               events.push(
                                 queue.wrap(() => roomMeetingHelper.createMeeting(subject, eventDate, duration, [randomPart]))()
-                                     .catch(err => logger.error(`Failed to create event for ${randomPart.email}`, err))
+                                     .catch((err: Error) => logger.error(`Failed to create event for ${randomPart.email}`, err))
                               );
 
                               currentDate.add(conf.maxDuration).add(random15MinDelay(conf.maxDuration));
