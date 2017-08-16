@@ -155,7 +155,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
 
   private postUser(user: BookitUser): Promise<MSUser> {
-    const bookitServiceUserId = getServiceUser('buildit');
+    const bookitServiceUserId = getServiceUser(this.domain());
 
     const userObjectThatMSLikesWAntsNEEDz = {
       givenName: user.email,
