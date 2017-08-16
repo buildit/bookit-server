@@ -4,6 +4,7 @@ Expected environment variables from the .env file
 
 export interface Env {
   readonly USE_AZURE: string;
+  readonly ENVIRONMENT_NAME: string;
   readonly CLOUD_CONFIG: string;
   readonly ROMAN_SECRET?: string;
   readonly TEST_SECRET?: string;
@@ -12,8 +13,6 @@ export interface Env {
   readonly MEETING_CACHE_DISABLED: string;
   readonly GROUP_CACHE_DISABLED: string;
 }
-
-export type CloudConfiguration = 'roman' | 'contoso';
 
 /*
 The internal structure representing the configuration as attributes get
