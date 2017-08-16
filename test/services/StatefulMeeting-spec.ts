@@ -9,7 +9,7 @@ chai.should();
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {createMeetingOperation, MeetingsOps} from '../../src/services/meetings/MeetingsOps';
+import {createMeetingOperation} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 import {Room} from '../../src/model/Room';
@@ -21,9 +21,6 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
 
   const bruceParticipant = new Participant(BRUCE_ID);
   const redRoom = new Room('1', 'Red', redRoomId);
-
-  /* why do we have these three? */
-  const meetingOps = new MeetingsOps(meetingService);
 
   const start = moment().add(20 + Math.random() * 20, 'days').startOf('day');
   const end = start.clone().add(1, 'day');
@@ -119,7 +116,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('fails to delete non-existent room', function testDeleteOfNonexistent() {
-      meetingService.deleteMeeting(redRoom, 'bogus').should.eventually.be.rejected;
+      meetingService.deleteUserMeeting(redRoom, 'bogus').should.eventually.be.rejected;
     });
 
     it('has deletes all meetings', function testMeetingsAreEmpty() {
@@ -130,7 +127,7 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
       return meetingService.getMeetings(redRoom, start, end)
                            .then(meetings => {
                              const deletePromises = meetings.map(
-                               meeting => meetingService.deleteMeeting(redRoom, meeting.id));
+                               meeting => meetingService.deleteUserMeeting(redRoom, meeting.id));
                              return Promise.all(deletePromises);
                            })
                            .then(() => meetingService.getMeetings(redRoom, start, end)).should.eventually.be.empty;

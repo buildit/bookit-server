@@ -5,7 +5,6 @@ import {start} from 'repl';
 import {Participant} from '../../model/Participant';
 
 import {MeetingsService} from '../../services/meetings/MeetingService';
-import {MeetingsOps, RoomMeetings} from '../../services/meetings/MeetingsOps';
 import {RoomService} from '../../services/rooms/RoomService';
 import {RootLog as logger} from '../../utils/RootLogger';
 import {extractQueryParamAsMoment} from '../../utils/validation';
@@ -20,8 +19,7 @@ import {Credentials} from '../../model/Credentials';
 
 
 export interface MeetingRequest {
-  readonly id?: string;
-  readonly userMeetingId?: string;
+  readonly id?: string; // This will only be returned to the UI if the user is entitled
   readonly title: string;
   readonly start: string;
   readonly end: string;
@@ -34,9 +32,6 @@ export function configureMeetingRoutes(app: Express,
                                        roomService: RoomService,
                                        meetingsService: MeetingsService): Express {
 
-  const meetingsOps = new MeetingsOps(meetingsService);
-
-
   credentialedEndpoint(app, '/rooms/:listName/meetings', app.get, (req: Request, res: Response) => {
     logger.info('Fetching meetings');
     const listName = req.params['listName'];
@@ -47,7 +42,7 @@ export function configureMeetingRoutes(app: Express,
       const end = extractQueryParamAsMoment(req, 'end');
       validateTimes(start, end);
 
-      const meetings = handleMeetingFetch(roomService, meetingsOps, credentials, listName, start, end);
+      const meetings = handleMeetingFetch(roomService, meetingsService, credentials, listName, start, end);
       meetings.then(roomMeetings => res.json(roomMeetings));
     } catch (error) {
       return sendValidation(error, res);
@@ -56,7 +51,7 @@ export function configureMeetingRoutes(app: Express,
 
 
   protectedEndpoint(app, '/room/:roomEmail/meeting', app.post, (req: Request, res: Response) => {
-    logger.debug('About to create meeting', req.body);
+    logger.info('About to create meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
     const event = req.body as MeetingRequest;
 
@@ -74,7 +69,7 @@ export function configureMeetingRoutes(app: Express,
 
 
   protectedEndpoint(app, '/room/:roomEmail/meeting/:meetingId', app.put, (req: Request, res: Response) => {
-    logger.debug('About to update meeting', req.body);
+    logger.info('About to update meeting', req.body);
     const credentials = req.body.credentials as TokenInfo;
     const meeting = req.body as MeetingRequest;
     const meetingId = req.params['meetingId'];
@@ -84,12 +79,6 @@ export function configureMeetingRoutes(app: Express,
       const start = moment(meeting.start);
       const end = moment(meeting.end);
       validateTimes(start, end);
-
-      const userMeetingId = meeting.userMeetingId;
-
-      if (!userMeetingId) {
-        sendValidation('Expected a user meeting id in the payload', res);
-      }
 
       updateMeeting(req, res, roomService, meetingsService, meetingId, new Participant(credentials.user));
     } catch (error) {
@@ -102,6 +91,7 @@ export function configureMeetingRoutes(app: Express,
     const roomEmail = req.params['roomEmail'];
     const meetingId = req.params['meetingId'];
 
+    logger.info('About to delete meeting', roomEmail, meetingId);
     handleMeetingDeletion(meetingsService, roomEmail, meetingId).then(() => res.json())
                                                                 .catch(err => {
                                                                   sendGatewayError(err, res);
