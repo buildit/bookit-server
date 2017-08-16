@@ -33,6 +33,7 @@
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
     "@types/nock": "^8.2.1",
+    "aws-sdk": "^2.100.0",
     "body-parser": "^1.17.1",
     "config": "^1.25.1",
     "cors": "^2.8.3",
