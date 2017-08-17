@@ -4,6 +4,12 @@ import {RootLog as logger} from '../utils/RootLogger';
 import {Runtime} from '../config/runtime/configuration';
 import {configureRoutes} from './server';
 
+/* tslint:disable no-require-imports */
+const verifyNodeVersion = require('verify-node-version');
+/* tslint:enable no-require-imports */
+
+verifyNodeVersion();
+
 const app = express();
 
 logger.info('Server: starting up');
