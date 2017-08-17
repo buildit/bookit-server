@@ -2,25 +2,33 @@ import {expect} from 'chai';
 import {getDomain} from '../../src/config/domain';
 import {Domain} from '../../src/model/EnvironmentConfig';
 
-describe('Domain', function testDomainSuite() {
-  it('returns default when no env passed', function testGetDomainWithoutEnv() {
-    const _env: any = undefined;
-    const result = getDomain(_env);
-    expect(result).to.be.an('object');
-  });
+describe('Domain', () => {
+  describe('getDomain()', () => {
+    it('returns default when no env passed', () => {
+      const _env: any = undefined;
+      const result = getDomain(_env);
+      expect(result).to.be.an('object');
+    });
 
-  it('returns default when no env passed', function testGetDomainWithoutEnv() {
-    const _env: any = null;
-    const result = getDomain(_env);
-    expect(result).to.be.an('object');
-  });
+    it('returns default when null env passed', () => {
+      const _env: any = null;
+      const result = getDomain(_env);
+      expect(result).to.be.an('object');
+    });
 
-  it('returns buildit domain when env is buildit', function testGetEnvTestDomain() {
-    const _env: string = 'buildit';
-    const result = getDomain(_env);
-    expect(result.domainName).to.equal('builditcontoso');
-    expect(result.sites).to.be.an('array');
-    expect(result.sites.length).to.equal(1);
-    expect(result.sites[0]).to.equal('nyc');
+    it('returns default when nonexistent env passed', () => {
+      const _env: any = 'not there';
+      const result = getDomain(_env);
+      expect(result).to.be.an('object');
+    });
+
+    it('returns buildit domain regardless of case', () => {
+      const _env: string = 'BuIlDiT';
+      const result = getDomain(_env);
+      expect(result.domainName).to.equal('builditcontoso');
+      expect(result.sites).to.be.an('array');
+      expect(result.sites.length).to.equal(1);
+      expect(result.sites[0]).to.equal('nyc');
+    });
   });
 });
