@@ -77,7 +77,7 @@ export function configureAuthenticationRoutes(app: Express,
                    name: decoded.name,
                  };
 
-                 logger.info('Successfully authenticated: ', response);
+                 logger.debug('Successfully authenticated: ', response);
 
                  res.json(response);
                });

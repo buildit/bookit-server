@@ -11,6 +11,7 @@ import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {UserService} from '../users/UserService';
+import {getToken} from './MeetingsSupport';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
@@ -47,7 +48,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     console.info('POST', URL, eventData);
 
     return new Promise((resolve, reject) => {
-      this.getToken(Perspective.USER, owner.email)
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.post(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -77,7 +78,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     console.info('PATCH', URL, eventData);
 
     return new Promise((resolve, reject) => {
-      this.getToken(Perspective.USER, owner.email)
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.patch(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -133,7 +134,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
-      this.getToken(perspective, user)
+      getToken(this.tokenOperations, this.userService, Perspective.USER, user)
           .then(token => {
             request.get(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -152,16 +153,6 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
           });
     });
   }
-
-
-
-  private getToken(perspective: Perspective, user: string) {
-    if (perspective === Perspective.ROOM || this.userService.isInternalUser(user)) {
-      return this.tokenOperations.withToken();
-    }
-
-    return this.tokenOperations.withDelegatedToken(user);
-  };
 
 
   private static _generateEventPayload(subj: string,
@@ -196,7 +187,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
   private _deleteMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.getToken(Perspective.USER, owner.email)
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.delete('https://graph.microsoft.com/v1.0/users/' + owner.email + '/calendar/events/' + id)
                    .set('Authorization', `Bearer ${token}`)

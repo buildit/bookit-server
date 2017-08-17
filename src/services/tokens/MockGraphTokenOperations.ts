@@ -2,6 +2,8 @@ import {GraphTokenProvider} from './TokenProviders';
 import {Attendee} from '../../model/Attendee';
 
 
+export const MOCK_APP_TOKEN = 'mockapptoken';
+
 export class MockGraphTokenProvider implements GraphTokenProvider {
   private tokenMap = new Map<string, string>();
 
@@ -25,7 +27,7 @@ export class MockGraphTokenProvider implements GraphTokenProvider {
 
 
   withToken(): Promise<string> {
-    return Promise.resolve('xyzzy');
+    return Promise.resolve(MOCK_APP_TOKEN);
     // return Promise.reject('Unimplemented: MockGraphTokenProvider:withToken');
   }
 
