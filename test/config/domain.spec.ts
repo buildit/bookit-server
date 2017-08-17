@@ -1,6 +1,5 @@
 import {expect} from 'chai';
 import {getDomain} from '../../src/config/domain';
-import {Domain} from '../../src/model/EnvironmentConfig';
 
 describe('Domain', () => {
   describe('getDomain()', () => {
