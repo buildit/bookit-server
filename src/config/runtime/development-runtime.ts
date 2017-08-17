@@ -12,7 +12,7 @@ import {MockUserService} from '../../services/users/MockUserService';
 import {CachedMeetingService} from '../../services/meetings/CachedMeetingService';
 import {RuntimeConfig} from '../../model/RuntimeConfig';
 import {MSGraphMeetingService} from '../../services/meetings/MSGraphMeetingService';
-import {ROOM_COLORS, generateMSGroup, generateRomanNYCRoomList, generateRoomLists} from '../bootstrap/rooms';
+import {ROOM_COLORS, generateMSGroup, generateMockRoomList, generateRoomLists} from '../bootstrap/rooms';
 import {MockRoomService} from '../../services/rooms/MockRoomService';
 import {MSGraphUserService} from '../../services/users/MSGraphUserService';
 import {MSGraphMailService} from '../../services/mail/MSGraphMailService';
@@ -33,7 +33,7 @@ import {MockAzureAuthTokenProvider} from '../../services/tokens/MockAzureAuthTok
 
 function generateMockGroup(domain: string): GroupService {
   const group = generateMSGroup('nyc', domain);
-  const rooms = generateRomanNYCRoomList(domain);
+  const rooms = generateMockRoomList(domain);
 
   const map = new Map<string, MSUser[]>();
   map.set(group.id, rooms);
@@ -66,9 +66,8 @@ function provideDevelopmentGraphRuntime(env: EnvironmentConfig, jwtTokenProvider
   const tokenOperations = new MSGraphTokenProvider(env.graphAPIParameters, env.domain);
 
   const createMSGraphGroupService = (runtime: RuntimeConfig): GroupService => new MSGraphGroupService(tokenOperations);
-  const createMockGroupService = (runtime: RuntimeConfig) => generateMockGroup(env.domain.domainName);
 
-  const groupServiceFactory = env.graphAPIParameters.identity === 'roman' ? createMockGroupService : createMSGraphGroupService;
+  const groupServiceFactory = createMSGraphGroupService;
 
   return new RuntimeConfig(env.port,
                            env.domain,

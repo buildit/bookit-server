@@ -6,7 +6,6 @@ export interface Env {
   readonly USE_AZURE: string;
   readonly ENVIRONMENT_NAME: string;
   readonly CLOUD_CONFIG: string;
-  readonly ROMAN_SECRET?: string;
   readonly TEST_SECRET?: string;
   readonly BUILDIT_SECRET?: string;
   readonly JWT_TOKEN_SECRET: string;

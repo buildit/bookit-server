@@ -44,11 +44,6 @@ export function generateMSGroup(name: string, domain: string): MSGroup {
 }
 
 
-export function generateRomanNYCRoomList(domain: string, roomNames: string[] = ROOM_COLORS) {
-  return roomNames.map(room => generateMSRoomResource(room, domain));
-}
-
-
 export function generateMSUserResource(name: string, domain: string): MSUser {
   return new MSUser('user' + counter++, name, 'auto-generated user resource', getEmail(name, domain));
 }
@@ -59,8 +54,7 @@ export function generateMSRoomResource(name: string, domain: string): MSUser {
 }
 
 
-export function generateRoomLists(roomNames: string[],
-                                  domain: string): RoomList[] {
+export function generateRoomLists(roomNames: string[], domain: string): RoomList[] {
   const rooms = roomNames.map(name => generateMSRoomResource(name, domain));
 
   return [
@@ -72,7 +66,13 @@ export function generateRoomLists(roomNames: string[],
   ];
 }
 
+// TODO: consider this function and the generateTestRoomLists() function and refactor to
+// something better.
+export function generateMockRoomList(domain: string, roomNames: string[] = ROOM_COLORS) {
+  return roomNames.map(room => generateMSRoomResource(room, domain));
+}
 
+// TODO:  See TODO on generateMockRoomList().
 export function generateTestRoomLists(domain: string): RoomList[] {
   return [
     {

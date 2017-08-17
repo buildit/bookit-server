@@ -9,6 +9,12 @@ describe('Domain', function testDomainSuite() {
     expect(result).to.be.an('object');
   });
 
+  it('returns default when no env passed', function testGetDomainWithoutEnv() {
+    const _env: any = null;
+    const result = getDomain(_env);
+    expect(result).to.be.an('object');
+  });
+
   it('returns buildit domain when env is buildit', function testGetEnvTestDomain() {
     const _env: string = 'buildit';
     const result = getDomain(_env);
