@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import {assignGraphIdentity} from '../../src/config/identity';
-import {EnvironmentConfig, GraphAPIParameters} from '../../src/model/EnvironmentConfig';
-import AppEnv from "../../src/config/env";
+import {EnvironmentConfig} from '../../src/model/EnvironmentConfig';
 
 describe('Identity', () => {
   beforeEach('Set up env', () => {
@@ -15,7 +14,7 @@ describe('Identity', () => {
       expect(assignGraphIdentity.bind(config, identity)).to.throw(Error);
     });
 
-    it('populates config object properly', () => {
+    it('populates test config object properly', () => {
       const identity: any = 'test';
       const config: EnvironmentConfig = {};
       assignGraphIdentity(config, identity);
