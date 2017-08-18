@@ -5,12 +5,8 @@ import AppEnv from './env';
 import {assignGraphIdentity} from './identity';
 import {getDomain} from './domain';
 
-const checkFlag = (flag: string): boolean => {
-  if (!flag) {
-    return false;
-  }
-
-  return flag.toLowerCase() === 'true';
+const isTrue = (flag: string): boolean => {
+  return (flag === 'true');
 };
 
 export function setupDefaultEnvironment(env: EnvironmentConfig) {
@@ -24,8 +20,8 @@ export function setupDefaultEnvironment(env: EnvironmentConfig) {
 
   env.jwtTokenSecret = AppEnv.JWT_TOKEN_SECRET || 'testing secret';
 
-  env.useMeetingCache = !checkFlag(AppEnv.MEETING_CACHE_DISABLED);
-  env.useGroupCache = !checkFlag(AppEnv.GROUP_CACHE_DISABLED);
+  env.useMeetingCache = !isTrue(AppEnv.MEETING_CACHE_DISABLED);
+  env.useGroupCache = !isTrue(AppEnv.GROUP_CACHE_DISABLED);
 
   logger.info('Meeting Cache enabled:', env.useMeetingCache);
   logger.info('Group Cache enabled:', env.useGroupCache);
