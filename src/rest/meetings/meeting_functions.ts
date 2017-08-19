@@ -11,7 +11,7 @@ import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, updateMeetingOperation, RoomMeetings
+  createMeetingOperation, updateMeetingOperation, RoomMeetings, deleteMeetingOperation
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -19,6 +19,8 @@ import {Moment} from 'moment';
 import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
+import {UserService} from '../../services/users/UserService';
+
 
 
 
@@ -55,10 +57,6 @@ export function validateTimes(start: Moment, end: Moment) {
 }
 
 
-export function meetingsNoEmpty(meetings: Meeting[]) {
-  return meetings.length > 0;
-}
-
 export function createMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,
@@ -89,12 +87,18 @@ export function createMeeting(req: Request,
 }
 
 
+export function isMeetingOwner(meeting: Meeting, user: Participant): boolean {
+  return meeting.owner.email === user.email;
+}
+
+
 export function updateMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,
+                              userService: UserService,
                               meetingService: MeetingsService,
                               userMeetingId: string,
-                              owner: Participant) {
+                              updater: Participant) {
   const event = req.body as MeetingRequest;
   const startMoment = moment(event.start);
   const endMoment = moment(event.end);
@@ -102,12 +106,13 @@ export function updateMeeting(req: Request,
 
   logger.info('Want to update meeting:', event);
   const updateRoomMeeting = (room: Room) => {
-    updateMeetingOperation(meetingService,
+    updateMeetingOperation(userService,
+                           meetingService,
                            userMeetingId,
                            event.title,
                            startMoment,
                            moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           owner,
+                           updater,
                            room)
       .then(meeting => res.json(meeting))
       .catch(err => sendError(err, res));
@@ -119,6 +124,19 @@ export function updateMeeting(req: Request,
              .then(updateRoomMeeting)
              .catch(err => sendError(err, res));
 }
+
+
+export function deleteMeeting(req: Request,
+                              res: Response,
+                              userService: UserService,
+                              meetingService: MeetingsService,
+                              roomEmail: string,
+                              meetingId: string,
+                              updater: Participant): Promise<any> {
+  return deleteMeetingOperation(userService, meetingService, roomEmail, meetingId, updater)
+    .catch(err => sendError(err, res));
+}
+
 
 
 function getRoomAndMergeUserMeetings(meetingService: MeetingsService,
@@ -222,10 +240,10 @@ export function assignProperties(roomMeeting: Meeting, userMeeting: Meeting) {
   return roomMeeting;
 }
 
+
 const DATE_TIME_FORMAT = 'YYYYMMDD h:mm:ss';
 
-function formatMoment(moment: Moment)
-{
+function formatMoment(moment: Moment) {
   return moment.format(DATE_TIME_FORMAT);
 }
 
@@ -318,24 +336,3 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
 }
 
 
-function mergeMeetings(roomMeetings: RoomMeetings[], userMeetings: Meeting[]): RoomMeetings[] {
-  const roomCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(), new RoomCachingStrategy());
-  userMeetings.forEach(meeting => roomCache.put(meeting));
-
-  return roomMeetings.map(roomMeeting => {
-    const roomId = roomMeeting.room.name;
-    const originalMeetings = roomCache.get(roomId);
-    logger.info(`meeting_functions::mergeMeetings ${roomId} has original meetings ${originalMeetings.length}`);
-
-    const mergedMeetings = mergeMeetingsForRoom(roomMeeting.room, roomMeeting.meetings, userMeetings);
-    return {
-      room: roomMeeting.room,
-      meetings: mergedMeetings
-    };
-  });
-}
-
-
-export function handleMeetingDeletion(meetingService: MeetingsService, roomEmail: string, meetingId: string): Promise<void> {
-  return meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId);
-}

@@ -13,6 +13,9 @@ export interface MeetingsService {
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]>;
 
 
+  getUserMeeting(user: Participant, id: string): Promise<Meeting>;
+
+
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]>;
 
 

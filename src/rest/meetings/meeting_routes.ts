@@ -13,9 +13,10 @@ import {sendGatewayError, sendValidation} from '../rest_support';
 import {credentialedEndpoint, protectedEndpoint} from '../filters';
 import {TokenInfo} from '../auth_routes';
 import {
-  createMeeting, handleMeetingDeletion, handleMeetingFetch, updateMeeting, validateTimes, validateTitle
+  createMeeting, deleteMeeting, handleMeetingFetch, updateMeeting, validateTimes, validateTitle
 } from './meeting_functions';
 import {Credentials} from '../../model/Credentials';
+import {UserService} from '../../services/users/UserService';
 
 
 export interface MeetingRequest {
@@ -30,6 +31,7 @@ export interface MeetingRequest {
 
 export function configureMeetingRoutes(app: Express,
                                        roomService: RoomService,
+                                       userService: UserService,
                                        meetingsService: MeetingsService): Express {
 
   credentialedEndpoint(app, '/rooms/:listName/meetings', app.get, (req: Request, res: Response) => {
@@ -80,7 +82,8 @@ export function configureMeetingRoutes(app: Express,
       const end = moment(meeting.end);
       validateTimes(start, end);
 
-      updateMeeting(req, res, roomService, meetingsService, meetingId, new Participant(credentials.user));
+      const updater = new Participant(credentials.user);
+      updateMeeting(req, res, roomService, userService, meetingsService, meetingId, updater);
     } catch (error) {
       return sendValidation(error, res);
     }
@@ -88,14 +91,18 @@ export function configureMeetingRoutes(app: Express,
 
 
   protectedEndpoint(app, '/room/:roomEmail/meeting/:meetingId', app.delete, (req: Request, res: Response) => {
+    const credentials = req.body.credentials as TokenInfo;
+
     const roomEmail = req.params['roomEmail'];
     const meetingId = req.params['meetingId'];
 
     logger.info('About to delete meeting', roomEmail, meetingId);
-    handleMeetingDeletion(meetingsService, roomEmail, meetingId).then(() => res.json())
-                                                                .catch(err => {
-                                                                  sendGatewayError(err, res);
-                                                                });
+    const updater = new Participant(credentials.user);
+    const maybeDeleted = deleteMeeting(req, res, userService, meetingsService, roomEmail, meetingId, updater);
+    maybeDeleted.then(() => res.json())
+                .catch(err => {
+                  sendGatewayError(err, res);
+                });
   });
 
   return app;

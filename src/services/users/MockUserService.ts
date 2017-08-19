@@ -29,9 +29,16 @@ export class MockUserService implements UserService {
     return email.endsWith(`@${this.domain()}`);
   }
 
+
   validateUser(email: string): Promise<boolean> {
     return Promise.resolve(true);
   }
+
+
+  isUserAnAdmin(email: string): boolean {
+    return email === `bruce@${this.domain()}`;
+  }
+
 
   createUser(user: BookitUser): Promise<any> {
     return Promise.reject('Unimplemented: MockUserService:createUser');

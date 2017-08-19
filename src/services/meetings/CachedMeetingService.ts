@@ -70,6 +70,13 @@ export class CachedMeetingService implements MeetingsService {
   }
 
 
+  getUserMeeting(user: Participant, id: string): Promise<Meeting> {
+    const userCache = this.getCacheForOwner(user);
+    const userMeeting = userCache.get(id);
+    return userMeeting ? Promise.resolve(userMeeting) : Promise.reject(`Unable to find meeting ${id}`);
+  }
+
+
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const userCache = this.getCacheForOwner(user);
     const fetch = userCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshUserCache(user, start, end);
@@ -365,8 +372,8 @@ export class CachedMeetingService implements MeetingsService {
   }
 
   private getDefaultDateRange(): Moment[] {
-    const defaultStart = moment().subtract(1, 'day').startOf('day');
-    const defaultEnd = moment().add(1, 'week').endOf('day');
+    const defaultStart = moment().startOf('day');
+    const defaultEnd = moment().endOf('day');
 
     return [defaultStart, defaultEnd];
   }
@@ -411,6 +418,14 @@ class MockGraphMeetingService implements MeetingsService {
     }
 
     return Promise.resolve(roomMeetings);
+  }
+
+
+  getUserMeeting(user: Participant, id: string): Promise<Meeting> {
+    const filtered = this.userMeetings()
+                         .filter(meeting => meeting.owner.email === user.email)
+                         .filter(meeting => meeting.id === id);
+    return filtered.length ? Promise.resolve(filtered[0]) : Promise.reject(`Unable to find meeting ${id}`);
   }
 
 
