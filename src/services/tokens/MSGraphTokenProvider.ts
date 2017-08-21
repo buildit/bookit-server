@@ -4,11 +4,14 @@ import {RootLog as logger} from '../../utils/RootLogger';
 
 import {Domain, GraphAPIParameters} from '../../model/EnvironmentConfig';
 import {GraphTokenProvider} from './TokenProviders';
+import {Attendee} from '../../model/Attendee';
 
 
 export class MSGraphTokenProvider implements GraphTokenProvider {
   private token: string;
   private tokenEndpoint: string;
+
+  private tokenMap = new Map<string, string>();
 
   constructor(private _conf: GraphAPIParameters, private _domain: Domain, private _reuseTokens = false) {
     this.tokenEndpoint = 'https://login.windows.net/' + _conf.tenantId + '/oauth2/token';
@@ -36,6 +39,19 @@ export class MSGraphTokenProvider implements GraphTokenProvider {
     } else {
       return this.acquireNew();
     }
+  }
+
+
+  assignUserToken(user: string, token: string): void {
+    this.tokenMap.set(user, token);
+  }
+
+
+  public withDelegatedToken(user: string): Promise<string> {
+    const token = this.tokenMap.get(user);
+    logger.info('Getting token for ', user, token);
+
+    return token ? Promise.resolve(token) : Promise.reject('No token present for user');
   }
 
 

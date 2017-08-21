@@ -10,6 +10,7 @@
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,
+    "lib": ["ES2015"],
     "skipLibCheck": true,
     "typeRoots": [
       "./node_modules/@types"

@@ -10,6 +10,8 @@ import {MSGraphBase} from '../MSGraphBase';
 import {Participant} from '../../model/Participant';
 import {maybeApply} from '../../utils/collections';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
+import {UserService} from '../users/UserService';
+import {getToken} from './MeetingsSupport';
 
 
 export class MSGraphMeetingService extends MSGraphBase implements MeetingsService {
@@ -17,7 +19,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     return this.tokenOperations.domain();
   }
 
-  constructor(graphTokenProvider: GraphTokenProvider) {
+  constructor(graphTokenProvider: GraphTokenProvider, private userService: UserService) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphMeetingService');
   }
@@ -46,7 +48,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     console.info('POST', URL, eventData);
 
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.post(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -76,7 +78,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     console.info('PATCH', URL, eventData);
 
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.patch(URL)
                    .set('Authorization', `Bearer ${token}`)
@@ -132,14 +134,16 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
+      getToken(this.tokenOperations, this.userService, Perspective.USER, user)
           .then(token => {
             request.get(URL)
                    .set('Authorization', `Bearer ${token}`)
                    .query({startDateTime, endDateTime})
                    .end((error, response) => {
                      if (error) {
-                       return reject(new Error(error));
+                       logger.error('Failed to get user meetings', error);
+                       // return reject(new Error(error));
+                       return resolve([]);
                      }
 
                      // logger.info('Response', response);
@@ -183,7 +187,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
   private _deleteMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.tokenOperations.withToken()
+      getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
           .then(token => {
             request.delete('https://graph.microsoft.com/v1.0/users/' + owner.email + '/calendar/events/' + id)
                    .set('Authorization', `Bearer ${token}`)
@@ -239,7 +243,10 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       end: moment.utc(meeting.end.dateTime)
     };
 
-    // logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    if (perspective === Perspective.ROOM) {
+      logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+    }
+
     return mappedMeeting;
   }
 }

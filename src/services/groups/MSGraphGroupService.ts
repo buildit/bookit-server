@@ -108,4 +108,3 @@ export class MSGraphGroupService extends MSGraphBase implements GroupService {
   }
 
 }
-

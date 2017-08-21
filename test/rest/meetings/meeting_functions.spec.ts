@@ -2,14 +2,10 @@ import {expect} from 'chai';
 import * as moment from 'moment';
 import {matchMeeting} from '../../../src/rest/meetings/meeting_functions';
 import {Meeting} from '../../../src/model/Meeting';
+import {Participant} from '../../../src/model/Participant';
 
 describe('Meetings matcher', function meetingsMatcherSuite() {
-  const phil = {
-    id: '1',
-    name: 'Phil',
-    mail: 'willofphil@peel.com',
-    email: 'willofphil@peel.com',
-  };
+  const phil = new Participant('willofphil@peel.com', 'Phil');
 
   const start1 = moment();
   const end1 = start1.clone().add(10, 'minutes');

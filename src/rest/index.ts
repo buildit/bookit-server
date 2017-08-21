@@ -14,7 +14,7 @@ const app = express();
 
 logger.info('Server: starting up');
 const promisedRoutes = configureRoutes(app,
-                                       Runtime.passwordStore,
+                                       Runtime.graphTokenProvider,
                                        Runtime.jwtTokenProvider,
                                        Runtime.roomService,
                                        Runtime.userService,

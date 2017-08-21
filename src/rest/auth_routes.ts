@@ -3,9 +3,10 @@ import {Express, Request, Response, Router} from 'express';
 import {RootLog as logger} from '../utils/RootLogger';
 import {sendUnauthorized} from './rest_support';
 import {Credentials} from '../model/Credentials';
-import {JWTTokenProvider} from '../services/tokens/TokenProviders';
+import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {protectedEndpoint} from './filters';
 import {UserService} from '../services/users/UserService';
+import {PasswordStore} from '../services/authorization/PasswordStore';
 
 
 
@@ -27,35 +28,60 @@ export interface UserDetail {
 
 export function configureAuthenticationRoutes(app: Express,
                                               userService: UserService,
-                                              jwtTokenProvider: JWTTokenProvider) {
+                                              jwtTokenProvider: JWTTokenProvider,
+                                              graphTokenProvider: GraphTokenProvider) {
 
   app.post('/authenticate', async (req: Request, res: Response) => {
     const credentials = req.body as Credentials;
 
     const credentialToken = credentials.code;
-    let decoded;
+    let decoded: any;
     try {
       decoded = await jwtTokenProvider.verifyOpenId(credentialToken);
     }
     catch (error) {
+      logger.error('Unable to validate open id');
       sendUnauthorized(res, 'Unrecognized user');
     }
 
-    const isValidated = await userService.validateUser(decoded.unique_name);
+    logger.info('Decoded token', decoded);
+    logger.info('Credentials', credentials);
+    const rawUserName = decoded.preferred_username || decoded.upn;
+    const userName = rawUserName.toLowerCase();
+    const userId = decoded.tid;
+
+    const isValidated = await userService.validateUser(userName);
     if (!isValidated) {
-        sendUnauthorized(res, 'Unrecognized user');
-        return;
+      logger.error(`Error validating user ${userName}`);
+      sendUnauthorized(res, 'Unrecognized user');
+      return;
     }
 
-    const token = jwtTokenProvider.provideToken({
-      user: decoded.unique_name,
-    });
-    logger.info('Successfully authenticated: ', decoded.unique_name);
-    res.json({
-               token: token,
-               email: decoded.unique_name,
-               name: decoded.name,
-    });
+    if (!userService.isInternalUser(userName)) {
+      graphTokenProvider.assignUserToken(userName, credentialToken);
+    }
+
+    userService.getUserDetails(userName)
+               .then(userDetails => {
+                 logger.info('Found user info', userDetails);
+                 return userDetails;
+               })
+               .then((userDetails) => {
+                 const userEmail = userDetails.email;
+                 const token = jwtTokenProvider.provideToken({user: userEmail});
+                 graphTokenProvider.assignUserToken(userEmail, credentialToken);
+
+                 const response = {
+                   token: token,
+                   email: userEmail,
+                   name: decoded.name,
+                 };
+
+                 logger.debug('Successfully authenticated: ', response);
+
+                 res.json(response);
+               });
+
   });
 
 

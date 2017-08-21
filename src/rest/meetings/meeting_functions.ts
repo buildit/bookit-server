@@ -222,23 +222,48 @@ export function assignProperties(roomMeeting: Meeting, userMeeting: Meeting) {
   return roomMeeting;
 }
 
+const DATE_TIME_FORMAT = 'YYYYMMDD h:mm:ss';
+
+function formatMoment(moment: Moment)
+{
+  return moment.format(DATE_TIME_FORMAT);
+}
 
 /*
 Can't match by meeting id when using different user perspectives
-Don't match by location since bookings by BookIt and Outlook are different
  */
 export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meeting {
-  function meetingsMatch(some: Meeting, other: Meeting): boolean {
-    const areStartsMismatching = () => !some.start.isSame(other.start);
-    const areEndsMismatching = () => !some.end.isSame(other.end);
-    const areOwnersMismatching = () => some.owner.email !== other.owner.email;
 
-    const predicates = [areEndsMismatching, areStartsMismatching, areOwnersMismatching];
-    const anyFailed = predicates.some(predicate => predicate());
-    return !anyFailed;
+  const otherStart = formatMoment(meeting.start);
+  const otherEnd = formatMoment(meeting.end);
+  const otherEmail = meeting.owner.email;
+  const otherLocation = meeting.location.displayName;
+
+  function meetingsMatch(some: Meeting): boolean {
+    const areStartsMismatching = () => formatMoment(some.start) !== otherStart;
+    const areEndsMismatching = () => formatMoment(some.end) !== otherEnd;
+    const areOwnersMismatching = () => some.owner.email !== otherEmail;
+    const areLocationsMismatching = () => some.location.displayName !== otherLocation;
+
+    const predicates = [areEndsMismatching, areStartsMismatching, areOwnersMismatching, areLocationsMismatching];
+    const anyFailed = predicates.some(predicate => {
+      const res = predicate();
+      if (!res) {
+        logger.info(`Mismatched on ${predicate.name}`);
+      }
+
+      return res;
+    });
+
+    const matched = !anyFailed;
+    if (matched) {
+      logger.info(`Matched ${meeting.id} to ${some.id}`);
+    }
+
+    return matched;
   }
 
-  return otherMeetings.find(user => meetingsMatch(user, meeting));
+  return otherMeetings.find(meetingsMatch);
 }
 
 
@@ -248,8 +273,10 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
   const meetingsForRoom = roomCache.get(roomId);
   const userMeeting = matchMeeting(meeting, meetingsForRoom);
   if (!userMeeting) {
-    logger.info(`Unable to match meeting ${roomId}, ${meeting.id}`);
+    logger.debug(`Unable to match meeting ${roomId}, ${meeting.id}`);
     return toReturn;
+  } else {
+    logger.debug(`Matched ${meeting.id} to ${userMeeting.id}`);
   }
 
   roomCache.remove(userMeeting);

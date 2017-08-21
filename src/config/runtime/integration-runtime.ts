@@ -31,7 +31,7 @@ export function provideIntegrationRuntime(environment: EnvironmentConfig): Runti
                            () => new MSGraphMailService(tokenOperations),
                            () => new MSGraphGroupService(tokenOperations),
                            () => new MockRoomService(generateTestRoomLists(environment.domain.domainName)),
-                           () => {
-                             return new MSGraphMeetingService(tokenOperations);
+                           (runtime) => {
+                             return new MSGraphMeetingService(tokenOperations, runtime.userService);
                            });
 }

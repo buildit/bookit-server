@@ -47,10 +47,10 @@ function provideMockRuntime(env: EnvironmentConfig, jwtTokenProvider: JWTTokenPr
   const config = new RuntimeConfig(env.port,
                                    env.domain,
                                    new MockPasswordStore(),
-                                   new MockGraphTokenProvider(),
+                                   new MockGraphTokenProvider(env.domain.domainName),
                                    jwtTokenProvider,
                                    () => new MockDeviceService(),
-                                   () => new MockUserService(),
+                                   () => new MockUserService(env.domain.domainName),
                                    () => new MockMailService(),
                                    () => generateMockGroup(env.domain.domainName),
                                    () => new MockRoomService(generateRoomLists(ROOM_COLORS, env.domain.domainName)),
@@ -81,7 +81,7 @@ function provideDevelopmentGraphRuntime(env: EnvironmentConfig, jwtTokenProvider
                            groupServiceFactory,
                            (runtime) => new MSGraphRoomService(tokenOperations, runtime.groupService),
                            (runtime) => {
-                             const cloudMeetingService = new MSGraphMeetingService(tokenOperations);
+                             const cloudMeetingService = new MSGraphMeetingService(tokenOperations, runtime.userService);
                              return new CachedMeetingService(env.domain, runtime.roomService, cloudMeetingService);
                            });
 

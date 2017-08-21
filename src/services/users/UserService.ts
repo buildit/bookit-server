@@ -7,6 +7,7 @@ export class MSUser {
   displayName: string;
   mail: string;
   email: string;
+  domain: string;
 
   constructor(id: string, displayName: string, description: string, mail: string) {
     this.id = id;
@@ -15,6 +16,10 @@ export class MSUser {
     this.description = description;
     this.mail = mail;
     this.email = mail;
+
+    console.info('MSUser', mail);
+    const parts = mail.split('@');
+    this.domain = parts[1];
   }
 }
 
@@ -25,7 +30,11 @@ export interface UserService {
 
   validateUser(email: string): Promise<boolean>;
 
+  isInternalUser(email: string): boolean;
+
   createUser(user: BookitUser): Promise<MSUser>;
 
   updateUser(user: BookitUser): Promise<MSUser>;
+
+  getUserDetails(user: string): Promise<MSUser>;
 }

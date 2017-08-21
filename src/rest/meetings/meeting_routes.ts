@@ -100,6 +100,3 @@ export function configureMeetingRoutes(app: Express,
 
   return app;
 }
-
-
-

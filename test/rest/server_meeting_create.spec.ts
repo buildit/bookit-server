@@ -9,24 +9,18 @@ chai.should();
 import * as express from 'express';
 import * as request from 'supertest';
 
-import {RootLog as logger} from '../../src/utils/RootLogger';
 import {configureRoutes} from '../../src/rest/server';
 
 import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
-import {Meeting} from '../../src/model/Meeting';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
-import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
-import {retryUntil} from '../../src/utils/retry';
 
-const roomService = Runtime.roomService;
 const meetingService = Runtime.meetingService;
 const jwtTokenProvider = Runtime.jwtTokenProvider;
 
-
 const app = configureRoutes(express(),
-                            Runtime.passwordStore,
+                            Runtime.graphTokenProvider,
                             jwtTokenProvider,
                             Runtime.roomService,
                             Runtime.userService,
