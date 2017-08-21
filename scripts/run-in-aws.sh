@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 awsparam () {
-  echo `aws ssm get-parameter --region ${AWS_REGION} --name ${PARAMETER_STORE_NAMESPACE}/$1 --with-decryption --output text | cut -f 4`
+  echo `aws ssm get-parameters --region ${AWS_REGION} --names ${PARAMETER_STORE_NAMESPACE}/$1 --with-decryption --output text | cut -f 4`
 }
 
 if [ -z "${AWS_REGION}" ]; then
