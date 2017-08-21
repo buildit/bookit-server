@@ -20,7 +20,7 @@
     "test:unit": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --compilers ts:ts-node/register --recursive 'test/**/*spec.ts'",
     "test:int": "npm run build && ROOT=`pwd` && NODE_ENV=integration-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --timeout=60000 --compilers ts:ts-node/register --recursive 'test-int/**/*spec.ts'",
     "test": "npm run test:unit && npm run test:int",
-    "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",
+    "coverage": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config nyc mocha --compilers ts:ts-node/register --recursive 'test-int/**/*spec.ts'",
     "watch": "npm run build -- --watch",
     "watch:unit": "npm run test:unit -- --watch",
     "watch:int": "npm run test:int -- --watch",
@@ -86,19 +86,26 @@
     "node": "8.1.2"
   },
   "nyc": {
-    "include": [
-      "src/*.ts"
-    ],
-    "exclude": [
-      "lib"
-    ],
+    "check-coverage": true,
+    "all": true,
     "extension": [
-      ".ts"
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx"
     ],
-    "require": [
-      "ts-node/register"
+    "include": [
+      "src/**/!(*.test.*).[tj]s?(x)"
     ],
-    "reporter": [],
-    "all": true
+    "exlcude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "coverage"
   }
 }
