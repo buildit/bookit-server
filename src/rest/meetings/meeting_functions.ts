@@ -22,9 +22,6 @@ import {v4 as uuid} from 'uuid';
 import {UserService} from '../../services/users/UserService';
 
 
-
-
-
 export function validateEndDate(startDate: Moment, endDate: Moment) {
   if (startDate.isAfter(endDate)) {
     throw new Error('End date must be after start date.');
@@ -156,10 +153,10 @@ function getRoomAndMergeUserMeetings(meetingService: MeetingsService,
 
 
 function getMergedRoomListUserMeetings(meetingService: MeetingsService,
-                                     roomList: RoomList,
-                                     start: moment.Moment,
-                                     end: moment.Moment,
-                                     userMeetings: Meeting[]): Promise<RoomMeetings[]> {
+                                       roomList: RoomList,
+                                       start: moment.Moment,
+                                       end: moment.Moment,
+                                       userMeetings: Meeting[]): Promise<RoomMeetings[]> {
 
   const mergeRoom = (room: Room) => getRoomAndMergeUserMeetings(meetingService,
                                                                 room,
@@ -200,19 +197,89 @@ export function handleRoomMeetingFetch(meetingService: MeetingsService,
                        });
 }
 
+
 export function handleMeetingFetch(roomService: RoomService,
                                    meetingService: MeetingsService,
+                                   userService: UserService,
                                    credentials: Credentials,
                                    listName: string,
                                    start: Moment,
                                    end: Moment): Promise<RoomMeetings[]> {
-  return roomService.getRoomList(listName)
-                    .then(roomList => {
-                      const promisedMeetings = getUserMeetings(meetingService, credentials, start, end);
-                      return promisedMeetings.then(userMeetings => {
-                        return getMergedRoomListUserMeetings(meetingService, roomList, start, end, userMeetings);
-                      });
-                    });
+  const promisedRoomList = roomService.getRoomList(listName);
+  return userService.isUserAnAdmin(credentials.user)
+    ? promisedRoomList.then(roomList => handleAdminMeetingFetch(roomList, meetingService, credentials, start, end))
+    : promisedRoomList.then(roomList => handleUserMeetingFetch(roomList, meetingService, credentials, start, end));
+}
+
+
+export function handleUserMeetingFetch(roomList: RoomList,
+                                       meetingService: MeetingsService,
+                                       credentials: Credentials,
+                                       start: Moment,
+                                       end: Moment) {
+  const promisedMeetings = getUserMeetings(meetingService, credentials, start, end);
+  return promisedMeetings.then(userMeetings => {
+    return getMergedRoomListUserMeetings(meetingService, roomList, start, end, userMeetings);
+  });
+
+}
+
+
+export async function handleAdminMeetingFetch(roomList: RoomList,
+                                              meetingService: MeetingsService,
+                                              credentials: Credentials,
+                                              start: Moment,
+                                              end: Moment): Promise<RoomMeetings[]> {
+
+  logger.info('Handling meeting fetch for admins');
+  // room meetings convenience function
+  const getRoomMeetings = (room: Room) => {
+    return meetingService.getMeetings(room, start, end)
+                         .then(meetings => {
+                           return {room: room, meetings: meetings};
+                         });
+  };
+
+  // user meetings convenience function
+  const getUserMeetings = (owner: Participant) => {
+    return meetingService.getUserMeetings(owner, start, end)
+                         .then(meetings => {
+                           return {owner: owner, meetings: meetings};
+                         });
+  };
+
+  /*
+  Get all room meetings first
+   */
+  const allRoomMeetings = await Promise.all(roomList.rooms.map(getRoomMeetings));
+
+  /*
+  Figure out the various owner so we can...
+   */
+  const ownerSet = allRoomMeetings.reduce((owners: Set<Participant>, roomMeetings) => {
+    roomMeetings.meetings.forEach(meeting => owners.add(meeting.owner));
+    return owners;
+  }, new Set<Participant>());
+
+  /*
+  ..query their calendars for meetings from their perspectives.
+   */
+  const allUserMeetings = await Promise.all(Array.from(ownerSet).map(getUserMeetings));
+  const flattenedUserMeetings = allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
+    flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
+    return flattenedMeetings;
+  }, new Array<Meeting>());
+
+  /*
+  Then merge the room meetings against the user meetings
+   */
+  return allRoomMeetings.map(roomMeetings => {
+    return {
+      room: roomMeetings.room,
+      meetings: mergeMeetingsForRoom(roomMeetings.room, roomMeetings.meetings, flattenedUserMeetings)
+    };
+  });
+
 }
 
 
@@ -316,8 +383,9 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
     return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
   }
+  logger.info('User Meetings', userMeetings);
   const roomCache = cacheMeetingsByRoom(userMeetings);
-  // console.log('RoomCache', roomCache);
+  logger.info('RoomCache', roomCache);
 
   const roomId = room.name;
   const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
@@ -334,5 +402,3 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
 
   return mergedMeetings;
 }
-
-

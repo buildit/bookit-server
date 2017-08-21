@@ -44,7 +44,7 @@ export function configureMeetingRoutes(app: Express,
       const end = extractQueryParamAsMoment(req, 'end');
       validateTimes(start, end);
 
-      const meetings = handleMeetingFetch(roomService, meetingsService, credentials, listName, start, end);
+      const meetings = handleMeetingFetch(roomService, meetingsService, userService, credentials, listName, start, end);
       meetings.then(roomMeetings => res.json(roomMeetings));
     } catch (error) {
       return sendValidation(error, res);

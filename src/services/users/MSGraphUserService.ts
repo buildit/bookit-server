@@ -11,9 +11,19 @@ import {Perspective} from '../../model/Meeting';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
 
+  // TODO: to be replaced
+  private adminList = new Set<string>();
+
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphUserService');
+    this.setUpAdminList();
+  }
+
+
+  private setUpAdminList() {
+    this.adminList.add(`bruce@${this.domain()}`);
+    this.adminList.add('andrew.tuliszewski@wipro.com');
   }
 
 
@@ -128,7 +138,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
 
   isUserAnAdmin(email: string): boolean {
-    return email === `bruce@${this.domain()}`;
+    return this.adminList.has(email);
   }
 
 

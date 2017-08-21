@@ -72,13 +72,13 @@ export function configureAuthenticationRoutes(app: Express,
                    token: token,
                    email: userEmail,
                    name: decoded.name,
-                   admin: isAdmin
+                   isAdmin: isAdmin
                  };
 
                  logger.debug('Successfully authenticated: ', response);
 
                  res.json(response);
-               })
+               });
 
   });
 
