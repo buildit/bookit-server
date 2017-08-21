@@ -69,22 +69,37 @@ export function createMeetingOperation(meetingService: MeetingsService,
 }
 
 
-export function updateMeetingOperation(userService: UserService,
-                                       meetingService: MeetingsService,
+export function updateMeetingOperation(meetingService: MeetingsService,
                                        userMeetingId: string,
                                        subj: string,
                                        start: Moment,
                                        duration: Duration,
-                                       updater: Participant,
+                                       owner: Participant,
                                        room: Room): Promise<Meeting> {
-    const end = start.clone().add(duration);
+  const end = start.clone().add(duration);
 
-    return handleRoomMeetingFetch(meetingService, room, updater, start, end)
-      .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
-      .then(() => meetingService.getUserMeeting(updater, userMeetingId))
-      .catch(() => checkUserIsAdmin(userService, updater))
-      .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, updater, room));
+  return handleRoomMeetingFetch(meetingService, room, owner, start, end)
+    .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
+    .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room));
 }
+
+
+// export function updateMeetingOperationNew(userService: UserService,
+//                                        meetingService: MeetingsService,
+//                                        userMeetingId: string,
+//                                        subj: string,
+//                                        start: Moment,
+//                                        duration: Duration,
+//                                        updater: Participant,
+//                                        room: Room): Promise<Meeting> {
+//     const end = start.clone().add(duration);
+//
+//     return handleRoomMeetingFetch(meetingService, room, updater, start, end)
+//       .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
+//       .then(() => meetingService.getUserMeeting(updater, userMeetingId))
+//       .catch(() => checkUserIsAdmin(userService, updater))
+//       .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, updater, room));
+// }
 
 
 export function checkUserIsAdmin(userService: UserService, updater: Participant) {
