@@ -206,7 +206,8 @@ export function handleMeetingFetch(roomService: RoomService,
                                    start: Moment,
                                    end: Moment): Promise<RoomMeetings[]> {
   const promisedRoomList = roomService.getRoomList(listName);
-  return userService.isUserAnAdmin(credentials.user)
+  const isAdminUser = credentials && credentials.user && userService.isUserAnAdmin(credentials.user);
+  return isAdminUser
     ? promisedRoomList.then(roomList => handleAdminMeetingFetch(roomList, meetingService, credentials, start, end))
     : promisedRoomList.then(roomList => handleUserMeetingFetch(roomList, meetingService, credentials, start, end));
 }

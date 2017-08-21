@@ -22,7 +22,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
 
   private setUpAdminList() {
-    this.adminList.add(`bruce@${this.domain()}`);
+    this.adminList.add(`roodmin@${this.domain()}`);
     this.adminList.add('andrew.tuliszewski@wipro.com');
   }
 
