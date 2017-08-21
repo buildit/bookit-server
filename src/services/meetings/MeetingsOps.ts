@@ -99,18 +99,9 @@ export function checkUserIsAdmin(userService: UserService, updater: Participant)
 }
 
 
-export function deleteMeetingOperation(userService: UserService,
-                                       meetingService: MeetingsService,
-                                       roomEmail: string,
-                                       meetingId: string,
-                                       updater: Participant): Promise<any> {
-
-  return meetingService.getUserMeeting(updater, meetingId)
-                       .catch(() => checkUserIsAdmin(userService, updater))
-                       .then(() => meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId));
-}
-
-
+/*
+TODO: this should no be here
+ */
 export interface RoomMeetings {
   room: Room;
   meetings: Meeting[];

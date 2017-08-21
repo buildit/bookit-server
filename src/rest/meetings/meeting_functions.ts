@@ -5,13 +5,13 @@ import {Participant} from '../../model/Participant';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {sendError} from '../rest_support';
+import {sendError, sendUnauthorized} from '../rest_support';
 import {Room, RoomList} from '../../model/Room';
 import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, updateMeetingOperation, RoomMeetings, deleteMeetingOperation
+  createMeetingOperation, updateMeetingOperation, RoomMeetings, checkUserIsAdmin
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -130,8 +130,12 @@ export function deleteMeeting(req: Request,
                               roomEmail: string,
                               meetingId: string,
                               updater: Participant): Promise<any> {
-  return deleteMeetingOperation(userService, meetingService, roomEmail, meetingId, updater)
-    .catch(err => sendError(err, res));
+
+  return meetingService.getUserMeeting(updater, meetingId)
+                       .catch(() => checkUserIsAdmin(userService, updater))
+                       .catch((err) => sendUnauthorized(res, err))
+                       .then(() => meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId))
+                       .catch((err) => sendError(err, res));
 }
 
 
