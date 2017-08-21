@@ -10,11 +10,12 @@ if [ -z "${AWS_REGION}" ]; then
 fi
 echo "AWS_REGION is ${AWS_REGION}"
 
-USE_AZURE=true
-CLOUD_CONFIG=$(awsparam CLOUD_CONFIG)
+export USE_AZURE=true
+export CLOUD_CONFIG=$(awsparam CLOUD_CONFIG)
 CLOUD_CONFIG_UPPER=$(echo $CLOUD_CONFIG | tr '[a-z]' '[A-Z]')
 SECRET_NAME=${CLOUD_CONFIG_UPPER}_SECRET
 
-printf -v $SECRET_NAME $(awsparam ${SECRET_NAME})
+eval export "${SECRET_NAME}=$(awsparam ${SECRET_NAME})"
+#echo "CLOUD_CONFIG: ${CLOUD_CONFIG}, CLOUD_CONFIG_UPPER: ${CLOUD_CONFIG_UPPER}, SECRET_NAME: ${SECRET_NAME}, SECRET_VALUE: ${BUILDIT_SECRET}"
 
 npm start
