@@ -103,8 +103,7 @@ export function updateMeeting(req: Request,
 
   logger.info('Want to update meeting:', event);
   const updateRoomMeeting = (room: Room) => {
-    updateMeetingOperation(userService,
-                           meetingService,
+    updateMeetingOperation(meetingService,
                            userMeetingId,
                            event.title,
                            startMoment,
