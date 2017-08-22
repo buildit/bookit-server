@@ -12,6 +12,6 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - USE_CLOUD=true
+      - USE_AZURE=true
       - CLOUD_CONFIG
       - BUILDIT_SECRET

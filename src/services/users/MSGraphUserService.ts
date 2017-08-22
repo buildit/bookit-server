@@ -14,13 +14,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
     logger.info('Constructing MSGraphUserService');
   }
 
-  getDevices(userId: string): Promise<Array<any>> {
-    return this.client
-               .api(`/users/${userId}/ownedDevices`)
-               // .select('id,displayName,mail')
-               .get() as Promise<any>;
-  }
-
   listInternalUsers(): Promise<Array<any>> {
     const bookitServiceUserId = getServiceUser('buildit');
     const internalTeam = getInternalTeam('buildit');
@@ -45,8 +38,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        createdDateTime: '',
                        firstName: user.givenName,
                        lastName: user.surname,
-                     })
-                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1)
+                     });
+                     const filterOutRooms = (user: any) => !(user.email.search('-room') > -1);
                      resolve(
                        users
                         .map(mapUser)
@@ -82,14 +75,23 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        createdDateTime: user.createdDateTime,
                        firstName: '',
                        lastName: '',
-                     })
+                     });
                      resolve(users.map(mapUser));
                    });
           });
     });
-
   }
 
+  // TODO: Supply first condition via configuration
+  validateUser(email: string): Promise<boolean> {
+    if (email.endsWith('@builditcontoso.onmicrosoft.com')) {
+      return Promise.resolve(true);
+    }
+
+    return this.listExternalUsers()
+      .then((users: Array<any>) => users.filter(user => user.email === email).length > 0)
+      .catch((err) => { console.log(err); return false; });
+  };
 
   postUser(user: BookitUser): Promise<MSUser> {
     const bookitServiceUserId = getServiceUser('buildit');
@@ -113,6 +115,8 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
                        reject(error);
                        return;
                      }
+                     console.log(response.body);
+
                      const user = {
                        name: response.body.givenName,
                        email: response.body.emailAddresses[0].address,
@@ -122,6 +126,20 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
           });
     });
 
+  }
+
+  getUser(): any {
+
+  }
+
+  createUser(user: BookitUser): Promise<MSUser> {
+    return this.postUser(user);
+  }
+
+  updateUser(user: BookitUser): Promise<MSUser> {
+    // Get user from listExternalContacts(?) then filter + use id to udpate
+    // user.id = resolvedExternalUser.id! BEEP BOOP!
+    return this.postUser(user);
   }
 
 }

@@ -7,6 +7,9 @@ import {Participant} from '../../model/Participant';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {Room} from '../../model/Room';
 
+/**
+ * We should try to get rid of this stuff
+ */
 export class MeetingHelper {
 
   private constructor(private room: Room,
@@ -29,14 +32,14 @@ export class MeetingHelper {
 
   cleanupMeetings(start: Moment, end: Moment): Promise<any> {
     const wrapDelete = (m: Meeting) => {
-      return this.queue.wrap(() => this.deleteMeeting(m.owner, m.id))();
+      return this.queue.wrap(() => this.deleteUserMeeting(m.owner, m.id))();
     };
 
     /* I'm not sure what this is really accomplishing */
     return this.getMeetings(start, end)
                .then(meetings => {
                  const meetPromises = meetings.map(m => wrapDelete(m).then(() => {})
-                                                                     .catch(err => {
+                                                                     .catch((err: Error) => {
                                                                        console.error('Failed to delete ', err);
                                                                        return;
                                                                      }));
@@ -48,10 +51,11 @@ export class MeetingHelper {
 
   createMeeting(subj: string = '', start: Moment = moment(), duration: Duration = moment.duration(1, 'hour'), participants: Participant[] = []): Promise<any> {
     assert(participants.length === 1);
-    return this.meetingsSvc.createMeeting(subj, start, duration, this.room, participants[0]);
+    return this.meetingsSvc.createUserMeeting(subj, start, duration, this.room, participants[0]);
   }
 
-  deleteMeeting(owner: Participant, id: string): Promise<any> {
-    return this.meetingsSvc.deleteMeeting(owner, id);
+
+  private deleteUserMeeting(owner: Participant, id: string): Promise<any> {
+    return this.meetingsSvc.deleteUserMeeting(owner, id);
   }
 }

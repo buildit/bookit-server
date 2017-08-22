@@ -11,10 +11,13 @@ env:
   global:
     - COMMIT_SHA=${TRAVIS_COMMIT::8}
     # Use repo defined by dev3 environment
-    - USE_CLOUD=true
+    - USE_AZURE=true
     - CLOUD_CONFIG=buildit
-    - secure: UvTNvw3SU46B1c9oLjvJSgS3+AdwBa3ajNYwctO3fflBbDuuIfsYaFOan9CHrq1Nbtmn1Wg9SOXKr8eeqpYyw7xbSgtW7ZGY0+0gMEBA6QXeSbTOFjBEiyPU7YdVx8grUDwAKAK08QczLDeOSVoJ1vf9CzEFMU2T3QnTUMf9VUT/hSVxoIwWVVAQTeaBOrc27xmvI58aReuR8qLJvRbOQAYjguAqnhc/7iY79AUVVCOqUueJGftQ6bdRsP/KVMD5SQZpVhqOV7SzFS7LN6DSaY9iA5/LCd046d6zRA2OvWKt65pwu1Mp9USpLO5Naoyf8NzqlMactqmRP74v4nDEC/2haZD2I9gdF0wgGhwrm8kgDUAwU9C3P1DHFdPiP+WPgV1rEuoBbWH6L1sB+GXpTZ6md9sbrCanhnPQsiUrdE4th7Y6XPmut20DThWX5w85Y1+f9nZEUfr5fdl2Anl18N8s9oTbON9LBREOpyxRX4bPONE9aWua/xZLcKRtMpIZiTvHgwPUC4X8r3hHkF66jtjSksZL593dRNEPzjMLjlFXm6AuhlghorKlme6qFsZQswOwE91k+0VWLPElA8jiulRsmqroNF7b9fKYknG3RuOxL0DxXRdYCWqGbSGTutksRJ0DrPwseX347RLyV9a7a2Io+KF0us6zHkpSTeaN18M=
+    # BUILDIT_SECRET
+    - secure: tKwKz16WArrK/6i+entP7QBst5Gef27aRMrUgUh4Wk97rZ25o2Ucn5sdEQ1B0nt5izwGDicapFbdjZNS4oHqeV17ULz8u1B6Od7WMdlaSUZNRILUm184UVxTMTzoX0WczkTf83ee4EHW/gH32v4hhdA6JEwbZkpayn6dC/ciz4CF2tqm8i00+4RvLQPzSAMJl3uar0Q+zVUagsxl3yEoWI5mQbancVrEnWkX0EyKfJYHNOrQ/QwbFQ1Rz9LRYZH2m/5Zv8vPC3o0UU7M47OGEMIYtR3ylmDytmN2JaxgkrR8eaAEENA0HaBh1ISGjDh3viQudAgOe+8L9zna9f7Y87uTaqMUKtkihgfKzc0m3DZfXyQAcCym3PmKofkrx/soWUGrxoTW8BYwoAkOteczyk94bg4JpITpgiXVmHTGUb0hPP8gzutCi9/JFWdj5neHT1GGv9lJfIlqytOXaq5yljqOD87d7C7cKrloZyBm8MPfFFK39nSxjoPEtWyL0G7VWNdZrfuOLspXPJFbIeUigv3I0qsUoo7pt693EZTut9mb1h2cystJ6mprKhB+xoKSOaYfswsvNINhhXf0ER5ZeEuMr8kK8Ix8QYi8dDMFmgS9hGglCgaU6V2dPK0BcWFjBcvt1qqKn5KLGGHnRpI/dRXBOWeSb9Qv+vzZWqflspA=
+    # DOCKER_USERNAME
     - secure: PTWChodVVHqjqwITaRorVK3aMU/v2coS1d+/hlEvKtqTMTjLMCorPGyYvOLZljwv5S8KRPfhFYwssynwc/0OyqSZB00okDscYzbdFoTVAXhGYfRaNluQcquo9c+JBYSYSGG7AZpxIE0aE5CFNhBT8yYCBWGphBfdkMSPH6R/Oj6h8b6UZfQZ4o21ZJ5SaLqZB99pjQhhTYYkXZ1TVXW8bnw86pc/snWGNyEV/8SHwzK55oFfL+2afIQFKNYFFlPDzKVBF5XX5cyGG8oP9RY/UOkDYHcdyCFuP80bFLSR+a8aNzOjAF4Ie6xRGlFmhQJZrLvgGAIO8Zqg4eFQvFemEM3iEwK6i6l+8wzUj9lu/cTLTqV8aLMOAbcH0KfDPkYTK11OkZpiBpAPfh+BqEY1+ID14nVt+AOlV7PnB6pKKVpNk3Ek8GX/he9pAhYdrbfETaVM6xx4V2heR/tu4MvEfZkfqEsJImy9y6VudHhMhEK76fNX+C4ZsKQFEk4VuAbshaGnDuWKyxtd/XsVBBJioFhwYBYXLeiLeOE07JfMNBM+ViTaMoSC1i9+xL7jt5bBWD/s4GOwW3v4NSRoDuDNYGEc139FIUxbtRsIVty+m8vJNZIJqT7+3mUWhWIa1G5c00IDSvaIOc0BdwH6OFv02/vQbYgj03n36xWtPEOEF6A=
+    # DOCKER_PASSWORD
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
     - AWS_DEFAULT_REGION=us-east-1
     - ECS_REPO=mthomas-bookit-dev6-server-ecr-repo
@@ -38,17 +41,17 @@ deploy:
     skip_cleanup: true
     script: ./scripts/get-deployment-scripts.sh
     on:
-      branch: 75-automate-create-travis-iam-user
+      branch: 53-aws-namespace-params
   - provider: script
     skip_cleanup: true
     script: ./scripts/push-to-ecr.sh
     on:
-      branch: 75-automate-create-travis-iam-user
+      branch: 53-aws-namespace-params
   - provider: script
     skip_cleanup: true
     script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}
     on:
-      branch: 75-automate-create-travis-iam-user
+      branch: 53-aws-namespace-params
 
 notifications:
   slack:

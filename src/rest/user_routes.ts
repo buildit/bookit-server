@@ -16,7 +16,7 @@ export function configureUsersRoutes(app: Express,
       userSvc.listExternalUsers()
     ])
       .then(userLists => {
-        const users = userLists[0].concat(userLists[1])
+        const users = userLists[0].concat(userLists[1]);
         res.json(users);
       })
       .catch(err => {
@@ -31,7 +31,7 @@ export function configureUsersRoutes(app: Express,
       role: 'user',
     };
 
-    userSvc.postUser(newUser)
+    userSvc.createUser(newUser)
       .then(user => {
         logger.info('Created a new user:', user);
 

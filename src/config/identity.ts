@@ -2,16 +2,12 @@ import AppEnv from './env';
 
 import {RootLog as logger} from '../utils/RootLogger';
 
-import {roman, test, buildit} from './identities';
+import {test, buildit} from './identities';
 import {EnvironmentConfig, GraphAPIParameters} from '../model/EnvironmentConfig';
 
 
 function _assignGraphIdentity(env: string): GraphAPIParameters {
   switch (env) {
-    case 'roman': {
-      roman.credentials.clientSecret = AppEnv.ROMAN_SECRET;
-      return roman.credentials;
-    }
     case 'test': {
       test.credentials.clientSecret = AppEnv.TEST_SECRET;
       return test.credentials;

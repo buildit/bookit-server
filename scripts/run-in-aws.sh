@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 awsparam () {
-  echo `aws ssm get-parameters --region ${AWS_REGION} --names $1 --with-decryption --output text | cut -f 4`
+  echo `aws ssm get-parameters --region ${AWS_REGION} --names ${PARAMETER_STORE_NAMESPACE}/$1 --with-decryption --output text | cut -f 4`
 }
 
 if [ -z "${AWS_REGION}" ]; then
@@ -10,7 +10,13 @@ if [ -z "${AWS_REGION}" ]; then
 fi
 echo "AWS_REGION is ${AWS_REGION}"
 
-USE_CLOUD=true \
-CLOUD_CONFIG=$(awsparam CLOUD_CONFIG) \
-BUILDIT_SECRET=$(awsparam BUILDIT_SECRET) \
+export USE_AZURE=true
+export CLOUD_CONFIG=$(awsparam CLOUD_CONFIG)
+CLOUD_CONFIG_UPPER=$(echo $CLOUD_CONFIG | tr '[a-z]' '[A-Z]')
+SECRET_NAME=${CLOUD_CONFIG_UPPER}_SECRET
+
+eval export "${SECRET_NAME}=$(awsparam ${SECRET_NAME})"
+#echo "CLOUD_CONFIG: ${CLOUD_CONFIG}, CLOUD_CONFIG_UPPER: ${CLOUD_CONFIG_UPPER}, SECRET_NAME: ${SECRET_NAME}, SECRET_VALUE: ${BUILDIT_SECRET}"
+
 npm start
+
