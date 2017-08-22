@@ -148,7 +148,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       return MSGraphMeetingService._mapMeeting(perspective, meeting);
     }
 
-    const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
+    const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView?$top=1000';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, user)
@@ -261,7 +261,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     };
 
     if (perspective === Perspective.ROOM) {
-      logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+      logger.debug('MSGraphMeetingService::mapMeeting', mappedMeeting);
     }
 
     return mappedMeeting;

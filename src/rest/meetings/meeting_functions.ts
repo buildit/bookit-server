@@ -269,15 +269,29 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
   /*
   Figure out the various owner so we can...
    */
-  const ownerSet = allRoomMeetings.reduce((owners: Set<Participant>, roomMeetings) => {
-    roomMeetings.meetings.forEach(meeting => owners.add(meeting.owner));
-    return owners;
-  }, new Set<Participant>());
+  const uniqueParticipants = {
+    emails: new Set<string>(),
+    participants: new Set<Participant>()
+  };
 
+  allRoomMeetings.reduce((unique, roomMeetings) => {
+    roomMeetings.meetings.forEach(meeting => {
+      const owner = meeting.owner;
+      if (unique.emails.has(owner.email)) {
+        return;
+      }
+
+      unique.emails.add(owner.email);
+      unique.participants.add(owner);
+    });
+    return unique;
+  }, uniqueParticipants);
+
+  logger.info('ALL OWNERS', Array.from(uniqueParticipants.participants));
   /*
   ..query their calendars for meetings from their perspectives.
    */
-  const allUserMeetings = await Promise.all(Array.from(ownerSet).map(getUserMeetings));
+  const allUserMeetings = await Promise.all(Array.from(uniqueParticipants.participants).map(getUserMeetings));
   const flattenedUserMeetings = allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
     flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
     return flattenedMeetings;
@@ -304,7 +318,7 @@ export function obscureMeetingDetails(meeting: Meeting) {
 }
 
 
-export function obscureMeetingIdentifier(meeting: Meeting) {
+export function copyAndObscureMeetingIdentifier(meeting: Meeting) {
   const toReturn = Object.assign({}, meeting);
   toReturn.id = 'obscured' + uuid();
 
@@ -366,7 +380,7 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
 
 
 function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roomId: string) {
-  const toReturn = obscureMeetingIdentifier(meeting);
+  const toReturn = copyAndObscureMeetingIdentifier(meeting);
 
   const meetingsForRoom = roomCache.get(roomId);
   const userMeeting = matchMeeting(meeting, meetingsForRoom);
@@ -396,7 +410,7 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
     return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
   }
-  logger.info('User Meetings', userMeetings);
+  logger.info('User Meetings', userMeetings.length);
   const roomCache = cacheMeetingsByRoom(userMeetings);
   logger.info('RoomCache', roomCache);
 
