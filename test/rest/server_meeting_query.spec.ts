@@ -30,6 +30,7 @@ const app = configureRoutes(express(),
                             meetingService);
 
 
+const adminOwner = generateMSUserResource('roodmin', Runtime.meetingService.domain());
 const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
 const babsOwner = generateMSUserResource('babs', Runtime.meetingService.domain());
 const whiteRoom = generateMSRoomResource('white', Runtime.meetingService.domain());
@@ -45,6 +46,13 @@ const babsCredentials = {
   user: babsOwner.email,
   password: 'the effect'
 };
+
+
+const roodminCredentials = {
+  user: adminOwner.email,
+  password: 'the root'
+};
+
 
 describe('meeting routes operations', function testMeetingRoutes() {
 
@@ -270,6 +278,90 @@ describe('meeting routes operations', function testMeetingRoutes() {
                   .then(queries => {
                     meetingService.clearCaches();
                   });
+  });
+
+
+  it.only('exposes ids and titles for meetings to an admin for meetings owned by others.', function testAdminMeetingPropertyVisibility() {
+    // This tests for the behavior specified in the below ticket.
+    // https://kanbanflow.com/t/e5f15264f6292a2cf7f7a213e0953e6f/ep-20170622-as-a-user-i-expect-visibil
+
+    const searchStart = '2013-02-08 08:00:00';
+    const searchEnd = '2013-02-08 18:00:00';
+
+    const brucesMeetingStart = '2013-02-08 09:00:00';
+    const brucesMeetingEnd = '2013-02-08 09:30:00';
+
+    const brucesMeetingDetails = {
+      title: 'bruces meeting',
+      start: moment(brucesMeetingStart),
+      duration: moment.duration(moment(brucesMeetingEnd).diff(moment(brucesMeetingStart), 'minutes'), 'minutes'),
+      bruceOwner,
+      whiteRoom
+    };
+
+    const babsMeetingStart = '2013-02-08 09:00:00';
+    const babsMeetingEnd = '2013-02-08 09:30:00';
+
+    const babsMeetingDetails = {
+      title: 'babs meeting',
+      start: moment(babsMeetingStart),
+      duration: moment.duration(moment(babsMeetingEnd).diff(moment(babsMeetingStart), 'minutes'), 'minutes'),
+      babsOwner,
+      redRoom
+    };
+
+    const brucesMeeting = meetingService.createUserMeeting(brucesMeetingDetails.title,
+                                                           brucesMeetingDetails.start,
+                                                           brucesMeetingDetails.duration,
+                                                           brucesMeetingDetails.bruceOwner,
+                                                           brucesMeetingDetails.whiteRoom);
+
+    const babsMeeting = meetingService.createUserMeeting(babsMeetingDetails.title,
+                                                         babsMeetingDetails.start,
+                                                         babsMeetingDetails.duration,
+                                                         babsMeetingDetails.babsOwner,
+                                                         babsMeetingDetails.redRoom);
+
+    const meetingPromises = Promise.all([brucesMeeting, babsMeeting]);
+
+    const adminToken = jwtTokenProvider.provideToken(roodminCredentials);
+
+    const adminQuery = meetingPromises.then((meeting) => {
+      return request(app)
+        .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
+        .set('x-access-token', adminToken)
+        .then(query => {
+          const roomMeetings = query.body as RoomMeetings[];
+          const allMeetings = roomMeetings.reduce((acc, room) => {
+            acc.push.apply(acc, room.meetings);
+            return acc;
+          }, []);
+
+          expect(allMeetings.length).to.be.equal(2);
+
+          const brucesMeetings = allMeetings.filter(m => m.owner.email === bruceOwner.email);
+          const bruceMeeting = brucesMeetings[0];
+
+          const babsMeetings = allMeetings.filter(m => m.owner.email === babsOwner.email);
+          const babsMeeting = babsMeetings[0];
+
+
+          // Titles of meetings owned by the user are exposed. Titles of other meetings are obscured.
+          expect(bruceMeeting.title).to.be.equal('bruces meeting');
+          expect(babsMeeting.title).to.be.equal('babs meeting');
+
+          // Ids of meetings owned by user are exposed. Ids of other meetings are obscured.
+          expect(bruceMeeting.id).to.be.have.string('user');
+          expect(babsMeeting.id).to.have.string('user');
+
+          return;
+        });
+    });
+
+
+    return adminQuery.then(queries => {
+      meetingService.clearCaches();
+    });
   });
 
 });
