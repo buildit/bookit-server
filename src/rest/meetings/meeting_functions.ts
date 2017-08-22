@@ -5,17 +5,17 @@ import {Participant} from '../../model/Participant';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {sendError, sendUnauthorized} from '../rest_support';
+import {sendError, sendPreconditionFailed, sendUnauthorized} from '../rest_support';
 import {Room, RoomList} from '../../model/Room';
 import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, updateMeetingOperation, RoomMeetings, checkUserIsAdmin
+  createMeetingOperation, RoomMeetings, checkUserIsAdmin, checkMeetingTimeIsAvailable
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
-import {Moment} from 'moment';
+import {Duration, Moment} from 'moment';
 import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
@@ -84,41 +84,50 @@ export function createMeeting(req: Request,
 }
 
 
-export function isMeetingOwner(meeting: Meeting, user: Participant): boolean {
-  return meeting.owner.email === user.email;
-}
-
-
-export function updateMeeting(req: Request,
-                              res: Response,
-                              roomService: RoomService,
-                              userService: UserService,
-                              meetingService: MeetingsService,
-                              userMeetingId: string,
-                              updater: Participant) {
+export async function updateMeeting(req: Request,
+                                    res: Response,
+                                    roomService: RoomService,
+                                    userService: UserService,
+                                    meetingService: MeetingsService,
+                                    userMeetingId: string,
+                                    updater: Participant) {
   const event = req.body as MeetingRequest;
+  const subj = event.title;
   const startMoment = moment(event.start);
   const endMoment = moment(event.end);
+  const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
   logger.info('Want to update meeting:', event);
-  const updateRoomMeeting = (room: Room) => {
-    updateMeetingOperation(meetingService,
-                           userMeetingId,
-                           event.title,
-                           startMoment,
-                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           updater,
-                           room)
-      .then(meeting => res.json(meeting))
-      .catch(err => sendError(err, res));
+
+  const checkAvailability = (room: Room): Promise<boolean> => {
+    return handleRoomMeetingFetch(meetingService, room, updater, startMoment, endMoment)
+      .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, startMoment, duration))
+      .catch((err) => {
+        sendPreconditionFailed(res, err);
+        return false;
+      });
   };
 
-  roomService.getRoomByName(roomId)
-             .then(updateRoomMeeting)
-             .catch(() => roomService.getRoomByMail(roomId))
-             .then(updateRoomMeeting)
-             .catch(err => sendError(err, res));
+
+  const room = await roomService.getRoomByName(roomId)
+                                .catch(() => roomService.getRoomByMail(roomId));
+
+  /*
+    For meeting updates, we need to check against the room to see if we would conflict with
+    another users meeting
+   */
+  const roomAvailable = await checkAvailability(room);
+  if (!roomAvailable) {
+    return;
+  }
+
+  meetingService.getUserMeeting(updater, userMeetingId)
+                .catch(() => checkUserIsAdmin(userService, updater))
+                .catch((err) => sendUnauthorized(res, err))
+                .then(() => meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room))
+                .then(meeting => res.json(meeting))
+                .catch(err => sendError(err, res));
 }
 
 

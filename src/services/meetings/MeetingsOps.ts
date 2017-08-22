@@ -48,7 +48,7 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
 }
 
 
-function checkMeetingTimeIsAvailable(meetings: Meeting[],
+export function checkMeetingTimeIsAvailable(meetings: Meeting[],
                                      userMeetingId: string,
                                      start: Moment,
                                      duration: Duration) {
@@ -67,39 +67,6 @@ export function createMeetingOperation(meetingService: MeetingsService,
     return checkTimeIsAvailable(meetingService, room, start, duration)
       .then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
 }
-
-
-export function updateMeetingOperation(meetingService: MeetingsService,
-                                       userMeetingId: string,
-                                       subj: string,
-                                       start: Moment,
-                                       duration: Duration,
-                                       owner: Participant,
-                                       room: Room): Promise<Meeting> {
-  const end = start.clone().add(duration);
-
-  return handleRoomMeetingFetch(meetingService, room, owner, start, end)
-    .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
-    .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, owner, room));
-}
-
-
-// export function updateMeetingOperationNew(userService: UserService,
-//                                        meetingService: MeetingsService,
-//                                        userMeetingId: string,
-//                                        subj: string,
-//                                        start: Moment,
-//                                        duration: Duration,
-//                                        updater: Participant,
-//                                        room: Room): Promise<Meeting> {
-//     const end = start.clone().add(duration);
-//
-//     return handleRoomMeetingFetch(meetingService, room, updater, start, end)
-//       .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, start, duration))
-//       .then(() => meetingService.getUserMeeting(updater, userMeetingId))
-//       .catch(() => checkUserIsAdmin(userService, updater))
-//       .then(() => meetingService.updateUserMeeting(userMeetingId, subj, start, duration, updater, room));
-// }
 
 
 export function checkUserIsAdmin(userService: UserService, updater: Participant) {

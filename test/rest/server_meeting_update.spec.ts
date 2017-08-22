@@ -40,7 +40,7 @@ const bruceCredentials = {
 };
 
 
-describe('update meeting routes', function testMeetingUpdateRoutes() {
+describe.only('update meeting routes', function testMeetingUpdateRoutes() {
 
 
   it('updates a meetings subject', function testUpdateMeetingSubject() {
