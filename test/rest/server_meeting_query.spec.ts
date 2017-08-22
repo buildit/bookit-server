@@ -281,7 +281,7 @@ describe('meeting routes operations', function testMeetingRoutes() {
   });
 
 
-  it.only('exposes ids and titles for meetings to an admin for meetings owned by others.', function testAdminMeetingPropertyVisibility() {
+  it('exposes ids and titles for meetings to an admin for meetings owned by others.', function testAdminMeetingPropertyVisibility() {
     // This tests for the behavior specified in the below ticket.
     // https://kanbanflow.com/t/e5f15264f6292a2cf7f7a213e0953e6f/ep-20170622-as-a-user-i-expect-visibil
 

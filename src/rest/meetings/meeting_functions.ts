@@ -84,7 +84,7 @@ export function createMeeting(req: Request,
 }
 
 
-export async function updateMeeting(req: Request,
+export function updateMeeting(req: Request,
                                     res: Response,
                                     roomService: RoomService,
                                     userService: UserService,
@@ -110,24 +110,28 @@ export async function updateMeeting(req: Request,
   };
 
 
-  const room = await roomService.getRoomByName(roomId)
-                                .catch(() => roomService.getRoomByMail(roomId));
-
-  /*
-    For meeting updates, we need to check against the room to see if we would conflict with
-    another users meeting
-   */
-  const roomAvailable = await checkAvailability(room);
-  if (!roomAvailable) {
-    return;
-  }
-
-  meetingService.getUserMeeting(updater, userMeetingId)
-                .catch(() => checkUserIsAdmin(userService, updater))
-                .catch((err) => sendUnauthorized(res, err))
-                .then(() => meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room))
-                .then(meeting => res.json(meeting))
-                .catch(err => sendError(err, res));
+  roomService.getRoomByName(roomId)
+             .catch(() => roomService.getRoomByMail(roomId))
+             /*
+               For meeting updates, we need to check against the room to see if we would conflict with
+               another users meeting.
+              */
+             .then(room => {
+               return checkAvailability(room).then(() => room);
+             })
+             /*
+               If we find the meeting for the current user, then it's the owner.  If not the owner, check
+               that the updater is an admin.
+              */
+             .then(room => {
+               return meetingService.getUserMeeting(updater, userMeetingId)
+                                    .catch(() => checkUserIsAdmin(userService, updater))
+                                    .catch((err) => sendUnauthorized(res, err))
+                                    .then(() => room);
+             })
+             .then(room => meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room))
+             .then(meeting => res.json(meeting))
+             .catch(err => sendError(err, res));
 }
 
 
@@ -195,11 +199,15 @@ function getUserMeetings(meetingService: MeetingsService,
 
 
 export function handleRoomMeetingFetch(meetingService: MeetingsService,
+                                       userService: UserService,
                                        room: Room,
-                                       owner: Participant,
+                                       user: Participant,
                                        start: Moment,
                                        end: Moment): Promise<RoomMeetings> {
-  return meetingService.getUserMeetings(owner, start, end)
+  const isAdminUser = userService.isUserAnAdmin(user.email);
+
+
+  return meetingService.getUserMeetings(user, start, end)
                        .then(userMeetings => {
                          return getRoomAndMergeUserMeetings(meetingService,
                                                             room,
@@ -238,6 +246,53 @@ export function handleUserMeetingFetch(roomList: RoomList,
 }
 
 
+function getUniqueOwners(meetings: Meeting[]) {
+  const uniqueParticipants = {
+    emails: new Set<string>(),
+    participants: new Set<Participant>()
+  };
+
+  meetings.reduce((unique, meeting) => {
+    const owner = meeting.owner;
+    if (unique.emails.has(owner.email)) {
+      return;
+    }
+
+    unique.emails.add(owner.email);
+    unique.participants.add(owner);
+    return unique;
+  }, uniqueParticipants);
+
+  return uniqueParticipants;
+}
+
+
+function flattenRoomListRooms(roomLists: RoomList[]): Room[] {
+    return roomLists.reduce((acc, roomList) => {
+      acc.push.apply(acc, roomList.rooms);
+      return acc;
+    }, []);
+}
+
+
+function flattenRoomListMeetings(roomLists: RoomMeetings[]): Meeting[] {
+  return roomLists.reduce((acc, roomList) => {
+    acc.push.apply(acc, roomList.meetings);
+    return acc;
+  }, []);
+}
+
+
+async function getAndFlattenAllUserMeetings(participants: Participant[],
+                                            getUserMeetings: (owner: Participant) => Promise<RoomMeetings>): Promise<Meeting[]> {
+  const allUserMeetings = await Promise.all(Array.from(participants).map(getUserMeetings));
+  return allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
+    flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
+    return flattenedMeetings;
+  }, new Array<Meeting>());
+}
+
+
 export async function handleAdminMeetingFetch(roomList: RoomList,
                                               meetingService: MeetingsService,
                                               credentials: Credentials,
@@ -246,57 +301,33 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
 
   logger.info('Handling meeting fetch for admins');
   // room meetings convenience function
-  const getRoomMeetings = (room: Room) => {
-    return meetingService.getMeetings(room, start, end)
-                         .then(meetings => {
-                           return {room: room, meetings: meetings};
-                         });
-  };
+  const getRoomMeetings = (room: Room) => meetingService.getMeetings(room, start, end)
+                                                        .then(meetings => {
+                                                          return {room: room, meetings: meetings};
+                                                        });
 
   // user meetings convenience function
-  const getUserMeetings = (owner: Participant) => {
-    return meetingService.getUserMeetings(owner, start, end)
-                         .then(meetings => {
-                           return {owner: owner, meetings: meetings};
-                         });
-  };
+  const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end)
+                                                                .then(meetings => {
+                                                                  return {owner: owner, meetings: meetings};
+                                                                });
 
   /*
   Get all room meetings first
    */
   const allRoomMeetings = await Promise.all(roomList.rooms.map(getRoomMeetings));
+  const flattenedRoomMeetings = flattenRoomListMeetings(allRoomMeetings);
 
   /*
   Figure out the various owner so we can...
    */
-  const uniqueParticipants = {
-    emails: new Set<string>(),
-    participants: new Set<Participant>()
-  };
+  const uniqueParticipants = getUniqueOwners(flattenedRoomMeetings);
 
-  allRoomMeetings.reduce((unique, roomMeetings) => {
-    roomMeetings.meetings.forEach(meeting => {
-      const owner = meeting.owner;
-      if (unique.emails.has(owner.email)) {
-        return;
-      }
-
-      unique.emails.add(owner.email);
-      unique.participants.add(owner);
-    });
-    return unique;
-  }, uniqueParticipants);
-
-  logger.info('ALL OWNERS', Array.from(uniqueParticipants.participants));
   /*
   ..query their calendars for meetings from their perspectives.
    */
-  const allUserMeetings = await Promise.all(Array.from(uniqueParticipants.participants).map(getUserMeetings));
-  const flattenedUserMeetings = allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
-    flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
-    return flattenedMeetings;
-  }, new Array<Meeting>());
-
+  const participants = Array.from(uniqueParticipants.participants);
+  const flattenedUserMeetings = await getAndFlattenAllUserMeetings(participants, getUserMeetings);
   /*
   Then merge the room meetings against the user meetings
    */

@@ -30,7 +30,7 @@ const app = configureRoutes(express(),
                             Runtime.mailService,
                             meetingService);
 
-
+const roodminOwner = generateMSUserResource('roodmin', Runtime.meetingService.domain());
 const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
 const whiteRoom = generateMSRoomResource('white', Runtime.meetingService.domain());
 
@@ -40,10 +40,16 @@ const bruceCredentials = {
 };
 
 
-describe.only('update meeting routes', function testMeetingUpdateRoutes() {
+const roodminCredentials = {
+  user: roodminOwner.email,
+  password: 'who cares?'
+};
 
 
-  it('updates a meetings subject', function testUpdateMeetingSubject() {
+describe('update meeting routes', function testMeetingUpdateRoutes() {
+
+
+  it('updates a meetings subject as the owner', function testUpdateMeetingSubject() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -101,7 +107,7 @@ describe.only('update meeting routes', function testMeetingUpdateRoutes() {
   });
 
 
-  it('updates a meetings start time', function testUpdateMeetingStart() {
+  it('updates a meetings start time as the owner', function testUpdateMeetingStart() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -166,7 +172,7 @@ describe.only('update meeting routes', function testMeetingUpdateRoutes() {
                          });
   });
 
-  it('updates a meetings end time', function testUpdateMeetingEnd() {
+  it('updates a meetings end time as the owner', function testUpdateMeetingEnd() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -231,6 +237,65 @@ describe.only('update meeting routes', function testMeetingUpdateRoutes() {
 
                          });
   });
+
+
+  it.only('updates a meetings subject as an admin', function testUpdateMeetingSubject() {
+    const meetingStart = '2013-05-08 10:00:00';
+    const meetingEnd = '2013-05-08 10:45:00';
+
+
+    const searchStart = '2013-05-08 09:00:00';
+    const searchEnd = '2013-05-08 12:00:00';
+
+    const original = {
+      title: 'original meeting title',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
+      bruceOwner,
+      whiteRoom
+    };
+
+    const token = jwtTokenProvider.provideToken(roodminCredentials);
+
+    return meetingService.createUserMeeting(original.title,
+                                            original.start,
+                                            original.duration,
+                                            original.bruceOwner,
+                                            original.whiteRoom)
+                         .then(created => {
+                           const updatedMeeting: MeetingRequest = {
+                             id: created.id,
+                             title: 'this is new',
+                             start: meetingStart,
+                             end: meetingEnd,
+                           };
+
+                           return request(app).put(`/room/${whiteRoom.email}/meeting/${updatedMeeting.id}`)
+                                              .set('Content-Type', 'application/json')
+                                              .set('x-access-token', token)
+                                              .send(updatedMeeting)
+                                              .expect(200)
+                                              .then(() => {
+                                                return request(app)
+                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
+                                                  .set('x-access-token', token)
+                                                  .expect(200)
+                                                  .then(response => {
+                                                    const roomMeetings = response.body as RoomMeetings[];
+                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
+                                                      acc.push.apply(acc, room.meetings);
+                                                      return acc;
+                                                    }, []);
+
+                                                    meetingService.clearCaches();
+
+                                                    const meeting = allMeetings[0];
+                                                    return expect(meeting.title).to.be.eq(updatedMeeting.title);
+                                                  });
+                                              });
+                         });
+  });
+
 
 });
 
