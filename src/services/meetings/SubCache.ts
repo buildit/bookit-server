@@ -175,7 +175,7 @@ export class SubCache<T extends Attendee> {
     this.updateCacheStart(meeting.start);
     this.updateCacheEnd(meeting.end);
 
-    logger.info(`Caching meeting(${this.attendee.email}) :`, meeting.id);
+    logger.info(`Caching meeting(${this.attendee.email}) :`, meeting.id, meeting.title, meeting.location);
     logger.debug('id keys', this.idCache.keys());
     logger.debug('participant keys', this.participantCache.keys());
     logger.debug('room keys', this.roomCache.keys());
