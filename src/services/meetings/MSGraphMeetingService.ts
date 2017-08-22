@@ -36,6 +36,23 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   }
 
 
+  getUserMeeting(user: Participant, id: string): Promise<Meeting> {
+    return new Promise((resolve, reject) => {
+      getToken(this.tokenOperations, this.userService, Perspective.USER, user.email)
+        .then(token => {
+          request.get('https://graph.microsoft.com/v1.0/users/' + user.email + '/calendar/events/' + id)
+                 .set('Authorization', `Bearer ${token}`)
+                 .end((error, response) => {
+                   if (error) {
+                     reject(new Error(error));
+                   }
+                   resolve('Deleted the event');
+                 });
+        });
+    });
+  }
+
+
   getUserMeetings(user: Participant, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
     return this._getMeetings(Perspective.USER, user.email, start, end);
   }
@@ -131,7 +148,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
       return MSGraphMeetingService._mapMeeting(perspective, meeting);
     }
 
-    const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView';
+    const URL = 'https://graph.microsoft.com/v1.0/users/' + user + '/calendar/calendarView?$top=1000';
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, user)
@@ -244,7 +261,7 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     };
 
     if (perspective === Perspective.ROOM) {
-      logger.info('MSGraphMeetingService::mapMeeting', mappedMeeting);
+      logger.debug('MSGraphMeetingService::mapMeeting', mappedMeeting);
     }
 
     return mappedMeeting;

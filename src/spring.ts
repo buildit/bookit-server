@@ -116,7 +116,7 @@ function testX() {
   const end = moment(searchEnd);
 
 
-  handleMeetingFetch(roomService, meetingService, undefined, 'nyc', start, end).then(roomMeetings => {
+  handleMeetingFetch(roomService, meetingService, userService, bruceCreds, 'nyc', start, end).then(roomMeetings => {
     logger.info('M', roomMeetings);
   });
 }

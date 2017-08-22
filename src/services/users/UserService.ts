@@ -30,6 +30,8 @@ export interface UserService {
 
   validateUser(email: string): Promise<boolean>;
 
+  isUserAnAdmin(email: string): boolean;
+
   isInternalUser(email: string): boolean;
 
   createUser(user: BookitUser): Promise<MSUser>;
