@@ -42,7 +42,7 @@ export function configureRoutes(app: Express,
   configureTestRoutes(app, mailService);
   configureUsersRoutes(app, userService, mailService);
   configureRoomRoutes(app, roomService);
-  configureMeetingRoutes(app, roomService, meetingsService);
+  configureMeetingRoutes(app, roomService, userService, meetingsService);
 
   return app;
 }

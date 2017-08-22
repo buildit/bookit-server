@@ -62,19 +62,17 @@ export function configureAuthenticationRoutes(app: Express,
     }
 
     userService.getUserDetails(userName)
-               .then(userDetails => {
-                 logger.info('Found user info', userDetails);
-                 return userDetails;
-               })
                .then((userDetails) => {
                  const userEmail = userDetails.email;
                  const token = jwtTokenProvider.provideToken({user: userEmail});
                  graphTokenProvider.assignUserToken(userEmail, credentialToken);
 
+                 const isAdmin = userService.isUserAnAdmin(userDetails.email);
                  const response = {
                    token: token,
                    email: userEmail,
                    name: decoded.name,
+                   isAdmin: isAdmin
                  };
 
                  logger.debug('Successfully authenticated: ', response);

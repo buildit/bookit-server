@@ -6,12 +6,24 @@ import {MSUser, UserService} from './UserService';
 import {GraphTokenProvider} from '../tokens/TokenProviders';
 import {BookitUser} from '../../model/BookitUser';
 import {getServiceUser, getExternalTeam, getInternalTeam} from '../../config/identity';
+import {getToken} from '../meetings/MeetingsSupport';
+import {Perspective} from '../../model/Meeting';
 
 export class MSGraphUserService extends MSGraphBase implements UserService {
+
+  // TODO: to be replaced
+  private adminList = new Set<string>();
 
   constructor(graphTokenProvider: GraphTokenProvider) {
     super(graphTokenProvider);
     logger.info('Constructing MSGraphUserService');
+    this.setUpAdminList();
+  }
+
+
+  private setUpAdminList() {
+    this.adminList.add(`roodmin@${this.domain()}`);
+    this.adminList.add('andrew.tuliszewski@wipro.com');
   }
 
 
@@ -90,15 +102,11 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
   getUserDetails(user: string): Promise<MSUser> {
     logger.info(`Attempting to get user details ${user}`);
-    const getToken = () => {
-      return this.isInternalUser(user) ? this.tokenOperations.withToken() : this.tokenOperations.withDelegatedToken(user);
-    };
-
 
     return new Promise((resolve, reject) => {
       const URL = `https://graph.microsoft.com/v1.0/users/${user}`;
       logger.info('GET', URL);
-      getToken().then(token => {
+      getToken(this.tokenOperations, this, Perspective.USER, user).then(token => {
         request.get(URL)
                .set('Authorization', `Bearer ${token}`)
                .end((error, response) => {
@@ -129,6 +137,11 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
   }
 
 
+  isUserAnAdmin(email: string): boolean {
+    return this.adminList.has(email);
+  }
+
+
   // TODO: Supply first condition via configuration
   validateUser(email: string): Promise<boolean> {
     if (this.isInternalUser(email)) {
@@ -139,7 +152,6 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
       .then((users: Array<any>) => users.filter(user => user.email === email).length > 0)
       .catch((err) => { console.log(err); return false; });
   };
-
 
 
   createUser(user: BookitUser): Promise<MSUser> {
