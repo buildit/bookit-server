@@ -11,7 +11,7 @@ import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, RoomMeetings, checkUserIsAdmin, checkMeetingTimeIsAvailable
+  createMeetingOperation, RoomMeetings, checkUserIsAdmin, checkMeetingTimeIsAvailable, checkTimeIsAvailable
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -20,6 +20,7 @@ import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
 import {UserService} from '../../services/users/UserService';
+import has = Reflect.has;
 
 
 export function validateEndDate(startDate: Moment, endDate: Moment) {
@@ -54,34 +55,40 @@ export function validateTimes(start: Moment, end: Moment) {
 }
 
 
+function tryToGetRoom(roomService: RoomService, roomId: string): Promise<Room> {
+  return roomService.getRoomByName(roomId)
+                    .catch(() => roomService.getRoomByMail(roomId));
+}
+
+
 export function createMeeting(req: Request,
                               res: Response,
                               roomService: RoomService,
                               meetingService: MeetingsService,
                               owner: Participant) {
   const event = req.body as MeetingRequest;
+  const subj = event.title;
   const startMoment = moment(event.start);
   const endMoment = moment(event.end);
+  const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
-  logger.info('Want to create meeting:', event);
-  const createRoomMeeting = (room: Room) => {
-    createMeetingOperation(meetingService,
-                           event.title,
-                           startMoment,
-                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           owner,
-                           room)
-      .then(meeting => res.json(meeting))
-      .catch(err => {
-        logger.error('CreateRoomMeeting', err);
-        throw err;
-      });
-  };
-
-  roomService.getRoomByName(roomId)
-             .catch(() => roomService.getRoomByMail(roomId))
-             .then(createRoomMeeting)
+  tryToGetRoom(roomService, roomId)
+             .then(room => checkTimeIsAvailable(meetingService, room, moment.utc(startMoment), duration).then(() => room))
+             .catch(hasConflict => {
+               sendPreconditionFailed(res, hasConflict);
+               return null;
+             })
+             /*
+             This is so gross!
+              */
+             .then(room => {
+               if (room) {
+                 logger.info('Want to create user meeting', owner);
+                 return meetingService.createUserMeeting(subj, startMoment, duration, owner, room);
+               }
+             })
+             .then(meeting => res.json(meeting))
              .catch(err => {
                logger.error('createMeeting', err);
                sendError(res, err);
@@ -105,12 +112,12 @@ export function updateMeeting(req: Request,
 
   logger.info('Want to update meeting:', event);
 
-  const room = roomService.getRoomByName(roomId)
-                          .catch(() => roomService.getRoomByMail(roomId))
-                          /*
-                            For meeting updates, we need to check against the room to see if we would conflict with
-                            another users meeting.
-                           */
+  const room = tryToGetRoom(roomService, roomId)
+
+  /*
+    For meeting updates, we need to check against the room to see if we would conflict with
+    another users meeting.
+   */
                           .then(room => {
                             return handleRoomMeetingFetch(meetingService, userService, room, updater, startMoment, endMoment)
                               .then(roomMeetings => {

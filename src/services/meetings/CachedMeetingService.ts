@@ -416,7 +416,7 @@ class MockGraphMeetingService implements MeetingsService {
 
   clearCaches(initializing = false) {
     const type = initializing ? ' Initializing' : 'Clearing';
-    logger.info(`${type} Mock Graph caches`);
+    logger.debug(`${type} Mock Graph caches`);
     this.roomMeetingCache.clear();
     this.userMeetingCache.clear();
 
@@ -429,7 +429,7 @@ class MockGraphMeetingService implements MeetingsService {
     const mappedMeetings = roomMeetings.map(obscureMeetingDetails);
 
     if (mappedMeetings.length > 0) {
-      logger.info(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
+      logger.debug(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
     }
 
     return Promise.resolve(roomMeetings);
@@ -446,7 +446,7 @@ class MockGraphMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings().filter(meeting => meeting.owner.email === user.email);
-    logger.info('Filtered user meetings', filtered);
+    logger.debug('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 
@@ -470,7 +470,7 @@ class MockGraphMeetingService implements MeetingsService {
         participants: [owner, room],
       };
 
-      logger.info('MockGraphMeetingService::createUserMeeting()', userMeeting);
+      logger.debug('MockGraphMeetingService::createUserMeeting()', userMeeting);
       this.userMeetingCache.put(userMeeting);
 
       const addRoomMeeting = () => {
@@ -516,7 +516,7 @@ class MockGraphMeetingService implements MeetingsService {
     }
 
     return new Promise((resolve) => {
-      logger.info('MockGraphMeetingService::updateUserMeeting() - updating', userMeetingId);
+      logger.debug('MockGraphMeetingService::updateUserMeeting() - updating', userMeetingId);
       const userMeeting = this.userMeetingCache.get(userMeetingId);
       update(userMeeting, start, duration, subj);
 

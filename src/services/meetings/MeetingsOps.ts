@@ -36,14 +36,19 @@ function hasConflicts(meetings: Meeting[], originalId: string, start: Moment, en
 }
 
 
-function checkTimeIsAvailable(meetingsService: MeetingsService,
-                              room: Room,
-                              start: moment.Moment,
-                              duration: moment.Duration): Promise<any> {
-  const startQuery = start.clone().startOf('day')
+export function checkTimeIsAvailable(meetingsService: MeetingsService,
+                                     room: Room,
+                                     start: moment.Moment,
+                                     duration: moment.Duration): Promise<any> {
+  /*
+  Expand the query window to actually return meetings that can potentially overlap.  This may not be sufficient in case
+  of ridiculously long meetings (e.g. longer than a day from the prior day)
+   */
+  const startQuery = start.clone().startOf('day');
   const endQuery = start.clone().add(duration).add(1, 'day');
-  const end = start.clone().add(duration);
 
+
+  const end = start.clone().add(duration);
   return meetingsService.getMeetings(room, startQuery, endQuery)
                         .then(meetings => hasAnyMeetingConflicts(meetings, start, end));
 }
@@ -64,11 +69,8 @@ export function createMeetingOperation(meetingService: MeetingsService,
                                        duration: Duration,
                                        owner: Participant,
                                        room: Room): Promise<Meeting> {
-
-  const startUTC = moment.utc(start);
-
-  return checkTimeIsAvailable(meetingService, room, startUTC, duration)
-    .then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
+  const maybeAvailable = checkTimeIsAvailable(meetingService, room, moment.utc(start), duration);
+  return maybeAvailable.then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
 }
 
 

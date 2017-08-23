@@ -54,7 +54,7 @@ const roodminCredentials = {
 };
 
 
-describe('meeting routes operations', function testMeetingRoutes() {
+describe('meeting routes querying operations', function testMeetingRoutes() {
 
   it('can query a room list for nyc', function testRoomList() {
     return request(app).get('/rooms/nyc')

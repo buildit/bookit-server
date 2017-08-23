@@ -15,6 +15,7 @@ import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
+import {Meeting} from '../../src/model/Meeting';
 
 const meetingService = Runtime.meetingService;
 const jwtTokenProvider = Runtime.jwtTokenProvider;
@@ -37,7 +38,7 @@ const bruceCredentials = {
 };
 
 
-describe('meeting routes operations', function testMeetingRoutes() {
+describe('meeting routes creation operations', function testMeetingRoutes() {
 
 
   it('creates the meeting', function testCreateMeeting() {
@@ -50,11 +51,8 @@ describe('meeting routes operations', function testMeetingRoutes() {
       end: meetingEnd,
     };
 
-    const searchStart = moment(meetingStart).subtract(5, 'minutes');
-    const searchEnd = moment(meetingEnd).add(5, 'minutes');
-
     const expected = {
-      title: bruceOwner.name,
+      title: 'meeting 0',
       start: moment(meetingReq.start),
       duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
       bruceOwner,
@@ -68,13 +66,13 @@ describe('meeting routes operations', function testMeetingRoutes() {
                        .set('x-access-token', token)
                        .send(meetingReq)
                        .expect(200)
-                       .then(() => meetingService.getMeetings(whiteRoom, searchStart, searchEnd))
-                       .then((meetings) => {
+                       .then(response => {
+                         const meeting = response.body as Meeting;
+
+                         console.log('Meeting', meeting);
                          meetingService.clearCaches();
 
-                         expect(meetings.length).to.be.at.least(1, 'Expected to find at least one meeting');
-                         const meeting = meetings[0];
-                         return expect(meeting.title).to.be.deep.eq(expected.title);
+                         return expect(meeting.title).to.be.eq(expected.title);
                        });
   });
 
