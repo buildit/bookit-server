@@ -7,8 +7,6 @@ import {Room} from '../../model/Room';
 import {MeetingsService} from './MeetingService';
 import {Meeting} from '../../model/Meeting';
 import {isMeetingOverlapping} from '../../utils/validation';
-import {handleMeetingFetch, handleRoomMeetingFetch} from '../../rest/meetings/meeting_functions';
-import {Credentials} from '../../model/Credentials';
 import {UserService} from '../users/UserService';
 
 

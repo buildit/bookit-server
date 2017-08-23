@@ -17,6 +17,7 @@ import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
+import {Meeting} from '../../src/model/Meeting';
 
 const meetingService = Runtime.meetingService;
 const jwtTokenProvider = Runtime.jwtTokenProvider;
@@ -85,24 +86,13 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
                                               .expect(200)
-                                              .then(() => {
-                                                return request(app)
-                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                  .set('x-access-token', token)
-                                                  .expect(200)
-                                                  .then(response => {
-                                                    const roomMeetings = response.body as RoomMeetings[];
-                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                      acc.push.apply(acc, room.meetings);
-                                                      return acc;
-                                                    }, []);
+                                              .then(response => {
+                                                const meeting = response.body as Meeting;
 
-                                                    meetingService.clearCaches();
+                                                meetingService.clearCaches();
 
-                                                    const meeting = allMeetings[0];
-                                                    return expect(meeting.title).to.be.eq(updatedMeeting.title);
-                                                  });
-                           });
+                                                return expect(meeting.title).to.be.eq(updatedMeeting.title);
+                                              });
                          });
   });
 
@@ -145,29 +135,16 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
                                               .expect(200)
-                                              .then(() => {
-                                                return request(app)
-                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                  .set('x-access-token', token)
-                                                  .expect(200)
-                                                  .then(response => {
-                                                    const roomMeetings = response.body as RoomMeetings[];
-                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                      acc.push.apply(acc, room.meetings);
-                                                      return acc;
-                                                    }, []);
+                                              .then(response => {
+                                                const meeting = response.body as Meeting;
 
-                                                    meetingService.clearCaches();
+                                                meetingService.clearCaches();
 
-                                                    const meeting = allMeetings[0];
-                                                    // The response is a JSON screen that we need to convert back to a moment
-                                                    const meetingUTC = moment.utc(meeting.start) + '';
-                                                    const updatedUTC = moment.utc(moment(updatedMeeting.start)) + '';
+                                                // The response is a JSON screen that we need to convert back to a moment
+                                                const meetingUTC = moment.utc(meeting.start) + '';
+                                                const updatedUTC = moment.utc(moment(updatedMeeting.start)) + '';
 
-                                                    logger.info('EXPECTED meeting', typeof updatedUTC, updatedUTC);
-                                                    logger.info('FOUND meeting', typeof meetingUTC, meetingUTC);
-                                                    return expect(meetingUTC).to.be.eq(updatedUTC);
-                                                  });
+                                                return expect(meetingUTC).to.be.eq(updatedUTC);
                                               });
                          });
   });
@@ -210,36 +187,23 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
                                               .expect(200)
-                                              .then(() => {
-                                                return request(app)
-                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                  .set('x-access-token', token)
-                                                  .expect(200)
-                                                  .then(response => {
-                                                    const roomMeetings = response.body as RoomMeetings[];
-                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                      acc.push.apply(acc, room.meetings);
-                                                      return acc;
-                                                    }, []);
+                                              .then(response => {
+                                                const meeting = response.body as Meeting;
 
-                                                    meetingService.clearCaches();
+                                                meetingService.clearCaches();
 
-                                                    const meeting = allMeetings[0];
-                                                    // The response is a JSON screen that we need to convert back to a moment
-                                                    const meetingUTC = moment.utc(meeting.end) + '';
-                                                    const updatedUTC = moment.utc(moment(updatedMeeting.end)) + '';
+                                                // The response is a JSON string that we need to convert back to a moment
+                                                const meetingUTC = moment.utc(meeting.end) + '';
+                                                const updatedUTC = moment.utc(moment(updatedMeeting.end)) + '';
 
-                                                    logger.info('EXPECTED meeting', typeof updatedUTC, updatedUTC);
-                                                    logger.info('FOUND meeting', typeof meetingUTC, meetingUTC);
-                                                    return expect(meetingUTC).to.be.eq(updatedUTC);
-                                                  });
+                                                return expect(meetingUTC).to.be.eq(updatedUTC);
                                               });
 
                          });
   });
 
 
-  it.only('updates a meetings subject as an admin', function testUpdateMeetingSubject() {
+  it('updates a meetings subject as an admin', function testUpdateMeetingSubject() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
@@ -275,28 +239,16 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                               .set('x-access-token', token)
                                               .send(updatedMeeting)
                                               .expect(200)
-                                              .then(() => {
-                                                return request(app)
-                                                  .get(`/rooms/nyc/meetings?start=${searchStart}&&end=${searchEnd}`)
-                                                  .set('x-access-token', token)
-                                                  .expect(200)
-                                                  .then(response => {
-                                                    const roomMeetings = response.body as RoomMeetings[];
-                                                    const allMeetings = roomMeetings.reduce((acc, room) => {
-                                                      acc.push.apply(acc, room.meetings);
-                                                      return acc;
-                                                    }, []);
+                                              .then(response => {
+                                                const meeting = response.body as Meeting;
 
-                                                    meetingService.clearCaches();
+                                                meetingService.clearCaches();
 
-                                                    const meeting = allMeetings[0];
-                                                    return expect(meeting.title).to.be.eq(updatedMeeting.title);
-                                                  });
+                                                logger.info('Meeting', meeting);
+                                                return expect(meeting.title).to.be.eq(updatedMeeting.title);
                                               });
                          });
   });
-
-
 });
 
 

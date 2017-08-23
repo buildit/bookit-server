@@ -120,18 +120,25 @@ export class CachedMeetingService implements MeetingsService {
 
 
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', id);
-    const originalMeeting = this.getCacheForOwner(owner).get(id);
+    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', owner, id);
+    const originalMeeting: Meeting = Array.from(this.ownerSubCaches.values())
+                                      .reduce((meeting, cache) => meeting || cache.get(id), undefined);
+
+    if (!originalMeeting) {
+      logger.error('Could not find meeting', owner.email, id);
+      return Promise.reject(`Unable to find meeting id: ${id}`);
+    }
+
     return this.delegatedMeetingsService
                .updateUserMeeting(id, subj, start, duration, owner, room)
-               .then(userMeeting => {
+               .then(updatedMeeting => {
                  return this.evictRoomMeetingForUserMeeting(originalMeeting)
                             .then(roomMeeting => {
                               if (roomMeeting) {
                                 logger.info('Evicted', roomMeeting.id);
                               }
 
-                              return userMeeting;
+                              return updatedMeeting;
                             });
                })
                .then(userMeeting => {
@@ -189,6 +196,7 @@ export class CachedMeetingService implements MeetingsService {
 
 
   private evictRoomMeetingForUserMeeting(userMeeting: Meeting): Promise<Meeting> {
+    logger.trace('Evicting', userMeeting);
     const roomCache = this.getRoomCacheForMeeting(userMeeting);
     const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
     return roomCache.getMeetings(searchStart, searchEnd)

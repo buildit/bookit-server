@@ -101,7 +101,7 @@ export function updateMeeting(req: Request,
   logger.info('Want to update meeting:', event);
 
   const checkAvailability = (room: Room): Promise<boolean> => {
-    return handleRoomMeetingFetch(meetingService, room, updater, startMoment, endMoment)
+    return handleRoomMeetingFetch(meetingService, userService, room, updater, startMoment, endMoment)
       .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, startMoment, duration))
       .catch((err) => {
         sendPreconditionFailed(res, err);
@@ -198,23 +198,29 @@ function getUserMeetings(meetingService: MeetingsService,
 }
 
 
-export function handleRoomMeetingFetch(meetingService: MeetingsService,
-                                       userService: UserService,
-                                       room: Room,
-                                       user: Participant,
-                                       start: Moment,
-                                       end: Moment): Promise<RoomMeetings> {
+async function handleRoomMeetingFetch(meetingService: MeetingsService,
+                                      userService: UserService,
+                                      room: Room,
+                                      user: Participant,
+                                      start: Moment,
+                                      end: Moment): Promise<RoomMeetings> {
+  async function getAdminRoomMeetings() {
+    const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end);
+
+    const roomMeetings = await meetingService.getMeetings(room, start, end);
+    const participants = getUniqueOwners(roomMeetings);
+    const flattenedUserMeetings = await getAndFlattenAllUserMeetings(participants, getUserMeetings);
+    const meetings = mergeMeetingsForRoom(room, roomMeetings, flattenedUserMeetings);
+    return {room, meetings};
+  }
+
+  async function getPlainRoomMeetings() {
+    const userMeetings = await meetingService.getUserMeetings(user, start, end);
+    return getRoomAndMergeUserMeetings(meetingService, room, start, end, userMeetings);
+  }
+
   const isAdminUser = userService.isUserAnAdmin(user.email);
-
-
-  return meetingService.getUserMeetings(user, start, end)
-                       .then(userMeetings => {
-                         return getRoomAndMergeUserMeetings(meetingService,
-                                                            room,
-                                                            start,
-                                                            end,
-                                                            userMeetings);
-                       });
+  return isAdminUser ? getAdminRoomMeetings() : getPlainRoomMeetings();
 }
 
 
@@ -246,7 +252,7 @@ export function handleUserMeetingFetch(roomList: RoomList,
 }
 
 
-function getUniqueOwners(meetings: Meeting[]) {
+function getUniqueOwners(meetings: Meeting[]): Participant[] {
   const uniqueParticipants = {
     emails: new Set<string>(),
     participants: new Set<Participant>()
@@ -263,7 +269,7 @@ function getUniqueOwners(meetings: Meeting[]) {
     return unique;
   }, uniqueParticipants);
 
-  return uniqueParticipants;
+  return Array.from(uniqueParticipants.participants);
 }
 
 
@@ -284,10 +290,10 @@ function flattenRoomListMeetings(roomLists: RoomMeetings[]): Meeting[] {
 
 
 async function getAndFlattenAllUserMeetings(participants: Participant[],
-                                            getUserMeetings: (owner: Participant) => Promise<RoomMeetings>): Promise<Meeting[]> {
+                                            getUserMeetings: (owner: Participant) => Promise<Meeting[]>): Promise<Meeting[]> {
   const allUserMeetings = await Promise.all(Array.from(participants).map(getUserMeetings));
-  return allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
-    flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
+  return allUserMeetings.reduce((flattenedMeetings, userMeetings) => {
+    flattenedMeetings.push.apply(flattenedMeetings, userMeetings);
     return flattenedMeetings;
   }, new Array<Meeting>());
 }
@@ -307,10 +313,7 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
                                                         });
 
   // user meetings convenience function
-  const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end)
-                                                                .then(meetings => {
-                                                                  return {owner: owner, meetings: meetings};
-                                                                });
+  const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end);
 
   /*
   Get all room meetings first
@@ -321,12 +324,11 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
   /*
   Figure out the various owner so we can...
    */
-  const uniqueParticipants = getUniqueOwners(flattenedRoomMeetings);
+  const participants = getUniqueOwners(flattenedRoomMeetings);
 
   /*
   ..query their calendars for meetings from their perspectives.
    */
-  const participants = Array.from(uniqueParticipants.participants);
   const flattenedUserMeetings = await getAndFlattenAllUserMeetings(participants, getUserMeetings);
   /*
   Then merge the room meetings against the user meetings
