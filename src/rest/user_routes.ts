@@ -5,8 +5,10 @@ import {MailService} from '../services/mail/MailService';
 import {RootLog as logger} from '../utils/RootLogger';
 import {BookitUser} from '../model/BookitUser';
 import {getServiceUser} from '../config/identity';
+import {GraphTokenProvider} from '../services/tokens/TokenProviders';
 
 export function configureUsersRoutes(app: Express,
+                                     graphTokenProvider: GraphTokenProvider,
                                      userSvc: UserService,
                                      mailSvc: MailService): Express {
 
@@ -33,26 +35,24 @@ export function configureUsersRoutes(app: Express,
     };
 
     userSvc.createUser(newUser)
-      .then(user => {
-        logger.info('Created a new user:', user);
+           .then(user => {
+             logger.info('Created a new user:', user);
 
-        const senderEmail = getServiceUser('buildit'); // How to get the environment/mode?
-        mailSvc.sendMail(senderEmail, user.email, 'wipro_user_invitation')
-          .then(() => {
-            logger.info('Sent invitation to:', user.email);
-            res.json(user);
-          })
-          .catch(err => {
-            logger.error(err.message);
-            res.send('Failed to create new user.');
-          });
-      })
-      .catch(err => {
-        logger.error(err);
-        res.status(500).send('Failed to create new user.');
-      });
-
-
+             const senderEmail = getServiceUser(graphTokenProvider.domain()); // How to get the environment/mode?
+             mailSvc.sendMail(senderEmail, user.email, 'wipro_user_invitation')
+                    .then(() => {
+                      logger.info('Sent invitation to:', user.email);
+                      res.json(user);
+                    })
+                    .catch(err => {
+                      logger.error(err.message);
+                      res.send('Failed to create new user.');
+                    });
+           })
+           .catch(err => {
+             logger.error(err);
+             res.status(500).send('Failed to create new user.');
+           });
   });
 
   return app;

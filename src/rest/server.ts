@@ -3,8 +3,6 @@ import * as cors from 'cors';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
 
-import {PasswordStore} from '../services/authorization/PasswordStore';
-
 import {MeetingsService} from '../services/meetings/MeetingService';
 import {RoomService} from '../services/rooms/RoomService';
 
@@ -40,7 +38,7 @@ export function configureRoutes(app: Express,
 
   configureAuthenticationRoutes(app, userService, jwtTokenProvider, graphTokenProvider);
   configureTestRoutes(app, mailService);
-  configureUsersRoutes(app, userService, mailService);
+  configureUsersRoutes(app, graphTokenProvider, userService, mailService);
   configureRoomRoutes(app, roomService);
   configureMeetingRoutes(app, roomService, userService, meetingsService);
 
