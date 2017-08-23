@@ -130,7 +130,7 @@ export class CachedMeetingService implements MeetingsService {
     }
 
     return this.delegatedMeetingsService
-               .updateUserMeeting(id, subj, start, duration, owner, room)
+               .updateUserMeeting(id, subj, start, duration, originalMeeting.owner, room)
                .then(updatedMeeting => {
                  return this.evictRoomMeetingForUserMeeting(originalMeeting)
                             .then(roomMeeting => {
@@ -141,14 +141,15 @@ export class CachedMeetingService implements MeetingsService {
                               return updatedMeeting;
                             });
                })
-               .then(userMeeting => {
+               .then(updatedMeeting => {
                  // MS has a different meeting id for each version of a meeting so we need to evict the old id
-                 this.evictUserMeeting(id);
+                 logger.info('Updated meeting', updatedMeeting);
+                 this.evictMeetingFromUserCache(originalMeeting.owner, id);
 
-                 const roomMeeting = this.cacheRoomMeeting(room, userMeeting);
+                 const roomMeeting = this.cacheRoomMeeting(room, updatedMeeting);
                  this.matchAndReplaceRoomMeeting(roomMeeting, room);
 
-                 return this.cacheUserMeeting(owner, userMeeting);
+                 return this.cacheUserMeeting(originalMeeting.owner, updatedMeeting);
                })
                .catch(error => {
                  logger.error(error);
@@ -361,6 +362,12 @@ export class CachedMeetingService implements MeetingsService {
 
   private evictRoomMeeting(id: string) {
     return this.evictMeetingFromCache(this.roomSubCaches, id);
+  }
+
+
+  private evictMeetingFromUserCache(user: Participant, id: string): Meeting|null {
+    const subCache = this.ownerSubCaches.get(user.email);
+    return subCache.remove(id);
   }
 
 

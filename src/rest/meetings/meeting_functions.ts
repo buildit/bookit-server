@@ -394,7 +394,7 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
     const anyFailed = predicates.some(predicate => {
       const res = predicate();
       if (!res) {
-        logger.info(`Mismatched on ${predicate.name}`);
+        logger.trace(`Mismatched on ${predicate.name}`);
       }
 
       return res;
