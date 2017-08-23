@@ -11,6 +11,7 @@ import {UserService} from '../users/UserService';
 
 
 function hasAnyMeetingConflicts(meetings: Meeting[], newMeetingStart: moment.Moment, newMeetingEnd: moment.Moment) {
+  logger.info('Checking overlap', newMeetingStart, newMeetingEnd, meetings);
   const conflict = meetings.find(meeting => {
     return isMeetingOverlapping(moment(meeting.start), moment(meeting.end), newMeetingStart, newMeetingEnd);
   });
@@ -39,9 +40,11 @@ function checkTimeIsAvailable(meetingsService: MeetingsService,
                               room: Room,
                               start: moment.Moment,
                               duration: moment.Duration): Promise<any> {
+  const startQuery = start.clone().startOf('day')
+  const endQuery = start.clone().add(duration).add(1, 'day');
   const end = start.clone().add(duration);
 
-  return meetingsService.getMeetings(room, start, end)
+  return meetingsService.getMeetings(room, startQuery, endQuery)
                         .then(meetings => hasAnyMeetingConflicts(meetings, start, end));
 }
 
@@ -62,8 +65,10 @@ export function createMeetingOperation(meetingService: MeetingsService,
                                        owner: Participant,
                                        room: Room): Promise<Meeting> {
 
-    return checkTimeIsAvailable(meetingService, room, start, duration)
-      .then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
+  const startUTC = moment.utc(start);
+
+  return checkTimeIsAvailable(meetingService, room, startUTC, duration)
+    .then(() => meetingService.createUserMeeting(subj, start, duration, owner, room));
 }
 
 

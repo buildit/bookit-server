@@ -73,14 +73,19 @@ export function createMeeting(req: Request,
                            owner,
                            room)
       .then(meeting => res.json(meeting))
-      .catch(err => sendError(err, res));
+      .catch(err => {
+        logger.error('CreateRoomMeeting', err);
+        throw err;
+      });
   };
 
   roomService.getRoomByName(roomId)
-             .then(createRoomMeeting)
              .catch(() => roomService.getRoomByMail(roomId))
              .then(createRoomMeeting)
-             .catch(err => sendError(err, res));
+             .catch(err => {
+               logger.error('createMeeting', err);
+               sendError(res, err);
+             });
 }
 
 
@@ -144,7 +149,7 @@ export function updateMeeting(req: Request,
                          .then(room => meetingService.updateUserMeeting(userMeetingId, subj,
                                                                         startMoment, duration, updater, room))
                          .then(meeting => res.json(meeting))
-                         .catch(err => sendError(err, res));
+                         .catch(err => sendError(res, err));
   });
 }
 
@@ -161,7 +166,7 @@ export function deleteMeeting(req: Request,
                        .catch(() => checkUserIsAdmin(userService, updater))
                        .catch((err) => sendUnauthorized(res, err))
                        .then(() => meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId))
-                       .catch((err) => sendError(err, res));
+                       .catch((err) => sendError(res, err));
 }
 
 
@@ -455,9 +460,9 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
     return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
   }
-  logger.info('User Meetings', userMeetings.length);
+  // logger.info('User Meetings', userMeetings.length);
   const roomCache = cacheMeetingsByRoom(userMeetings);
-  logger.info('RoomCache', roomCache);
+  // logger.info('RoomCache', roomCache);
 
   const roomId = room.name;
   const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
