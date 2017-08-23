@@ -16,7 +16,6 @@ import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
-import {RoomMeetings} from '../../src/services/meetings/MeetingsOps';
 import {Meeting} from '../../src/model/Meeting';
 
 const meetingService = Runtime.meetingService;
@@ -33,11 +32,18 @@ const app = configureRoutes(express(),
 
 const roodminOwner = generateMSUserResource('roodmin', Runtime.meetingService.domain());
 const bruceOwner = generateMSUserResource('bruce', Runtime.meetingService.domain());
+const babsOwner = generateMSUserResource('babs', Runtime.meetingService.domain());
 const whiteRoom = generateMSRoomResource('white', Runtime.meetingService.domain());
 
 const bruceCredentials = {
   user: bruceOwner.email,
   password: 'who da boss?'
+};
+
+
+const babsCredentials = {
+  user: babsOwner.email,
+  password: 'who da singer?'
 };
 
 
@@ -53,10 +59,6 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
   it('updates a meetings subject as the owner', function testUpdateMeetingSubject() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
-
-
-    const searchStart = '2013-05-08 09:00:00';
-    const searchEnd = '2013-05-08 12:00:00';
 
     const original = {
       title: 'original meeting title',
@@ -144,7 +146,8 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                                 const meetingUTC = moment.utc(meeting.start) + '';
                                                 const updatedUTC = moment.utc(moment(updatedMeeting.start)) + '';
 
-                                                return expect(meetingUTC).to.be.eq(updatedUTC);
+                                                expect(meetingUTC).to.be.eq(updatedUTC);
+                                                return;
                                               });
                          });
   });
@@ -154,9 +157,6 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
     const meetingEnd = '2013-05-08 10:45:00';
 
     const newMeetingEnd = '2013-05-08 11:00:00';
-
-    const searchStart = '2013-05-08 09:00:00';
-    const searchEnd = '2013-05-08 12:00:00';
 
     const original = {
       title: 'original meeting title',
@@ -196,20 +196,59 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                                 const meetingUTC = moment.utc(meeting.end) + '';
                                                 const updatedUTC = moment.utc(moment(updatedMeeting.end)) + '';
 
-                                                return expect(meetingUTC).to.be.eq(updatedUTC);
+                                                expect(meetingUTC).to.be.eq(updatedUTC);
+                                                return;
                                               });
 
                          });
   });
 
 
-  it('updates a meetings subject as an admin', function testUpdateMeetingSubject() {
+  it('fails to update a meeting subject as a non-owner', function testUpdateMeetingSubjectNonOwner() {
     const meetingStart = '2013-05-08 10:00:00';
     const meetingEnd = '2013-05-08 10:45:00';
 
 
-    const searchStart = '2013-05-08 09:00:00';
-    const searchEnd = '2013-05-08 12:00:00';
+    const original = {
+      title: 'original meeting title',
+      start: moment(meetingStart),
+      duration: moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes'),
+      bruceOwner,
+      whiteRoom
+    };
+
+    const token = jwtTokenProvider.provideToken(babsCredentials);
+
+    return meetingService.createUserMeeting(original.title,
+                                            original.start,
+                                            original.duration,
+                                            original.bruceOwner,
+                                            original.whiteRoom)
+                         .then(created => {
+                           const updatedMeeting: MeetingRequest = {
+                             id: created.id,
+                             title: 'this is new',
+                             start: meetingStart,
+                             end: meetingEnd,
+                           };
+
+                           return request(app).put(`/room/${whiteRoom.email}/meeting/${updatedMeeting.id}`)
+                                              .set('Content-Type', 'application/json')
+                                              .set('x-access-token', token)
+                                              .send(updatedMeeting)
+                                              .expect(403)
+                                              .then(() => {
+                                                meetingService.clearCaches();
+
+                                                return;
+                                              });
+                         });
+  });
+
+
+  it('updates a meetings subject as an admin', function testUpdateMeetingSubjectAdmin() {
+    const meetingStart = '2013-05-08 10:00:00';
+    const meetingEnd = '2013-05-08 10:45:00';
 
     const original = {
       title: 'original meeting title',
@@ -245,7 +284,9 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                                 meetingService.clearCaches();
 
                                                 logger.info('Meeting', meeting);
-                                                return expect(meeting.title).to.be.eq(updatedMeeting.title);
+                                                expect(meeting.title).to.be.eq(updatedMeeting.title);
+
+                                                return;
                                               });
                          });
   });

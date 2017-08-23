@@ -85,12 +85,12 @@ export function createMeeting(req: Request,
 
 
 export function updateMeeting(req: Request,
-                                    res: Response,
-                                    roomService: RoomService,
-                                    userService: UserService,
-                                    meetingService: MeetingsService,
-                                    userMeetingId: string,
-                                    updater: Participant) {
+                              res: Response,
+                              roomService: RoomService,
+                              userService: UserService,
+                              meetingService: MeetingsService,
+                              userMeetingId: string,
+                              updater: Participant) {
   const event = req.body as MeetingRequest;
   const subj = event.title;
   const startMoment = moment(event.start);
@@ -100,38 +100,52 @@ export function updateMeeting(req: Request,
 
   logger.info('Want to update meeting:', event);
 
-  const checkAvailability = (room: Room): Promise<boolean> => {
-    return handleRoomMeetingFetch(meetingService, userService, room, updater, startMoment, endMoment)
-      .then(roomMeetings => checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, startMoment, duration))
-      .catch((err) => {
-        sendPreconditionFailed(res, err);
-        return false;
-      });
-  };
+  const room = roomService.getRoomByName(roomId)
+                          .catch(() => roomService.getRoomByMail(roomId))
+                          /*
+                            For meeting updates, we need to check against the room to see if we would conflict with
+                            another users meeting.
+                           */
+                          .then(room => {
+                            return handleRoomMeetingFetch(meetingService, userService, room, updater, startMoment, endMoment)
+                              .then(roomMeetings => {
+                                checkMeetingTimeIsAvailable(roomMeetings.meetings, userMeetingId, startMoment, duration);
+                                return room;
+                              })
+                              .catch(err => {
+                                try {
+                                  if (checkUserIsAdmin(userService, updater)) {
+                                    sendPreconditionFailed(res, err);
+                                  }
+                                }
+                                catch (error) {
+                                  sendUnauthorized(res, 'You are not the owner of this meeting');
+                                }
 
+                                return null;
+                              });
+                          });
 
-  roomService.getRoomByName(roomId)
-             .catch(() => roomService.getRoomByMail(roomId))
-             /*
-               For meeting updates, we need to check against the room to see if we would conflict with
-               another users meeting.
-              */
-             .then(room => {
-               return checkAvailability(room).then(() => room);
-             })
-             /*
-               If we find the meeting for the current user, then it's the owner.  If not the owner, check
-               that the updater is an admin.
-              */
-             .then(room => {
-               return meetingService.getUserMeeting(updater, userMeetingId)
-                                    .catch(() => checkUserIsAdmin(userService, updater))
-                                    .catch((err) => sendUnauthorized(res, err))
-                                    .then(() => room);
-             })
-             .then(room => meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room))
-             .then(meeting => res.json(meeting))
-             .catch(err => sendError(err, res));
+  /*
+  If we don't get a room then we've errored out on conflicts or permissions
+   */
+  room.then(room => {
+    if (!room) {
+      return;
+    }
+    /*
+      If we find the meeting for the current user, then it's the owner.  If not the owner, check
+      that the updater is an admin.
+     */
+    return meetingService.getUserMeeting(updater, userMeetingId)
+                         .catch(() => checkUserIsAdmin(userService, updater))
+                         .catch((err) => sendUnauthorized(res, err))
+                         .then(() => room)
+                         .then(room => meetingService.updateUserMeeting(userMeetingId, subj,
+                                                                        startMoment, duration, updater, room))
+                         .then(meeting => res.json(meeting))
+                         .catch(err => sendError(err, res));
+  });
 }
 
 
@@ -261,7 +275,7 @@ function getUniqueOwners(meetings: Meeting[]): Participant[] {
   meetings.reduce((unique, meeting) => {
     const owner = meeting.owner;
     if (unique.emails.has(owner.email)) {
-      return;
+      return unique;
     }
 
     unique.emails.add(owner.email);
@@ -320,12 +334,10 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
    */
   const allRoomMeetings = await Promise.all(roomList.rooms.map(getRoomMeetings));
   const flattenedRoomMeetings = flattenRoomListMeetings(allRoomMeetings);
-
   /*
   Figure out the various owner so we can...
    */
   const participants = getUniqueOwners(flattenedRoomMeetings);
-
   /*
   ..query their calendars for meetings from their perspectives.
    */
