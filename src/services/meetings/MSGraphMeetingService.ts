@@ -46,7 +46,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    if (error) {
                      reject(new Error(error));
                    }
-                   resolve('Deleted the event');
+
+                   const meeting = MSGraphMeetingService._mapMeeting(Perspective.USER, response.body);
+                   resolve(meeting);
                  });
         });
     });
