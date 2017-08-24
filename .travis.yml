@@ -29,7 +29,7 @@ env:
     - secure: "ryzhie5jgm5/M2k+qeDM2kx/08+anK2IFKQBegrsJE77BIcJ2Z+w2JdEXWEihOoSYJMAWwoEj0+i7ic3it1honJeT0mLEQvgGBZxsOu1t9JphpYeHDtILkJjVF94jjkVgT5WqmaTJuXVtxcJpDXGDwH56GxRizTeyRGgU2Pi6MC0VlfZmVI4pvMyOD8xM/8k5ALgyWospmLSP6AwnM1LBMVaNHTABS4uD2eZN3zy8pfx2hzeXchqIFJTPbc7eLqS5g4Oz+huDWAKRNcKRuhhZWXbNBb0HiH+7+TaFZSUjHoUCThWKPV6RpsvVAUDaXnDGlcO4NPANBZTbpLhIbXQlXlqw3MVFBjPNDQUs9GIUc4jS+dtwW2AhZv7n65lCXQYzmx3idz83jz/k/mdn0ckKuPlL6P7v14k8Y+4vRQVfY6nK6/iBsxo6wXNqsK/B8LvmQVDZN12JhiejW0YTpEAl4NKu8FsqZ8RBcnBHXtQqxI/E5rdWU1pfjfJ/SVxbS81kYe5arMi/nyW/hRjsUs7j0g01uQg213qV3joZPruIWLuD3aJHDHy3DoJUlBdyanoxTHmxP/XsCdL85Hk9L40GVWIO9xFPzD25yLAD5SIcCg9omv0zB0ubts7Okqqx/dgmcfMPfGL4dDlo1ytjrsQJcZsydKVCaMUOX6z663E8bE="
 
 script:
-  - npm test
+  - npm run test:unit
 
 deploy:
   - provider: script
@@ -41,17 +41,17 @@ deploy:
     skip_cleanup: true
     script: ./scripts/get-deployment-scripts.sh
     on:
-      branch: 33-deploy-to-ecs
+      branch: 33-deploy-to-ecs-benaychh
   - provider: script
     skip_cleanup: true
     script: ./scripts/push-to-ecr.sh
     on:
-      branch: 33-deploy-to-ecs
+      branch: 33-deploy-to-ecs-benaychh
   - provider: script
     skip_cleanup: true
     script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}
     on:
-      branch: 33-deploy-to-ecs
+      branch: 33-deploy-to-ecs-benacyhh
 
 notifications:
   slack:
