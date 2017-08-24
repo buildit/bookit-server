@@ -453,10 +453,9 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
   if (!userMeeting) {
     logger.debug(`Unable to match meeting ${roomId}, ${meeting.id}`);
     return toReturn;
-  } else {
-    logger.debug(`Matched ${meeting.id} to ${userMeeting.id}`);
   }
 
+  logger.debug(`Matched ${meeting.id} to ${userMeeting.id}`);
   roomCache.remove(userMeeting);
   assignProperties(toReturn, userMeeting);
 
@@ -476,9 +475,9 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
     return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
   }
-  logger.info('User Meetings', userMeetings.length);
+  logger.debug('User Meetings', userMeetings.length);
   const roomCache = cacheMeetingsByRoom(userMeetings);
-  logger.info('RoomCache', roomCache);
+  logger.debug('RoomCache', roomCache);
 
   const roomId = room.name;
   const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));
@@ -488,7 +487,7 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
     const applicable = leftOverMeetings.filter(meeting => matchLeftOver(room.name, owner, meeting));
 
     const data = leftOverMeetings.map(m => { return `'id': '${m.id}', 'title': '${m.title}', 'loc': '${m.location.displayName}', 'start': '${m.start.format()}', 'end': '${m.end.format()}'`; });
-    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${data}`);
+    logger.debug(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${data}`);
     mergedMeetings.push.apply(mergedMeetings, applicable);
     // logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings`, leftOverMeetings);
   }
