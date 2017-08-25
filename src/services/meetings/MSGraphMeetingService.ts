@@ -46,7 +46,9 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
                    if (error) {
                      reject(new Error(error));
                    }
-                   resolve('Deleted the event');
+
+                   const meeting = MSGraphMeetingService._mapMeeting(Perspective.USER, response.body);
+                   resolve(meeting);
                  });
         });
     });
@@ -66,19 +68,19 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
-          .then(token => {
-            request.post(URL)
-                   .set('Authorization', `Bearer ${token}`)
-                   .send(eventData)
-                   .end((error, response) => {
-                     if (error) {
-                       reject(new Error(error));
-                       return;
-                     }
+        .then(token => {
+          request.post(URL)
+                 .set('Authorization', `Bearer ${token}`)
+                 .send(eventData)
+                 .end((error, response) => {
+                   if (error) {
+                     reject(new Error(error));
+                     return;
+                   }
 
-                     resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
-                   });
-          });
+                   resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
+                 });
+        });
     });
   }
 
@@ -96,19 +98,19 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
-          .then(token => {
-            request.patch(URL)
-                   .set('Authorization', `Bearer ${token}`)
-                   .send(eventData)
-                   .end((error, response) => {
-                     if (error) {
-                       reject(new Error(error));
-                       return;
-                     }
+        .then(token => {
+          request.patch(URL)
+                 .set('Authorization', `Bearer ${token}`)
+                 .send(eventData)
+                 .end((error, response) => {
+                   if (error) {
+                     reject(new Error(error));
+                     return;
+                   }
 
-                     resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
-                   });
-          });
+                   resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
+                 });
+        });
     });
 
   }
@@ -152,22 +154,22 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
     logger.info('MSGraphMeetingService::_getMeetings() - ', URL, startDateTime, endDateTime);
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, user)
-          .then(token => {
-            request.get(URL)
-                   .set('Authorization', `Bearer ${token}`)
-                   .query({startDateTime, endDateTime})
-                   .end((error, response) => {
-                     if (error) {
-                       logger.error('Failed to get user meetings', error);
-                       // return reject(new Error(error));
-                       return resolve([]);
-                     }
+        .then(token => {
+          request.get(URL)
+                 .set('Authorization', `Bearer ${token}`)
+                 .query({startDateTime, endDateTime})
+                 .end((error, response) => {
+                   if (error) {
+                     logger.error('Failed to get user meetings', error);
+                     // return reject(new Error(error));
+                     return resolve([]);
+                   }
 
-                     // logger.info('Response', response);
-                     const meetings = response.body.value.map(mapMeeting);
-                     resolve(meetings);
-                   });
-          });
+                   // logger.info('Response', response);
+                   const meetings = response.body.value.map(mapMeeting);
+                   resolve(meetings);
+                 });
+        });
     });
   }
 
@@ -205,16 +207,16 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
   private _deleteMeeting(owner: Participant, id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       getToken(this.tokenOperations, this.userService, Perspective.USER, owner.email)
-          .then(token => {
-            request.delete('https://graph.microsoft.com/v1.0/users/' + owner.email + '/calendar/events/' + id)
-                   .set('Authorization', `Bearer ${token}`)
-                   .end((error, response) => {
-                     if (error) {
-                       reject(new Error(error));
-                     }
-                     resolve('Deleted the event');
-                   });
-          });
+        .then(token => {
+          request.delete('https://graph.microsoft.com/v1.0/users/' + owner.email + '/calendar/events/' + id)
+                 .set('Authorization', `Bearer ${token}`)
+                 .end((error, response) => {
+                   if (error) {
+                     reject(new Error(error));
+                   }
+                   resolve('Deleted the event');
+                 });
+        });
     });
   }
 
