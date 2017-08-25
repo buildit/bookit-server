@@ -16,6 +16,8 @@ import {MeetingRequest} from '../../src/rest/meetings/meeting_routes';
 import {Runtime} from '../../src/config/runtime/configuration';
 import {generateMSRoomResource, generateMSUserResource} from '../../src/config/bootstrap/rooms';
 import {Meeting} from '../../src/model/Meeting';
+import {retryUntilAtInterval} from '../../src/utils/retry';
+import {stringToTomorrowEnd, stringToYesterdayStart} from '../../src/utils/moment_support';
 
 const meetingService = Runtime.meetingService;
 const jwtTokenProvider = Runtime.jwtTokenProvider;
@@ -75,6 +77,61 @@ describe('meeting routes creation operations', function testMeetingRoutes() {
                          return expect(meeting.title).to.be.eq(expected.title);
                        });
   });
+
+
+  it('fails to double book a meeting', async function testFailOnDoubleBooking() {
+    const meetingStart = '2013-02-08 10:00:00';
+    const meetingEnd = '2013-02-08 10:45:00';
+
+    const meetingReq: MeetingRequest = {
+      title: 'meeting 0',
+      start: meetingStart,
+      end: meetingEnd,
+    };
+
+    const expected = {
+      title: 'meeting 0',
+      start: moment(meetingReq.start),
+      duration: moment.duration(moment(meetingReq.end).diff(moment(meetingReq.start), 'minutes'), 'minutes'),
+      bruceOwner,
+      whiteRoom
+    };
+
+    const token = jwtTokenProvider.provideToken(bruceCredentials);
+
+    await request(app).post(`/room/${whiteRoom.email}/meeting`)
+                      .set('Content-Type', 'application/json')
+                      .set('x-access-token', token)
+                      .send(meetingReq)
+                      .expect(200)
+                      .then(response => {
+                        const meeting = response.body as Meeting;
+                        expect(meeting.title).to.be.eq(expected.title);
+                        return meeting;
+                      });
+
+    const searchStart = stringToYesterdayStart(meetingStart);
+    const searchEnd = stringToTomorrowEnd(meetingEnd);
+
+    /*
+    We have to wait until it shows up in the room in order to show a conflict
+     */
+    await retryUntilAtInterval(50,
+                               () => meetingService.getMeetings(whiteRoom, searchStart, searchEnd),
+                               (meetings) => meetings.length > 0);
+
+
+    return request(app).post(`/room/${whiteRoom.email}/meeting`)
+                       .set('Content-Type', 'application/json')
+                       .set('x-access-token', token)
+                       .send(meetingReq)
+                       .expect(412)
+                       .then(() => {
+                         console.info('Completed');
+                         meetingService.clearCaches();
+                       });
+  });
+
 
 
   it('validates parameters against the API properly', function testEndpointValidation() {

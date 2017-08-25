@@ -62,6 +62,7 @@ export class CachedMeetingService implements MeetingsService {
 
 
   clearCaches() {
+    logger.debug('Clearing caches');
     this.roomSubCaches = new Map<string, SubCache<Room>>();
     this.ownerSubCaches = new Map<string, SubCache<Participant>>();
 
@@ -97,6 +98,7 @@ export class CachedMeetingService implements MeetingsService {
    * @returns {Promise<TResult2|Meeting[]>}
    */
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
+    // console.trace('CachedMeetingService::getMeetings()', room, start, end);
     const roomCache = this.getRoomCacheForRoom(room);
     const fetch = roomCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshRoomCache(room, start, end);
     return fetch.then(() => roomCache.getMeetings(start, end));
@@ -143,7 +145,7 @@ export class CachedMeetingService implements MeetingsService {
                })
                .then(updatedMeeting => {
                  // MS has a different meeting id for each version of a meeting so we need to evict the old id
-                 logger.info('Updated meeting', updatedMeeting);
+                 logger.debug('Updated meeting', updatedMeeting);
                  this.evictMeetingFromUserCache(originalMeeting.owner, id);
 
                  const roomMeeting = this.cacheRoomMeeting(room, updatedMeeting);
@@ -315,7 +317,7 @@ export class CachedMeetingService implements MeetingsService {
     };
 
     return fetchMeetings().then(roomMeetings => {
-      logger.debug(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, roomMeetings.length);
+      logger.info(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, roomMeetings.length);
       roomCache.cacheMeetings(roomMeetings);
     });
   }
@@ -425,6 +427,7 @@ class MockGraphMeetingService implements MeetingsService {
 
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    // logger.info('PassThroughMeetingService::getMeetings(${room.email})', this.roomMeetings());
     const roomMeetings = this.roomMeetings().filter(meeting => meeting.location.displayName === room.name);
     const mappedMeetings = roomMeetings.map(obscureMeetingDetails);
 
@@ -446,7 +449,7 @@ class MockGraphMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings().filter(meeting => meeting.owner.email === user.email);
-    logger.debug('Filtered user meetings', filtered);
+    // logger.info('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 

@@ -11,7 +11,7 @@ import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, RoomMeetings, checkUserIsAdmin, hasUserMeetingConflicts
+  RoomMeetings, checkUserIsAdmin, hasUserMeetingConflicts, checkAnyMeetingTimeIsAvailable
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -20,6 +20,7 @@ import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
 import {UserService} from '../../services/users/UserService';
+import {momentToTomorrowEnd, momentToYesterdayStart, stringToYesterdayStart} from '../../utils/moment_support';
 
 
 export function validateEndDate(startDate: Moment, endDate: Moment) {
@@ -54,33 +55,36 @@ export function validateTimes(start: Moment, end: Moment) {
 }
 
 
-export function createMeeting(req: Request,
-                              res: Response,
-                              roomService: RoomService,
-                              meetingService: MeetingsService,
-                              owner: Participant) {
+export async function createMeeting(req: Request,
+                                    res: Response,
+                                    roomService: RoomService,
+                                    meetingService: MeetingsService,
+                                    owner: Participant) {
   const event = req.body as MeetingRequest;
+  const subj = event.title;
   const startMoment = moment(event.start);
   const endMoment = moment(event.end);
+  const duration = moment.duration(moment(endMoment).diff(moment(startMoment), 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
-  logger.info('Want to create meeting:', event);
-  const createRoomMeeting = (room: Room) => {
-    createMeetingOperation(meetingService,
-                           event.title,
-                           startMoment,
-                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           owner,
-                           room)
-      .then(meeting => res.json(meeting))
-      .catch(err => sendError(err, res));
-  };
+  const searchStart = momentToYesterdayStart(startMoment);
+  const searchEnd = momentToTomorrowEnd(endMoment);
 
-  roomService.getRoomByName(roomId)
-             .then(createRoomMeeting)
-             .catch(() => roomService.getRoomByMail(roomId))
-             .then(createRoomMeeting)
-             .catch(err => sendError(err, res));
+  logger.info('Want to create meeting:', event);
+
+  const isRoomAvailable = () => checkAnyMeetingTimeIsAvailable(meetingService, room, searchStart, searchEnd)
+    .catch(err => {
+      sendPreconditionFailed(res, err);
+      return Promise.reject(err);
+  });
+
+  const room = await findRoom(roomService, roomId);
+  const maybeAvailable = isRoomAvailable();
+  return maybeAvailable.then(() => {
+    meetingService.createUserMeeting(subj, startMoment, duration, owner, room)
+                  .then(meeting => res.json(meeting))
+                  .catch(err => sendError(err, res));
+  }).catch(() => { /* do nothing */ });
 }
 
 
@@ -115,10 +119,17 @@ async function isRoomAvailable(res: Response,
     throw Error(message);
   };
 
+  // expand the search window to make sure we find conflicting meetings
+  const meetingStartUTC = moment.utc(startMoment);
+  const meetingEndUTC = moment.utc(endMoment);
+  const searchStart = momentToYesterdayStart(meetingStartUTC);
+  const searchEnd = momentToTomorrowEnd(meetingEndUTC);
 
   const room = await findRoom(roomService, roomId);
-  const roomMeetings = await handleRoomMeetingFetch(meetingService, userService, room, updater, startMoment, endMoment);
-  if (hasUserMeetingConflicts(roomMeetings.meetings, userMeetingId, startMoment, endMoment)) {
+  const roomMeetings = await handleRoomMeetingFetch(meetingService, userService, room, updater, searchStart, searchEnd);
+  // logger.debug('isRoomAvailable', meetingStartUTC, meetingEndUTC, roomMeetings.meetings);
+
+  if (hasUserMeetingConflicts(roomMeetings.meetings, userMeetingId, meetingStartUTC, meetingEndUTC)) {
     if (userService.isUserAnAdmin(updater.email)) {
       throwAndRespondWithConflict();
     }
@@ -146,27 +157,29 @@ export function updateMeeting(req: Request,
 
   logger.info('Want to update meeting:', event);
 
-  function canAmendMeeting() {
+  function canAmendMeeting(): Promise<null|Meeting> {
     /* If we find the user as the updater then it's the owner and can amend it*/
     return meetingService.getUserMeeting(updater, userMeetingId)
                          /* otherwise admins can amend so check for that */
                          .catch(() => checkUserIsAdmin(userService, updater))
                          .catch((err) => {
                            sendUnauthorized(res, err);
-                           return Promise.reject('User is not the owner of this meeting');
+                           return Promise.reject(err);
                          });
   }
 
   /*
   If we don't get a room then we've errored out on conflicts or permissions
    */
-  const maybeAvailable = isRoomAvailable(res, roomService, userService, meetingService, roomId, userMeetingId, startMoment, endMoment, updater);
-  maybeAvailable.then(room => {
-    /* if the room is available, see if the updating user actually owns the meeting or is an admin*/
-    canAmendMeeting().then(() => meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room))
-                     .then(meeting => res.json(meeting))
-                     .catch(err => sendError(err, res));
-  }).catch(() => null);
+  isRoomAvailable(res, roomService, userService, meetingService, roomId, userMeetingId, startMoment, endMoment, updater)
+    .then(async (room) => {
+      /* if the person owns or can amend the meeting, we'll get a meeting */
+      await canAmendMeeting();  // the rejection breaks out of this block
+      meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room)
+                    .then(meeting => res.json(meeting))
+                    .catch(err => sendError(err, res));
+    })
+    .catch((err) => logger.error(err));
 }
 
 

@@ -12,7 +12,8 @@ import {UserService} from '../users/UserService';
 
 function hasAnyMeetingConflicts(meetings: Meeting[], meetingStart: moment.Moment, meetingEnd: moment.Moment) {
   return meetings.find(meeting => {
-    return isMeetingOverlapping(moment(meeting.start), moment(meeting.end), meetingStart, meetingEnd);
+    logger.debug(`hasAnyMeetingConflicts() - checking conflict against ${meetingStart} ${meetingEnd}`, meeting);
+    return isMeetingOverlapping(meeting.start, meeting.end, meetingStart, meetingEnd);
   });
 }
 
@@ -28,31 +29,18 @@ export function hasUserMeetingConflicts(meetings: Meeting[],
 }
 
 
-function checkAnyMeetingTimeIsAvailable(meetingsService: MeetingsService,
-                                        room: Room,
-                                        start: moment.Moment,
-                                        duration: moment.Duration): Promise<any> {
-  const end = start.clone().add(duration);
-
+export function checkAnyMeetingTimeIsAvailable(meetingsService: MeetingsService,
+                                               room: Room,
+                                               start: moment.Moment,
+                                               end: Moment): Promise<Meeting[]> {
   return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => hasAnyMeetingConflicts(meetings, start, end));
-}
+                        .then(meetings => {
+                          if (hasAnyMeetingConflicts(meetings, start, end)) {
+                            return Promise.reject('Conflict found');
+                          }
 
-
-export function createMeetingOperation(meetingService: MeetingsService,
-                                       subj: string,
-                                       start: Moment,
-                                       duration: Duration,
-                                       owner: Participant,
-                                       room: Room): Promise<Meeting> {
-
-  return checkAnyMeetingTimeIsAvailable(meetingService, room, start, duration)
-    .then(hasConflicts => {
-      if (hasConflicts) {
-        return Promise.reject('Found conflict');
-      }
-      return meetingService.createUserMeeting(subj, start, duration, owner, room);
-    });
+                          return Promise.resolve(meetings);
+                        });
 }
 
 

@@ -200,8 +200,13 @@ export class SubCache<T extends Attendee> {
   }
 
 
-  isCacheWithinBound(start: moment.Moment, end: moment.Moment) {
-    return start.isSameOrAfter(this.cacheStart) && end.isSameOrBefore(end);
+  isCacheWithinBound(start: Moment, end: Moment) {
+    const isWithinBounds = start.isSameOrAfter(this.cacheStart) && end.isSameOrBefore(this.cacheEnd);
+    if (!isWithinBounds) {
+      logger.debug(`isCacheWithinBound(${this.attendee.email})`, this.cacheStart, 'against', start);
+      logger.debug(`isCacheWithinBound(${this.attendee.email})`, this.cacheEnd, 'against', end);
+    }
+    return isWithinBounds;
   }
 }
 

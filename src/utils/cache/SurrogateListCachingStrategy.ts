@@ -73,7 +73,7 @@ export abstract class SurrogateListCachingStrategy<Surrogate, Type> implements S
     logger.trace('Removing key', key, 'identity', this.getIdentityMapper(toRemove));
     const subCache = cache.get(key);
     if (!subCache) {
-      console.trace('Unable to find key to remove', key);
+      logger.trace('Unable to find key to remove', key);
       return false;
     }
 

@@ -283,7 +283,6 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
 
                                                 meetingService.clearCaches();
 
-                                                logger.info('Meeting', meeting);
                                                 expect(meeting.title).to.be.eq(updatedMeeting.title);
 
                                                 return;
