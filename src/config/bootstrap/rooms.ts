@@ -7,18 +7,12 @@ let counter = 1;
 
 
 export function getEmail(name: string, domain: string) {
-  return `${name.toLowerCase()}@${domain}.onmicrosoft.com`;
+  return `${name.toLowerCase()}@${domain}`;
 }
 
 
 export function getRoomEmail(name: string, domain: string) {
   return getEmail(`${name}-room`, domain);
-}
-
-
-function makeRoom(color: string, domain: string): Room {
-  const mail = getRoomEmail(color, domain);
-  return {id: '' + counter++, name: color, mail, email: mail};
 }
 
 

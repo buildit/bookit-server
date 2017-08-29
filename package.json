@@ -20,7 +20,7 @@
     "test:unit": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --compilers ts:ts-node/register --recursive 'test/**/*spec.ts'",
     "test:int": "npm run build && ROOT=`pwd` && NODE_ENV=integration-test NODE_CONFIG_DIR=$ROOT/lib/config mocha --timeout=60000 --compilers ts:ts-node/register --recursive 'test-int/**/*spec.ts'",
     "test": "npm run test:unit && npm run test:int",
-    "coverage": "nyc --reporter=text --reporter=html mocha --compilers ts:ts-node/register",
+    "coverage": "npm run build && ROOT=`pwd` && NODE_ENV=unit-test NODE_CONFIG_DIR=$ROOT/lib/config nyc mocha --compilers ts:ts-node/register --recursive 'test-int/**/*spec.ts'",
     "watch": "npm run build -- --watch",
     "watch:unit": "npm run test:unit -- --watch",
     "watch:int": "npm run test:int -- --watch",
@@ -28,26 +28,28 @@
     "start": "ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/rest/index.js",
     "server": "npm run watch:start",
     "spring": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/spring.js",
-    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js"
+    "eventgen": "npm run build && ROOT=`pwd` && NODE_ENV=development NODE_CONFIG_DIR=$ROOT/lib/config node lib/utils/data/EventGenRunner.js",
+    "postinstall": "nvmrc-check --node $(cat .nvmrc)"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^0.4.1",
     "@types/nock": "^8.2.1",
-    "aws-sdk": "^2.100.0",
+    "aws-sdk": "^2.105.0",
     "body-parser": "^1.17.1",
-    "config": "^1.25.1",
-    "cors": "^2.8.3",
-    "cwait": "^1.0.1",
+    "config": "^1.26.2",
+    "cors": "^2.8.4",
+    "cwait": "^1.1.1",
     "dotenv": "^4.0.0",
-    "express": "^4.15.2",
-    "jsonwebtoken": "^7.4.1",
+    "express": "^4.15.4",
+    "jsonwebtoken": "^7.4.3",
     "log4js": "^1.1.1",
     "moment": "^2.18.1",
     "morgan": "^1.8.1",
     "nock": "^9.0.14",
     "request": "^2.81.0",
-    "superagent": "^3.5.2",
-    "superagent-debugger": "^1.2.9"
+    "superagent": "^3.6.0",
+    "superagent-debugger": "^1.2.9",
+    "verify-node-version": "0.0.7"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "0.4.1",
@@ -72,6 +74,7 @@
     "concurrently": "3.4.0",
     "mocha": "3.4.2",
     "nodemon": "1.11.0",
+    "nvmrc-check": "^1.0.2",
     "nyc": "10.3.2",
     "rimraf": "2.6.1",
     "sinon": "^3.2.1",
@@ -86,19 +89,26 @@
     "node": "8.1.2"
   },
   "nyc": {
-    "include": [
-      "src/*.ts"
-    ],
-    "exclude": [
-      "lib"
-    ],
+    "check-coverage": true,
+    "all": true,
     "extension": [
-      ".ts"
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx"
     ],
-    "require": [
-      "ts-node/register"
+    "include": [
+      "src/**/!(*.test.*).[tj]s?(x)"
     ],
-    "reporter": [],
-    "all": true
+    "exlcude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "coverage"
   }
 }

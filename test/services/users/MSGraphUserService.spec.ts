@@ -7,6 +7,8 @@ const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.should();
 
+import {Runtime} from '../../../src/config/runtime/configuration';
+
 import {MockGraphTokenProvider} from '../../../src/services/tokens/MockGraphTokenOperations';
 import {MSGraphUserService} from '../../../src/services/users/MSGraphUserService';
 
@@ -14,7 +16,7 @@ describe('User Service', function testReturnRoom() {
   const nockManager = new NockManager();
   let service: MSGraphUserService;
   beforeEach(() => {
-    const provider = new MockGraphTokenProvider();
+    const provider = new MockGraphTokenProvider(Runtime.domain.domainName);
     service = new MSGraphUserService(provider);
   });
 

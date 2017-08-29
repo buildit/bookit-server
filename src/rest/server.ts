@@ -15,7 +15,7 @@ import {initializeCredentialsFilter, initializeTokenFilter} from './filters';
 import {configureUsersRoutes} from './user_routes';
 import {UserService} from '../services/users/UserService';
 import {MailService} from '../services/mail/MailService';
-import {JWTTokenProvider} from '../services/tokens/TokenProviders';
+import {GraphTokenProvider, JWTTokenProvider} from '../services/tokens/TokenProviders';
 import {configureRoomRoutes} from './rooms/room_routes';
 
 
@@ -28,7 +28,7 @@ function configureExpress(app: Express) {
 
 
 export function configureRoutes(app: Express,
-                                passwordStore: PasswordStore,
+                                graphTokenProvider: GraphTokenProvider,
                                 jwtTokenProvider: JWTTokenProvider,
                                 roomService: RoomService,
                                 userService: UserService,
@@ -38,11 +38,11 @@ export function configureRoutes(app: Express,
   initializeCredentialsFilter(jwtTokenProvider);
   configureExpress(app);
 
-  configureAuthenticationRoutes(app, userService, jwtTokenProvider);
+  configureAuthenticationRoutes(app, userService, jwtTokenProvider, graphTokenProvider);
   configureTestRoutes(app, mailService);
   configureUsersRoutes(app, userService, mailService);
   configureRoomRoutes(app, roomService);
-  configureMeetingRoutes(app, roomService, meetingsService);
+  configureMeetingRoutes(app, roomService, userService, meetingsService);
 
   return app;
 }

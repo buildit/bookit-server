@@ -8,6 +8,7 @@ export interface Env {
   readonly CLOUD_CONFIG: string;
   readonly TEST_SECRET?: string;
   readonly BUILDIT_SECRET?: string;
+  readonly ORPIW_SECRET?: string;
   readonly JWT_TOKEN_SECRET: string;
   readonly MEETING_CACHE_DISABLED: string;
   readonly GROUP_CACHE_DISABLED: string;
@@ -28,6 +29,7 @@ export interface EnvironmentConfig {
   graphAPIIdentity?: string;
   domain?: Domain;
   graphAPIParameters?: GraphAPIParameters;
+  externalGraphParameters?: Map<string, GraphAPIParameters>;
   testMode?: TestMode;
   jwtTokenSecret?: string;
   useMeetingCache?: boolean;

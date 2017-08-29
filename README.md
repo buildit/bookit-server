@@ -100,6 +100,18 @@ $ aws ssm get-parameters --region us-east-1 --name BUILDIT_SECRET --with-decrypt
 (_Note:_ You can leave out the region parameter if you provided one at configuration time.  The above demonstrates the inclusion
 of the region parameter for demonstration purposes).
 
+### Login credentials for sample users
+
+We have two sample users that we can use while developing. Their credentials are stored in the AWS Parameter Store. You can get these credentials with the following:
+
+```
+# Admin user
+aws ssm get-parameters --region us-east-1 --name BUILDIT_ADMIN_NAME BUILDIT_ADMIN_PASSWORD --with-decryption 
+
+# Regular user
+aws ssm get-parameters --region us-east-1 --name BUILDIT_REGULAR_USER_NAME BUILDIT_REGULAR_USER_PASSWORD --with-decryption 
+```
+
 
 ## Authentication
 There are a few endpoints that require a token in order to access.  It's either because it needs

@@ -20,7 +20,8 @@ export function configureUsersRoutes(app: Express,
         res.json(users);
       })
       .catch(err => {
-        res.send(err);
+        logger.error(err);
+        res.send([]);
       });
   });
 
