@@ -21,8 +21,8 @@ env:
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
     - AWS_DEFAULT_REGION=us-east-1
     - ECS_REPO=buildit-bookit-int-server-ecr-repo
-    - ECS_CLUSTER=buildit-bookit-int-ECSCluster
-    - ECS_SERVICE=buildit-bookit-int-app-BookitServerService-17X3YZ2FFN6YU-Service-X0WDBW8AB1V1
+    - INT_ECS_CLUSTER=buildit-bookit-int-ECSCluster
+    - INT_ECS_SERVICE=buildit-bookit-int-app-BookitServerService-17X3YZ2FFN6YU-Service-X0WDBW8AB1V1
     # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
     - secure: YGSG73lbVWdBOptvCyg55WMuJxhs9RC0h360xMF/lB7FIqPxqqiPu3mmG4bzCrJDQro3XZEo1fDS1pNrW1gFGI9pkJyKRfk1yey9v/MQHxDK9vSe8NQzpX0I+rCbVky80kIPPLVK5Kq44ZmyYOqMyQeKXyyztinvNrbyMSvInziGbVz3xC6vFZy8jt9Tm7klOTH2Bdnvoe4bgGbFdsmLDy6on9ETl7/BizEZFjITyyqeCVNB8xcfqkvKN8R0ncM53LEluLGGho0PNDRCMA/eMMt8+E//bfXFkL1fmWwpgToM2M9z7o7HIz7VKUrUxKEGWVBUn3K8Jo5JtfC4C1Wg9YYDVmXq2WLy3Nvi3X+Qt/gqXRdakQ+CsTFB1/u/OBTBOlSUr1SXYdwRupkhrnXByFtdMvnsMcMSSj+NPUqXXM1u20VonFI8t0SJWrhTBxeoKE5Mvvl53+xndRdgj5BfW9tW0j+RHaTXnx9EDHFQLnURfZwnz+DZrHq4x7Jo61L1CuaWu6FyTbOIg+F1Wz0dtZ1kaG7aY0fmc/GrQd4EWOqyBMIagFKKIYYztI8e0utyPeInetyHpbB2jwjscfjBONR6w0GfQ2gKaOt2SufhrSYpvw1AmDeiw4YsK3jv56TIvJtYk7LJ4iK2cZWrpnnfLyukfcv1XxAiwzW3LxChF1Q=
     # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
@@ -41,17 +41,17 @@ deploy:
     skip_cleanup: true
     script: ./scripts/get-deployment-scripts.sh
     on:
-      branch: master
+      branch: 77-bookit-server-run-in-staging
   - provider: script
     skip_cleanup: true
     script: ./scripts/push-to-ecr.sh
     on:
-      branch: master
+      branch: 77-bookit-server-run-in-staging
   - provider: script
     skip_cleanup: true
-    script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
+    script: ./scripts/ecs-deploy.sh -c ${INT_ECS_CLUSTER} -n ${INT_ECS_SERVICE  } -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
     on:
-      branch: master
+      branch: 77-bookit-server-run-in-staging
 
 notifications:
   slack:
