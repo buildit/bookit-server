@@ -12,12 +12,10 @@ export interface Identity {
   externalTeam?: string;
 }
 
-
 export const w_i_p_r_o: Identity = {
   domain: wDomain,
   credentials: wCreds
 };
-
 
 export const buildit: Identity = {
   domain: builditDomain,
@@ -26,7 +24,6 @@ export const buildit: Identity = {
   internalTeam: 'DESIGNIT',
   externalTeam: 'WIPRO',
 };
-
 
 export const defaultIdentity: Identity = {
   domain: defaultDomain

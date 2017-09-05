@@ -9,7 +9,7 @@ export function configureTestRoutes(app: Express,  mailSvc: MailService) {
   });
 
   app.get('/test', (req: Request, res: Response) => {
-    res.send('I will deploy this bitch!');
+    res.send('I have deployed this thang to ECS from Travis, y\'all.  How DRY I am.');
   });
 
   app.get('/testSendMail', (req: Request, res: Response) => {

@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - '8'
 
 sudo: required
 
@@ -10,16 +9,23 @@ services:
 env:
   global:
     - COMMIT_SHA=${TRAVIS_COMMIT::8}
-    - DOCKER_REPO=bookit-server
-    - USE_CLOUD=true
+    # Use repo defined by dev3 environment
+    - USE_AZURE=true
     - CLOUD_CONFIG=buildit
-    - secure: UvTNvw3SU46B1c9oLjvJSgS3+AdwBa3ajNYwctO3fflBbDuuIfsYaFOan9CHrq1Nbtmn1Wg9SOXKr8eeqpYyw7xbSgtW7ZGY0+0gMEBA6QXeSbTOFjBEiyPU7YdVx8grUDwAKAK08QczLDeOSVoJ1vf9CzEFMU2T3QnTUMf9VUT/hSVxoIwWVVAQTeaBOrc27xmvI58aReuR8qLJvRbOQAYjguAqnhc/7iY79AUVVCOqUueJGftQ6bdRsP/KVMD5SQZpVhqOV7SzFS7LN6DSaY9iA5/LCd046d6zRA2OvWKt65pwu1Mp9USpLO5Naoyf8NzqlMactqmRP74v4nDEC/2haZD2I9gdF0wgGhwrm8kgDUAwU9C3P1DHFdPiP+WPgV1rEuoBbWH6L1sB+GXpTZ6md9sbrCanhnPQsiUrdE4th7Y6XPmut20DThWX5w85Y1+f9nZEUfr5fdl2Anl18N8s9oTbON9LBREOpyxRX4bPONE9aWua/xZLcKRtMpIZiTvHgwPUC4X8r3hHkF66jtjSksZL593dRNEPzjMLjlFXm6AuhlghorKlme6qFsZQswOwE91k+0VWLPElA8jiulRsmqroNF7b9fKYknG3RuOxL0DxXRdYCWqGbSGTutksRJ0DrPwseX347RLyV9a7a2Io+KF0us6zHkpSTeaN18M=
+    # BUILDIT_SECRET
+    - secure: tKwKz16WArrK/6i+entP7QBst5Gef27aRMrUgUh4Wk97rZ25o2Ucn5sdEQ1B0nt5izwGDicapFbdjZNS4oHqeV17ULz8u1B6Od7WMdlaSUZNRILUm184UVxTMTzoX0WczkTf83ee4EHW/gH32v4hhdA6JEwbZkpayn6dC/ciz4CF2tqm8i00+4RvLQPzSAMJl3uar0Q+zVUagsxl3yEoWI5mQbancVrEnWkX0EyKfJYHNOrQ/QwbFQ1Rz9LRYZH2m/5Zv8vPC3o0UU7M47OGEMIYtR3ylmDytmN2JaxgkrR8eaAEENA0HaBh1ISGjDh3viQudAgOe+8L9zna9f7Y87uTaqMUKtkihgfKzc0m3DZfXyQAcCym3PmKofkrx/soWUGrxoTW8BYwoAkOteczyk94bg4JpITpgiXVmHTGUb0hPP8gzutCi9/JFWdj5neHT1GGv9lJfIlqytOXaq5yljqOD87d7C7cKrloZyBm8MPfFFK39nSxjoPEtWyL0G7VWNdZrfuOLspXPJFbIeUigv3I0qsUoo7pt693EZTut9mb1h2cystJ6mprKhB+xoKSOaYfswsvNINhhXf0ER5ZeEuMr8kK8Ix8QYi8dDMFmgS9hGglCgaU6V2dPK0BcWFjBcvt1qqKn5KLGGHnRpI/dRXBOWeSb9Qv+vzZWqflspA=
+    # DOCKER_USERNAME
     - secure: PTWChodVVHqjqwITaRorVK3aMU/v2coS1d+/hlEvKtqTMTjLMCorPGyYvOLZljwv5S8KRPfhFYwssynwc/0OyqSZB00okDscYzbdFoTVAXhGYfRaNluQcquo9c+JBYSYSGG7AZpxIE0aE5CFNhBT8yYCBWGphBfdkMSPH6R/Oj6h8b6UZfQZ4o21ZJ5SaLqZB99pjQhhTYYkXZ1TVXW8bnw86pc/snWGNyEV/8SHwzK55oFfL+2afIQFKNYFFlPDzKVBF5XX5cyGG8oP9RY/UOkDYHcdyCFuP80bFLSR+a8aNzOjAF4Ie6xRGlFmhQJZrLvgGAIO8Zqg4eFQvFemEM3iEwK6i6l+8wzUj9lu/cTLTqV8aLMOAbcH0KfDPkYTK11OkZpiBpAPfh+BqEY1+ID14nVt+AOlV7PnB6pKKVpNk3Ek8GX/he9pAhYdrbfETaVM6xx4V2heR/tu4MvEfZkfqEsJImy9y6VudHhMhEK76fNX+C4ZsKQFEk4VuAbshaGnDuWKyxtd/XsVBBJioFhwYBYXLeiLeOE07JfMNBM+ViTaMoSC1i9+xL7jt5bBWD/s4GOwW3v4NSRoDuDNYGEc139FIUxbtRsIVty+m8vJNZIJqT7+3mUWhWIa1G5c00IDSvaIOc0BdwH6OFv02/vQbYgj03n36xWtPEOEF6A=
+    # DOCKER_PASSWORD
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
-    # AWS_ACCESS_KEY_ID
-    - secure: Ep0FrO6Enx67YzCG5t1C5E9af2pfuBWNgjgvFNm5jCgyO7p1PZpxIJntEyA9gcDQ+WSACxJQEWbBF2MeJ3KS6k7fkArNSRF8hS5mTL7zH0RU8yhTxVA4wXROidRdcvnwDFKn+48fS7uV6st5vhHfkxI5O/5PojOhGXQolbVOrEbniM9Hh+XOVSdAJjRFX9/N5gdtOtWPKM7jKGlprC7FBo49o0po3wLEqNRyBqpHNApv9NRp/pxwYpFcdQ+S776RVMFDbvIxjQjwwdlQqcI0uA+8EMcLWePcN0WsN97gcmlaFhtuP5vkx3miTzjaHBbRmC1VifGBAMJCB1SfgCnwsz/nKkKR7EoQnXli7cQu5Kve2frUN4ifaTMD+dBnCT3L45XyF/MLDCIKSeZYosolSyzs3RVi0qhFtpaMZZFfnj71Iilb9Bp94XTUvaQM8ID2DEBcU0UM754OBS9xyGOwTXvsdLLo0Guo0QHLEam5G6Ks+zRarROlp7901/enTSrLdJr7naerlUBcdqMScGxjgJZHLNjEyPcqpClIdoC4BYp6rKgO47CJEsR6e5/oM85t9upKnNhwrFeibxTFDNePjCWxuIHhLAdEVisdzGSJ+eebzo2RllA8qvJGlw6tWTeKW28kYOfVsgX/3BQ5zNcqhywmdEmTMQOx+fz+OwcZZgQ=
-    # AWS_SECRET_ACCESS_KEY
-    - secure: LjrP1fYqDjsF/a/vtt1bplCed0Q26L3NadYaveI6CG+MDwFB0n2naPUTIRXDrd4emggldv2sxCQgtJPG2ftmFOzI/G10KvrJcxZI+5cSecrHiWCn6JhANy6+ixeQUB2WRv4qRKteSvRNZWizOkciceMqErh3yvIDXcctgyzEnsjw2+qLuVfWHZf/pJ+xNzdma8/bQfgjoraMmZcHXH1psiBh6u+D4uk3fG25Ht3pg4ykD8RuLBeGtWvcaWu5Cb2ozVFMFtoSirqAuLLzxPl4RjK4RZi80Dp5BrA9mA8AdiLOJlJXP4TjfvBtTVopIMzV+oHEqL03UAM09mZw90n3ofBpUGl6O8pI0DStFNYnk8nQ9JJ5qkQXLFXSwX5YEn9ANRF1vLKKIS6ee8WTYd9gHYvh9WcoTwqgxqUKOjsXXvBmljY0XiqhqLT8zSHnWc7ZUIGgypKxLPVBOzmIwfsNWudf0FdCalp40WJMu2Hhj3QqaT/qmznIgcPFRwKcxW0Xv+Z9yD45gSJU0a45ilO9r3nirJIfVL7g6QW+Rvj8syfkwFd6zKCQ/lg2vKY7yxQgVTQqET6/661qv44R8DBB5NCkDaLuuB3tCE+2yDEYZKDvjh4RxNRARQGyL8hC3pygstpqGW6DvK3p2byBBVVJdm+ObAadGpbyXLlECLqILVQ=
+    - AWS_DEFAULT_REGION=us-east-1
+    - ECS_REPO=buildit-bookit-int-server-ecr-repo
+    - ECS_CLUSTER=buildit-bookit-int-ECSCluster
+    - ECS_SERVICE=buildit-bookit-int-app-BookitServerService-17X3YZ2FFN6YU-Service-X0WDBW8AB1V1
+    # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
+    - secure: YGSG73lbVWdBOptvCyg55WMuJxhs9RC0h360xMF/lB7FIqPxqqiPu3mmG4bzCrJDQro3XZEo1fDS1pNrW1gFGI9pkJyKRfk1yey9v/MQHxDK9vSe8NQzpX0I+rCbVky80kIPPLVK5Kq44ZmyYOqMyQeKXyyztinvNrbyMSvInziGbVz3xC6vFZy8jt9Tm7klOTH2Bdnvoe4bgGbFdsmLDy6on9ETl7/BizEZFjITyyqeCVNB8xcfqkvKN8R0ncM53LEluLGGho0PNDRCMA/eMMt8+E//bfXFkL1fmWwpgToM2M9z7o7HIz7VKUrUxKEGWVBUn3K8Jo5JtfC4C1Wg9YYDVmXq2WLy3Nvi3X+Qt/gqXRdakQ+CsTFB1/u/OBTBOlSUr1SXYdwRupkhrnXByFtdMvnsMcMSSj+NPUqXXM1u20VonFI8t0SJWrhTBxeoKE5Mvvl53+xndRdgj5BfW9tW0j+RHaTXnx9EDHFQLnURfZwnz+DZrHq4x7Jo61L1CuaWu6FyTbOIg+F1Wz0dtZ1kaG7aY0fmc/GrQd4EWOqyBMIagFKKIYYztI8e0utyPeInetyHpbB2jwjscfjBONR6w0GfQ2gKaOt2SufhrSYpvw1AmDeiw4YsK3jv56TIvJtYk7LJ4iK2cZWrpnnfLyukfcv1XxAiwzW3LxChF1Q=
+    # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
+    - secure: Oq26a1ZI3TbyN8MJwtnbHkAW60WxLrAIJkJ/htF7fTTgRDFr59A0wKk+H8aN/aKWVkzRC26By6Zb0549PGVG9ptPrCyrSUvsywTkCyTTB+NnXEXwhSXpddOiBattJgqE+YIQxcJJpFP3VvDfpgr4PJcYDne7RO6PFomv/PTewr0fb6xyoP60b2mCoyrr6c9VdrvwQFsRyxe+9FhtOAHx2cwbzgRD0kjjORicu2ytPDy8Gy/2oej9GBdzj+ixJ+TtwBp9jhUg2D0Mqs77picQxTipWz0YmXL6szWusmKK46LjnqzyDar465wlfYEKzkDHUBCMGNZoidSs8ykaXfURv47HNpP/uT2JqXVt2E/C9OU5S+JcEgCoQSFczy0A47Kzq0wRcLua9RDVafqFp0fYzvWciZTbthHxBceQJpbwHKuQAHkN5oIW3Ldey3Xr8RVdJlLFyFvdUNOFuBxdKw61EHylMP3aH2LWOcJdqxL5xVAKhHjkq+smDRdJmFXik8HVuk3RvwXXijf3d4tvPHTfJUviN3m8p8MIPXl4STVtYiIz25AVLsbIDXYkpesc7nyAzzYhLK0Ov+Rv7uU4+xBP4Jkf77cCTaec2gezeft7n7/TOT5ImBig0QnpQiu08L1uR7VRk1F+fBTGqVxmJ36P4qkiyjvDtTv3xVZn0GuYSN8=
 
 script:
   - npm test
@@ -32,9 +38,19 @@ deploy:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: AWS_REGION=us-east-1 ./scripts/build-aws-ecr.sh
+    script: ./scripts/get-deployment-scripts.sh
     on:
-      branch: aws-ecr-push-server
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/push-to-ecr.sh
+    on:
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
+    on:
+      branch: master
 
 notifications:
   slack:

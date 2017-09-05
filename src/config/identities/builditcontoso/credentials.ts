@@ -15,7 +15,7 @@ export const domain: Domain = {
 const AzureBuilditCreds: GraphAPIParameters = {
   identity: 'buildit',
   tenantId: '37fcf0e4-ceb8-4866-8e26-293bab1e26a8',
-  clientId: '1be035ba-835c-498a-b1d3-786e4cfd77bc',
+  clientId: '9a8b8181-afb1-48f8-a839-a895d39f9db0',
 };
 
 
