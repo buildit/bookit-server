@@ -7,7 +7,7 @@ import {EnvironmentConfig} from '../../src/model/EnvironmentConfig';
 describe('Default', () => {
 
   function assertBasicProperties(env: EnvironmentConfig) {
-    expect(env.domain.domainName).to.equal('designitcontoso');
+    expect(env.domain.domainName).to.equal('default');
     expect(env.jwtTokenSecret).to.equal('jwt test secret');
     expect(assignGraphIdentityStub.calledOnce).to.be.true;
   }
