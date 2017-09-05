@@ -124,7 +124,7 @@ export class CachedMeetingService implements MeetingsService {
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
     logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', owner, id);
     const originalMeeting: Meeting = Array.from(this.ownerSubCaches.values())
-                                      .reduce((meeting, cache) => meeting || cache.get(id), undefined);
+                                          .reduce((meeting, cache) => meeting || cache.get(id), undefined);
 
     if (!originalMeeting) {
       logger.error('Could not find meeting', owner.email, id);
@@ -144,12 +144,18 @@ export class CachedMeetingService implements MeetingsService {
                             });
                })
                .then(updatedMeeting => {
-                 // MS has a different meeting id for each version of a meeting so we need to evict the old id
                  logger.debug('Updated meeting', updatedMeeting);
-                 this.evictMeetingFromUserCache(originalMeeting.owner, id);
 
                  const roomMeeting = this.cacheRoomMeeting(room, updatedMeeting);
                  this.matchAndReplaceRoomMeeting(roomMeeting, room);
+
+                 /*
+                  MS may provide a different meeting id for each version of a meeting so we need to evict the old id but
+                  only if the id has changed.
+                   */
+                 if (updatedMeeting.id !== id) {
+                   this.evictMeetingFromUserCache(originalMeeting.owner, id);
+                 }
 
                  return this.cacheUserMeeting(originalMeeting.owner, updatedMeeting);
                })

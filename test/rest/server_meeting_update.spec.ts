@@ -76,6 +76,7 @@ describe('update meeting routes', function testMeetingUpdateRoutes() {
                                             original.bruceOwner,
                                             original.whiteRoom)
                          .then(created => {
+                           logger.info('Created meeting', created.id);
                            const updatedMeeting: MeetingRequest = {
                              id: created.id,
                              title: 'this is new',

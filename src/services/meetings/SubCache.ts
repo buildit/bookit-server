@@ -187,7 +187,7 @@ export class SubCache<T extends Attendee> {
   private cacheMeeting(meeting: Meeting) {
     if (this.wasEvicted(meeting.id)) {
       // Don't attempt to cache again what we already evicted
-      logger.info(`Attempting to cache already evicted ${meeting.id}`);
+      logger.info(`Attempting to cache(${this.attendee.email}) already evicted ${meeting.id}`);
       return;
     }
 
