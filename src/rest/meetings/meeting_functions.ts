@@ -83,7 +83,7 @@ export async function createMeeting(req: Request,
   return maybeAvailable.then(() => {
     meetingService.createUserMeeting(subj, startMoment, duration, owner, room)
                   .then(meeting => res.json(meeting))
-                  .catch(err => sendError(err, res));
+                  .catch(err => sendError(res, err));
   }).catch(() => { /* do nothing */ });
 }
 
@@ -177,7 +177,7 @@ export function updateMeeting(req: Request,
       await canAmendMeeting();  // the rejection breaks out of this block
       meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room)
                     .then(meeting => res.json(meeting))
-                    .catch(err => sendError(err, res));
+                    .catch(err => sendError(res, err));
     })
     .catch((err) => logger.error(err));
 }
@@ -195,7 +195,7 @@ export function deleteMeeting(req: Request,
                        .catch(() => checkUserIsAdmin(userService, updater))
                        .catch((err) => sendUnauthorized(res, err))
                        .then(() => meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId))
-                       .catch((err) => sendError(err, res));
+                       .catch((err) => sendError(res, err));
 }
 
 
@@ -500,7 +500,7 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
     const applicable = leftOverMeetings.filter(meeting => matchLeftOver(room.name, owner, meeting));
 
     const data = leftOverMeetings.map(m => { return `'id': '${m.id}', 'title': '${m.title}', 'loc': '${m.location.displayName}', 'start': '${m.start.format()}', 'end': '${m.end.format()}'`; });
-    logger.debug(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${data}`);
+    logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings ${data}`);
     mergedMeetings.push.apply(mergedMeetings, applicable);
     // logger.info(`meeting_functions::mergeMeetings ${roomId} has unmerged meetings`, leftOverMeetings);
   }

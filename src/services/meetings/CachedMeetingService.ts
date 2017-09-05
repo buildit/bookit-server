@@ -199,13 +199,13 @@ export class CachedMeetingService implements MeetingsService {
 
 
   private evictRoomMeetingForUserMeeting(userMeeting: Meeting): Promise<Meeting> {
-    logger.trace('Evicting', userMeeting);
+    logger.trace('evictRoomMeetingForUserMeeting() - evicting room meeting for user meeting', userMeeting);
     const roomCache = this.getRoomCacheForMeeting(userMeeting);
     const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
     return roomCache.getMeetings(searchStart, searchEnd)
                     .then(roomMeetings => {
                       if (roomMeetings) {
-                        logger.info('Got room meetings', roomMeetings.length);
+                        logger.info('evictRoomMeetingForUserMeeting() - got room meetings', roomMeetings.length);
                         return matchMeeting(userMeeting, roomMeetings);
                       }
 
@@ -213,8 +213,8 @@ export class CachedMeetingService implements MeetingsService {
                     })
                     .then(roomMeeting => {
                       if (roomMeeting) {
-                        logger.info(`Will evict room meeting ${roomMeeting.id}`);
-                        return this.evictRoomMeeting(roomMeeting.id);
+                        const evictedMeeting = this.evictRoomMeeting(roomMeeting.id);
+                        logger.debug(`evictRoomMeetingForUserMeeting() - evicted room meeting ${evictedMeeting.id}`);
                       }
 
                       return null;
@@ -234,7 +234,7 @@ export class CachedMeetingService implements MeetingsService {
                    this.evictRoomMeeting(meeting.id);
                    const opEnd = new Date();
                    this.cacheRoomMeeting(room, meeting);
-                   logger.info('MATCHED AND REPLACED MEETINGS!!!!!', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
+                   logger.debug('matchAndReplaceRoomMeeting() - matched and replaced', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
                  });
 
     }, 1000);

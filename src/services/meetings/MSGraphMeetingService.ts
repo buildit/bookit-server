@@ -80,7 +80,8 @@ export class MSGraphMeetingService extends MSGraphBase implements MeetingsServic
 
                    resolve(MSGraphMeetingService._mapMeeting(Perspective.USER, response.body));
                  });
-        });
+        })
+        .catch(err => reject(err));
     });
   }
 
