@@ -23,8 +23,8 @@ env:
     - ECS_REPO=hap-bookit-server-ecr-repo
     - INT_ECS_CLUSTER=hap-bookit-hap-dev-ECSCluster
     - INT_ECS_SERVICE=hap-bookit-hap-dev-app-BookitServerService-K58CS2TTD0MM-Service-WBC8KZRCOYVA
-    - STG_ECS_CLUSTER=hpearman-bookit-hap-stg-ECSCluster
-    - STG_ECS_SERVICE=hpearman-bookit-hap-stg-app-BookitServerService-137T9JPPKJCB5-Service-H57W2PKRWHJ1
+    - STG_ECS_CLUSTER=hap-bookit-hap-stg-ECSCluster
+    - STG_ECS_SERVICE=hap-bookit-hap-stg-app-BookitServerService-2O3Q4C6YW3EB-Service-9ZPUVY0TAIDM
     # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
     - secure: bGqCbLymNx9yUrVyYGZ/8NCyteCSDZbgFMASJIoWi09c6yJwm7GjO8gHnmATAuv/jZ0S+DLZDQOCe+4IH65lnQwrJvwTTEhvXrhVygcw/m8z0oKTyFk/GHyMRmm3zowHV0kr++nHzb6HoPowF1210s2o0WHEAP7WO+tcWawsbBVqif3g8iBQn4OU82PzwDBkmpwn8e6TEwnFJE7kUIWKYYElDrGJOd+kfZN0DBG8V5uVE7Nv4Ov4Pim7jiXnb6NwDAqBrqpXjJHjmM+gYPa7HAJUmSFGnmQK72G/3RnN/airDdHJgWjvQP4cvZncw607krnxedc0gY8TMI9QcIGZI8X9zozOtoDpbNz6QbCUm0yMSXJJagO1kRDmewoXsvGrAUvSBQMIIXK5rGDUKh6SwcTjI6sRNO4PpsQxYZjGn9MC0jR73rhX8Bnk6gU6pY+54DGRA/YZ0XH8+eAZE9Ppcqg46eMYRHGhOYS4fCo9Px0jvTgsL7wxaqD2VBWx8Jh4dRVPHwdiNJdrvK8IJvmOxe1hmNjUHzoRo6WR+u5R37PImnR8rigPmJcvzxlFirkckXcx4sdO0688+h3tc/POkKdC6G0RJ9bj7AKsdxVnInZc36DeJsAPDE5n/T+46prjfm4NGmBXzPLmRVGFohTdKNpKvI4FNGAPy5UizHTDcDg=
     # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
