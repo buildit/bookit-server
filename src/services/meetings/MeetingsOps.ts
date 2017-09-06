@@ -10,10 +10,15 @@ import {isMeetingOverlapping} from '../../utils/validation';
 import {UserService} from '../users/UserService';
 
 
-function hasAnyMeetingConflicts(meetings: Meeting[], meetingStart: moment.Moment, meetingEnd: moment.Moment) {
+export function hasAnyMeetingConflicts(meetings: Meeting[], meetingStart: moment.Moment, meetingEnd: moment.Moment) {
   return meetings.find(meeting => {
     logger.debug(`hasAnyMeetingConflicts() - checking conflict against ${meetingStart} ${meetingEnd}`, meeting);
-    return isMeetingOverlapping(meeting.start, meeting.end, meetingStart, meetingEnd);
+    const conflict = isMeetingOverlapping(meeting.start, meeting.end, meetingStart, meetingEnd);
+    if (conflict) {
+      logger.debug(`Conflict ${meeting.title} - ${meeting.start} <=> ${meeting.end}`);
+    }
+
+    return conflict;
   });
 }
 
@@ -24,23 +29,16 @@ export function hasUserMeetingConflicts(meetings: Meeting[],
                                         meetingEnd: Moment) {
   return meetings.find(meeting => {
     logger.debug(`Checking conflict: ${meeting.id} against ${originalId}`);
-    return meeting.id !== originalId && isMeetingOverlapping(meeting.start, meeting.end, meetingStart, meetingEnd);
+    const overlapping = isMeetingOverlapping(meeting.start, meeting.end, meetingStart, meetingEnd);
+    const differentMeetings = meeting.id !== originalId;
+
+    const conflict = overlapping && differentMeetings;
+    if (conflict) {
+      logger.debug(`Conflict ${meeting.title} - ${meeting.start} <=> ${meeting.end}`);
+    }
+
+    return conflict;
   });
-}
-
-
-export function checkAnyMeetingTimeIsAvailable(meetingsService: MeetingsService,
-                                               room: Room,
-                                               start: moment.Moment,
-                                               end: Moment): Promise<Meeting[]> {
-  return meetingsService.getMeetings(room, start, end)
-                        .then(meetings => {
-                          if (hasAnyMeetingConflicts(meetings, start, end)) {
-                            return Promise.reject('Conflict found');
-                          }
-
-                          return Promise.resolve(meetings);
-                        });
 }
 
 

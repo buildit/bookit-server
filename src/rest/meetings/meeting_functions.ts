@@ -11,16 +11,16 @@ import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  RoomMeetings, checkUserIsAdmin, hasUserMeetingConflicts, checkAnyMeetingTimeIsAvailable
+  RoomMeetings, checkUserIsAdmin, hasUserMeetingConflicts, hasAnyMeetingConflicts
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
-import {Duration, Moment} from 'moment';
+import {Moment} from 'moment';
 import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
 import {UserService} from '../../services/users/UserService';
-import {momentToTomorrowEnd, momentToYesterdayStart, stringToYesterdayStart} from '../../utils/moment_support';
+import {momentToTomorrowEnd, momentToYesterdayStart} from '../../utils/moment_support';
 
 
 export function validateEndDate(startDate: Moment, endDate: Moment) {
@@ -62,26 +62,36 @@ export async function createMeeting(req: Request,
                                     owner: Participant) {
   const event = req.body as MeetingRequest;
   const subj = event.title;
-  const startMoment = moment(event.start);
-  const endMoment = moment(event.end);
-  const duration = moment.duration(moment(endMoment).diff(moment(startMoment), 'minutes'), 'minutes');
+  const meetingStart = moment(event.start);
+  const meetingEnd = moment(event.end);
+  const duration = moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
-  const searchStart = momentToYesterdayStart(startMoment);
-  const searchEnd = momentToTomorrowEnd(endMoment);
+  const searchStart = momentToYesterdayStart(meetingStart);
+  const searchEnd = momentToTomorrowEnd(meetingEnd);
 
   logger.info('Want to create meeting:', event);
 
-  const isRoomAvailable = () => checkAnyMeetingTimeIsAvailable(meetingService, room, searchStart, searchEnd)
-    .catch(err => {
-      sendPreconditionFailed(res, err);
-      return Promise.reject(err);
+  const checkAnyMeetingTimeIsAvailable = () => {
+      return meetingService.getMeetings(room, searchStart, searchEnd)
+                            .then(meetings => {
+                              if (hasAnyMeetingConflicts(meetings, meetingStart, meetingEnd)) {
+                                return Promise.reject('Conflict found');
+                              }
+
+                              return Promise.resolve(meetings);
+                            });
+  };
+
+  const isRoomAvailable = () => checkAnyMeetingTimeIsAvailable().catch(err => {
+    sendPreconditionFailed(res, err);
+    return Promise.reject(err);
   });
 
   const room = await findRoom(roomService, roomId);
   const maybeAvailable = isRoomAvailable();
   return maybeAvailable.then(() => {
-    meetingService.createUserMeeting(subj, startMoment, duration, owner, room)
+    meetingService.createUserMeeting(subj, meetingStart, duration, owner, room)
                   .then(meeting => res.json(meeting))
                   .catch(err => sendError(res, err));
   }).catch(() => { /* do nothing */ });

@@ -122,7 +122,7 @@ export class CachedMeetingService implements MeetingsService {
 
 
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', owner, id);
+    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', owner.email, id);
     const originalMeeting: Meeting = Array.from(this.ownerSubCaches.values())
                                           .reduce((meeting, cache) => meeting || cache.get(id), undefined);
 
@@ -133,16 +133,6 @@ export class CachedMeetingService implements MeetingsService {
 
     return this.delegatedMeetingsService
                .updateUserMeeting(id, subj, start, duration, originalMeeting.owner, room)
-               .then(updatedMeeting => {
-                 return this.evictRoomMeetingForUserMeeting(originalMeeting)
-                            .then(roomMeeting => {
-                              if (roomMeeting) {
-                                logger.info('Evicted', roomMeeting.id);
-                              }
-
-                              return updatedMeeting;
-                            });
-               })
                .then(updatedMeeting => {
                  logger.debug('Updated meeting', updatedMeeting);
 
@@ -205,9 +195,13 @@ export class CachedMeetingService implements MeetingsService {
 
 
   private evictRoomMeetingForUserMeeting(userMeeting: Meeting): Promise<Meeting> {
-    logger.trace('evictRoomMeetingForUserMeeting() - evicting room meeting for user meeting', userMeeting);
     const roomCache = this.getRoomCacheForMeeting(userMeeting);
     const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
+
+    logger.info('evictRoomMeetingForUserMeeting() - evicting room meeting for user meeting',
+                userMeeting,
+                searchStart,
+                searchEnd);
     return roomCache.getMeetings(searchStart, searchEnd)
                     .then(roomMeetings => {
                       if (roomMeetings) {
@@ -220,7 +214,7 @@ export class CachedMeetingService implements MeetingsService {
                     .then(roomMeeting => {
                       if (roomMeeting) {
                         const evictedMeeting = this.evictRoomMeeting(roomMeeting.id);
-                        logger.debug(`evictRoomMeetingForUserMeeting() - evicted room meeting ${evictedMeeting.id}`);
+                        logger.info(`evictRoomMeetingForUserMeeting() - evicted room meeting ${evictedMeeting.id}`);
                       }
 
                       return null;
@@ -236,10 +230,20 @@ export class CachedMeetingService implements MeetingsService {
     setTimeout(() => {
       const opBegin = new Date();
       return this.waitForRoomMeeting(meeting, room)
-                 .then((meetings) => {
+                 .then(meetings => {
+                   if (meetings.length > 0) {
+                     logger.warn(`Matched multiple meetings for meeting id ${meeting.id}`);
+                   }
+
+                   /*
+                    The meeting we passed in was a "user" version that needs to be evicted because it was an
+                    optimistic insertion into the cache
+                     */
                    this.evictRoomMeeting(meeting.id);
+
+                   const foundMeeting = meetings[0];
                    const opEnd = new Date();
-                   this.cacheRoomMeeting(room, meeting);
+                   this.cacheRoomMeeting(room, foundMeeting);
                    logger.debug('matchAndReplaceRoomMeeting() - matched and replaced', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
                  });
 
@@ -339,9 +343,16 @@ export class CachedMeetingService implements MeetingsService {
       return this.delegatedMeetingsService.getUserMeetings(owner, fetchStart, fetchEnd);
     };
 
+    const filterMeetings = (meetings: Meeting[]): Meeting[] => {
+      return meetings.filter(meeting => {
+        return meeting.location.displayName.length;
+      });
+    };
+
     return fetchMeetings().then(userMeetings => {
       logger.debug(`CachedMeetingService::refreshCache() - refreshed ${owner.email}`);
-      userCache.cacheMeetings(userMeetings);
+      const validMeetings = filterMeetings(userMeetings);
+      userCache.cacheMeetings(validMeetings);
     });
   }
 
