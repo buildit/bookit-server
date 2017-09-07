@@ -31,7 +31,7 @@ env:
     - secure: ktqH31hFf3gdwOd1BkrwyZbEu2MJ9pbPVZM/T8BfAD5Eoy6yNXDN7YyRrkvbkiDh+6ncs6Ma/KohdbGk9iFxLT5J6lKZjB/Z4LUC71Bjsw+r41wjxAOoEGvepjKpqvo5jIA1Rl0+fOU35/2BlAOpZLd+m/qvyREv4nCyjfDd5pdDmKfqZTaWgvAI+UGgUsDyJHWKeiGlfhlYGoyavMOcv9V2dPetzN0+89Z6Uf0J2fQSE76vHtHAoO9Kz/ZVxWujHKNkCvOiuB57wHqTe5YzAKVvb4Vzt/LxMGHvIu5v0ZQaeZ9ze3PgUw8PnE3xkE+RaqaracuboI3GioOjxXY6CsAZy1K6TVb7Ca4Tdhcbqui59hT52fCaB+KX22d2C4f0orF2SUHjy9UhEpm5yqD4qbxbhMpQHmOJ5SSMlAOdypw7hQNHGgcwi5ZCGfskS/3yxWidDnby8PrCMEQK7oUAfNILSt2CZeVud+LKbEwhuJy6bvAsD5OCOidcOX9LWe2pmjmU+SPsrECN8w2zRXe1u/7GFuSW+40KCzQwGVqtp6Q9/lHQH5Jf0xgLqqX0zDigKgwxambLWoLSwXGTO6AmompkqH2B5J1xEAl1R63ipiU/h3DDJ/zOfejS5HEYw+dPqGvB5taFyvadDJq5MEYBxoQSmf9vsv8UMdYMXG0SHEI=
 
 install:
-  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "77-bookit-server-run-in-staging" ]]; then pip install awscli; fi
+  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "77-bookit-server-run-in-staging" ]]; then pip install --user awscli; fi
 
 script:
   - npm run build
