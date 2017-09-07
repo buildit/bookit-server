@@ -10,7 +10,6 @@ services:
 env:
   global:
     - COMMIT_SHA=${TRAVIS_COMMIT::8}
-    # Use repo defined by dev3 environment
     - USE_AZURE=true
     - CLOUD_CONFIG=buildit
     # BUILDIT_SECRET
@@ -20,6 +19,7 @@ env:
     # DOCKER_PASSWORD
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
     - AWS_DEFAULT_REGION=us-east-1
+    - S3_BUCKET_BASE=rig.hap.bookit.hap-dev
     - ECS_REPO=hap-bookit-server-ecr-repo
     - INT_ECS_CLUSTER=hap-bookit-hap-dev-ECSCluster
     - INT_ECS_SERVICE=hap-bookit-hap-dev-app-BookitServerService-K58CS2TTD0MM-Service-WBC8KZRCOYVA
@@ -30,33 +30,15 @@ env:
     # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
     - secure: ktqH31hFf3gdwOd1BkrwyZbEu2MJ9pbPVZM/T8BfAD5Eoy6yNXDN7YyRrkvbkiDh+6ncs6Ma/KohdbGk9iFxLT5J6lKZjB/Z4LUC71Bjsw+r41wjxAOoEGvepjKpqvo5jIA1Rl0+fOU35/2BlAOpZLd+m/qvyREv4nCyjfDd5pdDmKfqZTaWgvAI+UGgUsDyJHWKeiGlfhlYGoyavMOcv9V2dPetzN0+89Z6Uf0J2fQSE76vHtHAoO9Kz/ZVxWujHKNkCvOiuB57wHqTe5YzAKVvb4Vzt/LxMGHvIu5v0ZQaeZ9ze3PgUw8PnE3xkE+RaqaracuboI3GioOjxXY6CsAZy1K6TVb7Ca4Tdhcbqui59hT52fCaB+KX22d2C4f0orF2SUHjy9UhEpm5yqD4qbxbhMpQHmOJ5SSMlAOdypw7hQNHGgcwi5ZCGfskS/3yxWidDnby8PrCMEQK7oUAfNILSt2CZeVud+LKbEwhuJy6bvAsD5OCOidcOX9LWe2pmjmU+SPsrECN8w2zRXe1u/7GFuSW+40KCzQwGVqtp6Q9/lHQH5Jf0xgLqqX0zDigKgwxambLWoLSwXGTO6AmompkqH2B5J1xEAl1R63ipiU/h3DDJ/zOfejS5HEYw+dPqGvB5taFyvadDJq5MEYBxoQSmf9vsv8UMdYMXG0SHEI=
 
+install:
+  - if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "77-bookit-server-run-in-staging" ]]; then pip install awscli; fi
+
 script:
-  - npm test
-
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/build-and-deploy.sh
-    on:
-      branch: master
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/get-deployment-scripts.sh
-    on:
-      branch: 77-bookit-server-run-in-staging
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/push-to-ecr.sh
-    on:
-      branch: 77-bookit-server-run-in-staging
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/ecs-deploy.sh -c ${INT_ECS_CLUSTER} -n ${INT_ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
-    on:
-      branch: 77-bookit-server-run-in-staging
-
-after_deploy:
-  - ./scripts/ecs-deploy.sh -c ${STG_ECS_CLUSTER} -n ${STG_ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
+  - npm run build
+  - npm run test:unit
+  - ./scripts/get-deployment-scripts.sh
+  - ./scripts/push-to-ecr.sh
+  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "77-bookit-server-run-in-staging" ]]; then ./scripts/run-ci-cd.sh; fi
 
 notifications:
   slack:
