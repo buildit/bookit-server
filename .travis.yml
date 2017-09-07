@@ -18,21 +18,21 @@ env:
     # DOCKER_PASSWORD
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
     - AWS_DEFAULT_REGION=us-east-1
-    - S3_BUCKET_BASE=rig.hap.bookit.hap-dev
-    - ECS_REPO=hap-bookit-server-ecr-repo
-    - INT_ECS_CLUSTER=hap-bookit-hap-dev-ECSCluster
-    - INT_ECS_SERVICE=hap-bookit-hap-dev-app-BookitServerService-K58CS2TTD0MM-Service-WBC8KZRCOYVA
-    - STG_ECS_CLUSTER=hap-bookit-hap-stg-ECSCluster
-    - STG_ECS_SERVICE=hap-bookit-hap-stg-app-BookitServerService-2O3Q4C6YW3EB-Service-9ZPUVY0TAIDM
+    - S3_BUCKET_BASE=rig.buildit.bookit.int
+    - ECS_REPO=buildit-bookit-server-ecr-repo
+    - INT_ECS_CLUSTER=buildit-bookit-int-ECSCluster
+    - INT_ECS_SERVICE=buildit-bookit-int-app-BookitServerService-WDRNY293UJRP-Service-17EEQVGD7J9MM
+    - STG_ECS_CLUSTER=buildit-bookit-stg-ECSCluster
+    - STG_ECS_SERVICE=buildit-bookit-stg-app-BookitServerService-QV54JG1SFPNX-Service-10F4CE6UWNKKH
     # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
-    - secure: bGqCbLymNx9yUrVyYGZ/8NCyteCSDZbgFMASJIoWi09c6yJwm7GjO8gHnmATAuv/jZ0S+DLZDQOCe+4IH65lnQwrJvwTTEhvXrhVygcw/m8z0oKTyFk/GHyMRmm3zowHV0kr++nHzb6HoPowF1210s2o0WHEAP7WO+tcWawsbBVqif3g8iBQn4OU82PzwDBkmpwn8e6TEwnFJE7kUIWKYYElDrGJOd+kfZN0DBG8V5uVE7Nv4Ov4Pim7jiXnb6NwDAqBrqpXjJHjmM+gYPa7HAJUmSFGnmQK72G/3RnN/airDdHJgWjvQP4cvZncw607krnxedc0gY8TMI9QcIGZI8X9zozOtoDpbNz6QbCUm0yMSXJJagO1kRDmewoXsvGrAUvSBQMIIXK5rGDUKh6SwcTjI6sRNO4PpsQxYZjGn9MC0jR73rhX8Bnk6gU6pY+54DGRA/YZ0XH8+eAZE9Ppcqg46eMYRHGhOYS4fCo9Px0jvTgsL7wxaqD2VBWx8Jh4dRVPHwdiNJdrvK8IJvmOxe1hmNjUHzoRo6WR+u5R37PImnR8rigPmJcvzxlFirkckXcx4sdO0688+h3tc/POkKdC6G0RJ9bj7AKsdxVnInZc36DeJsAPDE5n/T+46prjfm4NGmBXzPLmRVGFohTdKNpKvI4FNGAPy5UizHTDcDg=
+    - secure: VK4Tm1uef9rrnhEZh2VBzk+tBgrPGOPgN8RoxM2HzgcshRQMKb/AWVifPjagwxzEa4liiEF4C2O1X0821OJ4cLJ1I3E6JAcJFnTzmvPIamjAEArIRZHiB4yXpRNfF9tnIhtV+SRvNBCUEsHvXRBo9e8IU3bSI/sfmbdTZSWJkx4qa56PFSuXRAFF43iLg0DkHL/cx/NO5kXwUicJOC1P1UNg49w2sQMF1bFkpH4H1kXW1HrPuj376+izlUCFhVQTDqTL5eS0omhCUP4OS39WxabxYVPwNlkNYvxOK/Y+I/K8zKE1fWaqHJWeTARjnBZtkH4g4brPnbnnRHDGko/C55MI06PH+f5LUfHdQiRpUDHihZYKXulXh5FzfHjWwWyyd4FBf/cgKMCPGtPZMUsZM6IgAe8gnwZRqthcVwEyqG75c+5FkRpj28KQRMO1nOihTaPCVvUXoqQg7Mrtf+ioMMPXdscQcTN5b7BGdJ+KeumbGEY6o6jszSM/HgrqRvkl8yf+KDFL6KovDl2HjGBHqc4jGyuhG99elsqLnfJHTFJYSM7MpsjF6VHozdVQXsXmE4BLrHa5qouhVQ1DU4mrd3JwuWyFrjCgipZpEU56D/Yy+4fdCGkwLMSLLOQAKmp1yGvFxF5K+jm+59Uy63TD4LxEUVFJ/AOqoplquizxm9M=
     # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
-    - secure: ktqH31hFf3gdwOd1BkrwyZbEu2MJ9pbPVZM/T8BfAD5Eoy6yNXDN7YyRrkvbkiDh+6ncs6Ma/KohdbGk9iFxLT5J6lKZjB/Z4LUC71Bjsw+r41wjxAOoEGvepjKpqvo5jIA1Rl0+fOU35/2BlAOpZLd+m/qvyREv4nCyjfDd5pdDmKfqZTaWgvAI+UGgUsDyJHWKeiGlfhlYGoyavMOcv9V2dPetzN0+89Z6Uf0J2fQSE76vHtHAoO9Kz/ZVxWujHKNkCvOiuB57wHqTe5YzAKVvb4Vzt/LxMGHvIu5v0ZQaeZ9ze3PgUw8PnE3xkE+RaqaracuboI3GioOjxXY6CsAZy1K6TVb7Ca4Tdhcbqui59hT52fCaB+KX22d2C4f0orF2SUHjy9UhEpm5yqD4qbxbhMpQHmOJ5SSMlAOdypw7hQNHGgcwi5ZCGfskS/3yxWidDnby8PrCMEQK7oUAfNILSt2CZeVud+LKbEwhuJy6bvAsD5OCOidcOX9LWe2pmjmU+SPsrECN8w2zRXe1u/7GFuSW+40KCzQwGVqtp6Q9/lHQH5Jf0xgLqqX0zDigKgwxambLWoLSwXGTO6AmompkqH2B5J1xEAl1R63ipiU/h3DDJ/zOfejS5HEYw+dPqGvB5taFyvadDJq5MEYBxoQSmf9vsv8UMdYMXG0SHEI=
+    - secure: g/h/U/a1M0Ndwkyh1Nd66i73wWztEDBoozIy7QPSBXoCtRlxXom1Td3OeM0iJGbKPpgG8OX/f58INX7P1YSzyzUSCg5pv7FZgScQzsoc4MBaG/60OGybYhTfKLkiff7EBuosHMjes/V1gxYhLgKzspV3F5/hiUwE1qWOZZoOL15cVlCD6MtGWw3YpPQ/0oifj5WTSoxpIflEiwZBNv/8pxZ15+pxbo72IioFJe41IPZwj+JGVTn9jKMnHAX7dI7AQWmsdJXmYAEFLrrNR8Wff5GGrvKXwwT9JL38yO5kok5FkuKWkTWgBrY8inTutEYX5OlcBj5QiAA4dsfbIQwe3pcOoTm8UIgNML3x/qD8f5boDOwAOAVYLpp8ge7yf3//1bf0p1Rl0Yj8EkyHC3l5ItPLwDVmZrnCbIOumZhHmLdG4EZWX/uJqkfl3ginCMpHZbwtH7wUDaxjzq2EBJLRzDtNvBqEoRX8a8GkF6SeCQInVSA0m+/ZfBEpCy30OCdo9okkAMIoZ5hh56O8AAv0msfwuqHu4zjmKe7qRqNMUzU3D+MsOVA55ZFk9O9JN9x12/Hft7Sk+M1IgY9O655KbZVGdo4M0jnCiCu9az7iG/EpFkpWf02K2lkfcj6H2oeH7cgN6ZhASUVBF4jM8SGBRhUY0VTJlujkfA1XYxMC+iY=
 
 script:
   - npm run build
   - npm run test:unit
-  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "77-bookit-server-run-in-staging" ]]; then ./scripts/run-ci-cd.sh; fi
+  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "master" ]]; then ./scripts/run-ci-cd.sh; fi
 
 notifications:
   slack:
