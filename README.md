@@ -235,3 +235,13 @@ $(aws ecr get-login)
 docker-compose up
 ```
 (if the basic ECR login above doesn't work, try `$(aws ecr get-login | sed 's/-e none//')`)
+
+## CI/CD
+On commits to `master`, if all unit tests pass, Travis creates a new Docker image and pushes it to an AWS ECR repo. 
+After a successful push to ECR, the app is deployed to the integration environment. Then Integration tests are 
+run. Only if the integration tests run successfully, does Travis then deploy the app to the staging environment.
+
+Note that this process is currently a little odd.  The "integration tests" are tests that assume availability of the 
+Office365/GraphApi services.  There currently are no API-level tests of the deployed bookit-server itself.  Thus,
+having passed integration tests does not truly imply that the deployed code has been tested in the integration
+environment.  Nonetheless, if the integration tests pass, the code is deployed into the staging environment.  
