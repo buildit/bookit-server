@@ -32,8 +32,8 @@ npm run watch:unit
 ```
 
 You can check these endpoints, just to make sure everything's working:
-Room list: http://localhost:8888/rooms/nyc
-Meeting list: http://localhost:8888/rooms/nyc/meetings?start=2017-03-08&end=2017-03-12
+ - Room list: `http://localhost:8888/rooms/nyc`
+ - Meeting list: `http://localhost:8888/rooms/nyc/meetings?start=2017-03-08&end=2017-03-12`
 
 ## Microsoft Azure Setup
 
@@ -42,10 +42,10 @@ Meeting list: http://localhost:8888/rooms/nyc/meetings?start=2017-03-08&end=2017
 ## Modes of operation
 
 The back end is heavily geared towards testing and stand-alone operation at the moment.  It has a dev mode against an
- in-memory generated meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test
- configuration, and an integration test configuration.  The **default mode of operation is in-memory dev**.  When the
- app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so
- you will see somewhat different results with every run.
+in-memory generated meeting list, a dev mode against a test Azure AD using the Microsoft Graph API, a unit-test
+configuration, and an integration test configuration.  The **default mode of operation is in-memory dev**.  When the
+app runs in "in-mem" mode, an `EventGenerator` creates a bunch of sample event data. The events are randomized, so
+you will see somewhat different results with every run.
 
 
 ### Accessing additional modes
@@ -81,7 +81,12 @@ how to get AWS secrets.
 
 ## Obtaining Secrets from AWS Parameter Store
 
-We store secrets for the system in AWS' SSM Parameter Store.  It does all the hard work of encrypting our application parameters.
+We store secrets for the system in AWS' SSM Parameter Store.  It does all the hard work of encrypting our application 
+parameters.
+
+"Global" parameters are stored under the `/bookit` namespace.  So global parameter `BAR` is stored at `/bookit/BAR`  
+Environment-specific parameters are stored in the `/bookit/<environment>` namespace.  So if the environment is 
+`foo`, parameter `BAZ` is stored at `/bookit/foo/BAZ`.
 
 ### Get access to AWS
 Speak to a fellow developer to obtain AWS keys, which are comprised of a key id and key secret.  After that run:
@@ -94,7 +99,7 @@ aws configure
 After this, you should be good to go to run the AWS CLI to pull in environment secrets:
 
 ```
-$ aws ssm get-parameters --region us-east-1 --name BUILDIT_SECRET --with-decryption
+$ aws ssm get-parameters --region us-east-1 --name /bookit/<environment>/BUILDIT_SECRET --with-decryption
 <<The secret is printed here>>
 ```
 (_Note:_ You can leave out the region parameter if you provided one at configuration time.  The above demonstrates the inclusion
@@ -106,10 +111,10 @@ We have two sample users that we can use while developing. Their credentials are
 
 ```
 # Admin user
-aws ssm get-parameters --region us-east-1 --name BUILDIT_ADMIN_NAME BUILDIT_ADMIN_PASSWORD --with-decryption 
+aws ssm get-parameters --region us-east-1 --name /bookit/BUILDIT_ADMIN_NAME /bookit/BUILDIT_ADMIN_PASSWORD --with-decryption 
 
 # Regular user
-aws ssm get-parameters --region us-east-1 --name BUILDIT_REGULAR_USER_NAME BUILDIT_REGULAR_USER_PASSWORD --with-decryption 
+aws ssm get-parameters --region us-east-1 --name /bookit/BUILDIT_REGULAR_USER_NAME /bookit/BUILDIT_REGULAR_USER_PASSWORD --with-decryption 
 ```
 
 
@@ -138,11 +143,11 @@ export interface TokenInfo {
 ```
 
 This token should be placed in the header for authentication for those endpoints that require it.
-
-                         return request(app).get('/backdoor')
-                                            .set('x-access-token', token)
-                                            .expect(200)
-
+````
+return request(app).get('/backdoor')
+                  .set('x-access-token', token)
+                  .expect(200)
+````
 
 ## Code architecture
 The environment bootstrapping is simple and is mainly driven off the two environment variables above.  This can be
@@ -214,14 +219,19 @@ an interface of much value.
 
 ## Docker packaging
 
-Travis build performs Docker image push to Docker Hub only for `master` branch.
+The Travis build pushes to Amazon's EC2 Container Registry (ECR) only for the `master` branch.
 We do not perform separate `npm i` and reuse build `node_modules` with `npm prune --production`.
 
-Local build and run example
-`docker build . -t bookit-server:local && docker run --rm -ti -e MICROSOFT_CLIENT_SECRET=set_me -p 8888:8888  bookit-server:local`
+## Local Docker, Server Only
+Local build and run example:
 
-Build and push (just in case you do not trust Travis build)
-`npm run build && docker build . -t builditdigital/bookit-server:latest && docker push builditdigital/bookit-server:latest`
+`docker build . -t bookit-server:local && USE_CLOUD=true CLOUD_CONFIG=buildit BUILDIT_SECRET=<secret from above> docker run --rm -ti -p 8888:8888  bookit-server:local`
 
-Local run of both server and the client
-`docker-compose up`
+
+## Local Docker, both Server & Web (Experimental)
+This is close, but needs a bit more work.  It's sensitive to the Azure AD setup du jour.
+```
+$(aws ecr get-login)
+docker-compose up
+```
+(if the basic ECR login above doesn't work, try `$(aws ecr get-login | sed 's/-e none//')`)
