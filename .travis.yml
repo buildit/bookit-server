@@ -21,7 +21,7 @@ env:
     - AWS_DEFAULT_REGION=us-east-1
     - ECS_REPO=andrew-bookit-server-ecr-repo
     - INT_ECS_CLUSTER=andrew-bookit-atulisze-ECSCluster
-    - INT_ECS_SERVICE=andrew-bookit-atulisze-app-BookitServerService-1QIWEB2FDE888
+    - INT_ECS_SERVICE=andrew-bookit-atulisze-app-BookitServerService-1QIWEB2FDE888-Service-8ZXQWV5VKPT4
     # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
     - secure: Gk4T359Nsrcp1ryrhpiCF3oA2ml91/OieIPBW9hCjY/VGxX7ifytZbR6x2RUo4iRwr0SVFbmvYXAq8lWgq0C92ddXXjgvk4fb1zuoZ5D9Byl0DEcczeUzHScvFWd1Os7+TZZh7becrXU68EDcVqehZWNP87uiIgZhndSVUzzXZ70SUv3gw0bLD1PI+yCYS3YW6zk1XZh4XZxBJfxmqupMnvQKZSdHyKR1nd7Cd2L5A55wOnl6sFf5Q2LoAEjkNtuLfH/zdGsWlEmmuUGO6VIvuHqK1ODVw3DECkLbhdF1aAAdkUFcik0m3ZpTm1Oo2bBlxHBPanOLrcD7xiO7RmtBmBTFOumYzYPt1c5Z/RzmVAEP0Ig/8/NDQQNIC5TFwq/ThZCEdrnLEr5vBplUMIxZwLk4g6nS1IhcIHlKtHAPvcH41rWV4bBePsaVIphNYU1p2fXOP36Jw1EhK2A1fLSJVscZaT5orWzrO3Hl1YEf/0wl0Hs4KjlxGP0NJueQolALNMKQakMD0yadW1RAytWaMeHF7FWLYHObMggEm+M4v646Ch61ibQJLYBNh9Wxsxt0VxqUfu6L0UmTc/3mGt89XeeT3BuMwociddm2oOf9vhhwNtlr6eWx5GlC8VBsDTNNyLoIsUGZMC/GIjWxdWEC0Je+raSppboEm+LEGDrYrE=
     # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
