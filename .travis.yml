@@ -27,29 +27,9 @@ env:
     - secure: DC3DPu1EY2sW7iifIDEtUMUTbDIVbQbZ4f7Q9EdnbKIRs9dlW0OKNqbOm5SHgWsazILXG9gaQ8wiJ9Kha41wowQUWmOKpvJkMbLKqtYrVthGc5OqVWmOZRho2uhMRcY6tUUvTtNUX7nmKHqCLn5c5neqMtbgTGeDnkYBx2lnhLJlyYJoofOwTVEpjeOVVHfkyOPFiQ7fW5JJ/eo+OivikofWzf8kqNcy/7TSe2uNwV7YM3XTx0NDbkS9Klm9aIGG7D/3WhaPQiMxXx7mNu9euWmyNGQ70xp8ExUoZVii+H8HWR0p2q56cPSuSLZ6jP7rVGGSmE04pSC0aCQ/oI/F67e7L32MtBjEwUsK63+2HsyphPjW3BeR34TOPNacqvjodjKvIRbkTFoSxJEvn0Ryk0v9ilApmmfpv+ISjS2noH/bTDHgI+d9SYU3FHS6kLMJfGFD6jSTn9hMwuk3Wr0Yk0NgfHX3ogcm7X9OVa3eXQDahkWgdVM9G4u5YBwGoJ9ElhhZqNhQJ4nZvmuqwv1KakTLNORU+s0Ya84g59cVtzQXInrGlHlqqa90ZNPs6hZLGuNZKsSwttvmtd75XPPPWqxtkxcoU4KC+UTP6IMsQMn6t636CMfMJJyxyoV1drfLLjjoTHT0DDqcZZQWwvN5l+nNd/IbHtERk69w0/wnrHo=
 
 script:
-  - npm test
-
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/build-and-deploy.sh
-    on:
-      branch: master
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/get-deployment-scripts.sh
-    on:
-      branch: andrew-deploy
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/push-to-ecr.sh
-    on:
-      branch: andrew-deploy
-  - provider: script
-    skip_cleanup: true
-    script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
-    on:
-      branch: andrew-deploy
+  - npm run build
+  - npm run test:unit
+  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "master" ]]; then ./scripts/run-ci-cd.sh; fi
 
 notifications:
   slack:
