@@ -1,14 +1,21 @@
-version: '2'
+version: '3'
 
 services:
+
   web:
-    image: builditdigital/bookit-web:latest
+    container_name: bookit_web
+    image: 006393696278.dkr.ecr.us-east-1.amazonaws.com/buildit-bookit-web-ecr-repo:latest
     ports:
-      - "80:80"
+     - "80:80"
+    links:
+      - "server:bookitapi"
     environment:
-      - API_BASE_URL=http://bookit.riglet.io:8888
+      - BOOKIT_API_BASE_URL=/api
+    command: /bin/sh -c "envsubst < /opt/app/config.js.template > /opt/app/config.js && nginx -g 'daemon off;'"
+
   server:
-    image: builditdigital/bookit-server:latest
+    container_name: bookit_server
+    image: 006393696278.dkr.ecr.us-east-1.amazonaws.com/buildit-bookit-server-ecr-repo:latest
     ports:
       - "8888:8888"
     environment:
