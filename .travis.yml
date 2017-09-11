@@ -29,7 +29,7 @@ env:
 script:
   - npm run build
   - npm run test:unit
-  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "master" ]]; then ./scripts/run-ci-cd.sh; fi
+  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "andrew-deploy" ]]; then ./scripts/run-ci-cd.sh; fi
 
 notifications:
   slack:
