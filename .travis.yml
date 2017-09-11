@@ -1,5 +1,6 @@
 language: node_js
 node_js:
+  - '8'
 
 sudo: required
 
@@ -9,6 +10,7 @@ services:
 env:
   global:
     - COMMIT_SHA=${TRAVIS_COMMIT::8}
+    # Use repo defined by dev3 environment
     - USE_AZURE=true
     - CLOUD_CONFIG=buildit
     # BUILDIT_SECRET
@@ -18,21 +20,38 @@ env:
     # DOCKER_PASSWORD
     - secure: VBJmdo89idFJRprW1M+FQm0XkZAj351TOauufz/BSRYeEJ5kVDKkfuywFW2/L1GnG77hU9aJ+U13pZDZW1GCX15JiG+x/bH5hmbcOLl9HJTcijJzrpSeZtuCqI5LRRLjeY2mbj2HyE6EoSxHf17gwL31LJvEkNAr4WR7MAcuov5MxExnunIlP+tAoqqUU5h5yf0VTKZm51haNCRYoTFn5NJKgbUirCtkREFks4d3vKUcKg81nJDhLCtfg7o2up+2URO4WO+njoRrL5doCxQ3pal89gaLIop3i21G2ul8NXaafSsCSbXSoe2LxdrIr9Scugwpe+VV8FE/1+KczFdSlb81bK5pECN7JhubljRUhUqcfE2xRApxNcez4v3G8KC8MDt2Z3VUdffFPw192H3G/WM0CE/7HWoRSgKDyEu6m2SXdFo9Pk0OIVoFJ+9azGtbvHBhqPl6dOZzPHPOh0fWGCw1MTWcnvree5uKfdEcJ50E7PMWjIiCgZkjabKyBEadlhK73pxp+m5oNgzYUfRr6/YEnHTExzEmWdydT2jUNoZB/51JCsj1dxL8Islo11+Jwc5uuRS5zv6gnuvHBQaHJkOdZe+jtxMZbmDwdHIvQ93jtckuk5GKjOS1Dn+dTjGmgvbeJfnDLk/BsZXdTS15txTtjweXpYxHFaXOadtpxJs=
     - AWS_DEFAULT_REGION=us-east-1
-    - S3_BUCKET_BASE=rig.buildit.bookit.int
-    - ECS_REPO=buildit-bookit-server-ecr-repo
-    - INT_ECS_CLUSTER=buildit-bookit-int-ECSCluster
-    - INT_ECS_SERVICE=buildit-bookit-int-app-BookitServerService-WDRNY293UJRP-Service-17EEQVGD7J9MM
-    - STG_ECS_CLUSTER=buildit-bookit-stg-ECSCluster
-    - STG_ECS_SERVICE=buildit-bookit-stg-app-BookitServerService-QV54JG1SFPNX-Service-10F4CE6UWNKKH
-    # AWS_ACCESS_KEY_ID (CloudFormation stack IAM account)
-    - secure: VK4Tm1uef9rrnhEZh2VBzk+tBgrPGOPgN8RoxM2HzgcshRQMKb/AWVifPjagwxzEa4liiEF4C2O1X0821OJ4cLJ1I3E6JAcJFnTzmvPIamjAEArIRZHiB4yXpRNfF9tnIhtV+SRvNBCUEsHvXRBo9e8IU3bSI/sfmbdTZSWJkx4qa56PFSuXRAFF43iLg0DkHL/cx/NO5kXwUicJOC1P1UNg49w2sQMF1bFkpH4H1kXW1HrPuj376+izlUCFhVQTDqTL5eS0omhCUP4OS39WxabxYVPwNlkNYvxOK/Y+I/K8zKE1fWaqHJWeTARjnBZtkH4g4brPnbnnRHDGko/C55MI06PH+f5LUfHdQiRpUDHihZYKXulXh5FzfHjWwWyyd4FBf/cgKMCPGtPZMUsZM6IgAe8gnwZRqthcVwEyqG75c+5FkRpj28KQRMO1nOihTaPCVvUXoqQg7Mrtf+ioMMPXdscQcTN5b7BGdJ+KeumbGEY6o6jszSM/HgrqRvkl8yf+KDFL6KovDl2HjGBHqc4jGyuhG99elsqLnfJHTFJYSM7MpsjF6VHozdVQXsXmE4BLrHa5qouhVQ1DU4mrd3JwuWyFrjCgipZpEU56D/Yy+4fdCGkwLMSLLOQAKmp1yGvFxF5K+jm+59Uy63TD4LxEUVFJ/AOqoplquizxm9M=
-    # AWS_SECRET_ACCESS_KEY (CloudFormation stack IAM account)
-    - secure: g/h/U/a1M0Ndwkyh1Nd66i73wWztEDBoozIy7QPSBXoCtRlxXom1Td3OeM0iJGbKPpgG8OX/f58INX7P1YSzyzUSCg5pv7FZgScQzsoc4MBaG/60OGybYhTfKLkiff7EBuosHMjes/V1gxYhLgKzspV3F5/hiUwE1qWOZZoOL15cVlCD6MtGWw3YpPQ/0oifj5WTSoxpIflEiwZBNv/8pxZ15+pxbo72IioFJe41IPZwj+JGVTn9jKMnHAX7dI7AQWmsdJXmYAEFLrrNR8Wff5GGrvKXwwT9JL38yO5kok5FkuKWkTWgBrY8inTutEYX5OlcBj5QiAA4dsfbIQwe3pcOoTm8UIgNML3x/qD8f5boDOwAOAVYLpp8ge7yf3//1bf0p1Rl0Yj8EkyHC3l5ItPLwDVmZrnCbIOumZhHmLdG4EZWX/uJqkfl3ginCMpHZbwtH7wUDaxjzq2EBJLRzDtNvBqEoRX8a8GkF6SeCQInVSA0m+/ZfBEpCy30OCdo9okkAMIoZ5hh56O8AAv0msfwuqHu4zjmKe7qRqNMUzU3D+MsOVA55ZFk9O9JN9x12/Hft7Sk+M1IgY9O655KbZVGdo4M0jnCiCu9az7iG/EpFkpWf02K2lkfcj6H2oeH7cgN6ZhASUVBF4jM8SGBRhUY0VTJlujkfA1XYxMC+iY=
+    - ECS_REPO=andrew-bookit-web-ecr-repo
+    - ECS_CLUSTER=andrew-bookit-atulisze-ECSCluster
+    - ECS_SERVICE=andrew-bookit-atulisze-app-BookitServerService-1QIWEB2FDE888
+    # AWS_ACCESS_KEY_ID
+    - secure: NwYHfju5dhQQ4zu8GxbzovS5Nx1J9PGEB4nmvilNG6Ixnz8pzUyr6e9E09An6Qons5GgDj8XszYyPLe6if4XN5lyzxrZd57sI7s8d1z54Z2nJYiQMXvqXmqH1mSHi+Gu+/fxT2Ia4vnvT2tKucBrXftccCh86uhsZBZm1DB0m8MRDudmDTxxnW2r4ierkv3pHTYiheUSA2h5l9WALHqY4F9qQ5hYPlTTDqFmWnLxmmJ4PacMepLNcNtj90HIJ8Le/Dxcxy5RWtww7QQ9n6N2yXIQI6jUaUp5XuGW/jd/DYBkpGV+2TsgLN+9LU3cv1XL5yQYhlT90WED2SjTawf+Z48IXcfl6anrP0SuIROnAow/7OWNGZrop1OeNDcREYIt5fDd3dl6mezbsj8Ry5wWc+TGC1HqL1Ak5fgwD1iVmoSuzlCwGRnmioRjCd7I2drPS0jiVcTqACUF14FqbyXDfoZTjmJWNZzA9kwWGGpnkQ9xyni8ornmjS7T0fa4vOweSUsXCozqFt48hTM5WjOkrAaix8sUEWVgbgjBI/22kLtQBxcCOYIiUf5a+C0bWJ91rSmwmOINj+6gVEO4K+uQahFrrHqrhKYBQIiE/fQc1CH9RvSn8+KQENNv3gl/1hxWpylVvW8yH2fRxYnDJBpOdzzlS/8F5aZSPBek6Va3MX8=
+    # AWS_SECRET_ACCESS_KEY
+    - secure: DC3DPu1EY2sW7iifIDEtUMUTbDIVbQbZ4f7Q9EdnbKIRs9dlW0OKNqbOm5SHgWsazILXG9gaQ8wiJ9Kha41wowQUWmOKpvJkMbLKqtYrVthGc5OqVWmOZRho2uhMRcY6tUUvTtNUX7nmKHqCLn5c5neqMtbgTGeDnkYBx2lnhLJlyYJoofOwTVEpjeOVVHfkyOPFiQ7fW5JJ/eo+OivikofWzf8kqNcy/7TSe2uNwV7YM3XTx0NDbkS9Klm9aIGG7D/3WhaPQiMxXx7mNu9euWmyNGQ70xp8ExUoZVii+H8HWR0p2q56cPSuSLZ6jP7rVGGSmE04pSC0aCQ/oI/F67e7L32MtBjEwUsK63+2HsyphPjW3BeR34TOPNacqvjodjKvIRbkTFoSxJEvn0Ryk0v9ilApmmfpv+ISjS2noH/bTDHgI+d9SYU3FHS6kLMJfGFD6jSTn9hMwuk3Wr0Yk0NgfHX3ogcm7X9OVa3eXQDahkWgdVM9G4u5YBwGoJ9ElhhZqNhQJ4nZvmuqwv1KakTLNORU+s0Ya84g59cVtzQXInrGlHlqqa90ZNPs6hZLGuNZKsSwttvmtd75XPPPWqxtkxcoU4KC+UTP6IMsQMn6t636CMfMJJyxyoV1drfLLjjoTHT0DDqcZZQWwvN5l+nNd/IbHtERk69w0/wnrHo=
 
 script:
-  - npm run build
-  - npm run test:unit
-  - if [[ -z "$TRAVIS_PULL_REQUEST" || $TRAVIS_PULL_REQUEST == "false" ]] && [[ -z "$TRAVIS_BRANCH" || $TRAVIS_BRANCH == "master" ]]; then ./scripts/run-ci-cd.sh; fi
+  - npm test
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/build-and-deploy.sh
+    on:
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/get-deployment-scripts.sh
+    on:
+      branch: andrew-deploy
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/push-to-ecr.sh
+    on:
+      branch: andrew-deploy
+  - provider: script
+    skip_cleanup: true
+    script: ./scripts/ecs-deploy.sh -c ${ECS_CLUSTER} -n ${ECS_SERVICE} -i 006393696278.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECS_REPO}:${COMMIT_SHA}
+    on:
+      branch: andrew-deploy
 
 notifications:
   slack:
