@@ -22,6 +22,11 @@ import {Attendee} from '../../model/Attendee';
  */
 export class SubCache<T extends Attendee> {
 
+  /*
+  * Needed to store evicted ids due to race conditions in cache coherency with what we've deleted
+  * and what Microsoft hasn't deleted yet.
+  * */
+  private evictedIds = new Set<string>();
   private idCache = new IdentityCache<Meeting>(new Map<string, Meeting>(), new IdCachingStrategy());
   private participantCache = new ListCache<Meeting>(new Map<string, Map<string, Meeting>>(),
                                                     new ParticipantsCachingStrategy());
@@ -128,6 +133,20 @@ export class SubCache<T extends Attendee> {
   }
 
 
+  private wasEvicted(id: string): boolean {
+    return this.evictedIds.has(id);
+  }
+
+  private addToAndCheckEvicted(id: string): boolean {
+    if (this.wasEvicted(id)) {
+      return false;
+    }
+
+    this.evictedIds.add(id);
+    return true;
+  }
+
+
   private updateCacheStart(_start: moment.Moment): boolean {
     const start = _start.clone().startOf('day');
     if (!this.cacheStart || start.isBefore(this.cacheStart)) {
@@ -166,6 +185,12 @@ export class SubCache<T extends Attendee> {
 
 
   private cacheMeeting(meeting: Meeting) {
+    if (this.wasEvicted(meeting.id)) {
+      // Don't attempt to cache again what we already evicted
+      logger.info(`Attempting to cache(${this.attendee.email}) already evicted ${meeting.id}`);
+      return;
+    }
+
     this.idCache.put(meeting);
     this.participantCache.put(meeting);
     this.roomCache.put(meeting);
@@ -184,6 +209,11 @@ export class SubCache<T extends Attendee> {
 
 
   private evictMeeting(id: string): Meeting|null {
+    if (!this.addToAndCheckEvicted(id)) {
+      // Already evicted
+      return;
+    }
+
     const meeting = this.idCache.get(id);
     if (!meeting) {
       return null;
@@ -200,8 +230,13 @@ export class SubCache<T extends Attendee> {
   }
 
 
-  isCacheWithinBound(start: moment.Moment, end: moment.Moment) {
-    return start.isSameOrAfter(this.cacheStart) && end.isSameOrBefore(end);
+  isCacheWithinBound(start: Moment, end: Moment) {
+    const isWithinBounds = start.isSameOrAfter(this.cacheStart) && end.isSameOrBefore(this.cacheEnd);
+    if (!isWithinBounds) {
+      logger.debug(`isCacheWithinBound(${this.attendee.email})`, this.cacheStart, 'against', start);
+      logger.debug(`isCacheWithinBound(${this.attendee.email})`, this.cacheEnd, 'against', end);
+    }
+    return isWithinBounds;
   }
 }
 

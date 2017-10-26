@@ -5,13 +5,13 @@ import {Participant} from '../../model/Participant';
 
 import {RootLog as logger} from '../../utils/RootLogger';
 
-import {sendError, sendUnauthorized} from '../rest_support';
+import {sendError, sendPreconditionFailed, sendUnauthorized} from '../rest_support';
 import {Room, RoomList} from '../../model/Room';
 import {MeetingRequest} from './meeting_routes';
 import {RoomService} from '../../services/rooms/RoomService';
 import {MeetingsService} from '../../services/meetings/MeetingService';
 import {
-  createMeetingOperation, updateMeetingOperation, RoomMeetings, checkUserIsAdmin
+  RoomMeetings, checkUserIsAdmin, hasUserMeetingConflicts, hasAnyMeetingConflicts
 } from '../../services/meetings/MeetingsOps';
 import {Credentials} from '../../model/Credentials';
 import {Meeting} from '../../model/Meeting';
@@ -20,6 +20,7 @@ import {RoomCachingStrategy} from '../../services/meetings/RoomCachingStrategy';
 import {ListCache} from '../../utils/cache/caches';
 import {v4 as uuid} from 'uuid';
 import {UserService} from '../../services/users/UserService';
+import {momentToTomorrowEnd, momentToYesterdayStart} from '../../utils/moment_support';
 
 
 export function validateEndDate(startDate: Moment, endDate: Moment) {
@@ -54,38 +55,99 @@ export function validateTimes(start: Moment, end: Moment) {
 }
 
 
-export function createMeeting(req: Request,
-                              res: Response,
-                              roomService: RoomService,
-                              meetingService: MeetingsService,
-                              owner: Participant) {
+export async function createMeeting(req: Request,
+                                    res: Response,
+                                    roomService: RoomService,
+                                    meetingService: MeetingsService,
+                                    owner: Participant) {
   const event = req.body as MeetingRequest;
-  const startMoment = moment(event.start);
-  const endMoment = moment(event.end);
+  const subj = event.title;
+  const meetingStart = moment(event.start);
+  const meetingEnd = moment(event.end);
+  const duration = moment.duration(moment(meetingEnd).diff(moment(meetingStart), 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
+  const searchStart = momentToYesterdayStart(meetingStart);
+  const searchEnd = momentToTomorrowEnd(meetingEnd);
+
   logger.info('Want to create meeting:', event);
-  const createRoomMeeting = (room: Room) => {
-    createMeetingOperation(meetingService,
-                           event.title,
-                           startMoment,
-                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           owner,
-                           room)
-      .then(meeting => res.json(meeting))
-      .catch(err => sendError(err, res));
+
+  const checkAnyMeetingTimeIsAvailable = () => {
+      return meetingService.getMeetings(room, searchStart, searchEnd)
+                            .then(meetings => {
+                              if (hasAnyMeetingConflicts(meetings, meetingStart, meetingEnd)) {
+                                return Promise.reject('Conflict found');
+                              }
+
+                              return Promise.resolve(meetings);
+                            });
   };
 
-  roomService.getRoomByName(roomId)
-             .then(createRoomMeeting)
-             .catch(() => roomService.getRoomByMail(roomId))
-             .then(createRoomMeeting)
-             .catch(err => sendError(err, res));
+  const isRoomAvailable = () => checkAnyMeetingTimeIsAvailable().catch(err => {
+    sendPreconditionFailed(res, err);
+    return Promise.reject(err);
+  });
+
+  const room = await findRoom(roomService, roomId);
+  const maybeAvailable = isRoomAvailable();
+  return maybeAvailable.then(() => {
+    meetingService.createUserMeeting(subj, meetingStart, duration, owner, room)
+                  .then(meeting => res.json(meeting))
+                  .catch(err => sendError(res, err));
+  }).catch(() => { /* do nothing */ });
 }
 
 
-export function isMeetingOwner(meeting: Meeting, user: Participant): boolean {
-  return meeting.owner.email === user.email;
+function findRoom(roomService: RoomService, roomId: string): Promise<Room> {
+  return roomService.getRoomByName(roomId)
+                    .catch(() => roomService.getRoomByMail(roomId));
+}
+
+
+async function isRoomAvailable(res: Response,
+                               roomService: RoomService,
+                               userService: UserService,
+                               meetingService: MeetingsService,
+                               roomId: string,
+                               userMeetingId: string,
+                               startMoment: Moment,
+                               endMoment: Moment,
+                               updater: Participant) {
+  /*
+    For meeting updates, we need to check against the room to see if we would conflict with
+    another users meeting.
+   */
+  const throwAndRespondWithConflict = () => {
+    const message = 'There is a meeting conflict';
+    sendPreconditionFailed(res, message);
+    throw Error(message);
+  };
+
+  const throwAndRespondWithNotAllowed = () => {
+    const message = 'You are not the owner of this meeting';
+    sendUnauthorized(res, );
+    throw Error(message);
+  };
+
+  // expand the search window to make sure we find conflicting meetings
+  const meetingStartUTC = moment.utc(startMoment);
+  const meetingEndUTC = moment.utc(endMoment);
+  const searchStart = momentToYesterdayStart(meetingStartUTC);
+  const searchEnd = momentToTomorrowEnd(meetingEndUTC);
+
+  const room = await findRoom(roomService, roomId);
+  const roomMeetings = await handleRoomMeetingFetch(meetingService, userService, room, updater, searchStart, searchEnd);
+  // logger.debug('isRoomAvailable', meetingStartUTC, meetingEndUTC, roomMeetings.meetings);
+
+  if (hasUserMeetingConflicts(roomMeetings.meetings, userMeetingId, meetingStartUTC, meetingEndUTC)) {
+    if (userService.isUserAnAdmin(updater.email)) {
+      throwAndRespondWithConflict();
+    }
+
+    throwAndRespondWithNotAllowed();
+  }
+
+  return room;
 }
 
 
@@ -97,28 +159,37 @@ export function updateMeeting(req: Request,
                               userMeetingId: string,
                               updater: Participant) {
   const event = req.body as MeetingRequest;
+  const subj = event.title;
   const startMoment = moment(event.start);
   const endMoment = moment(event.end);
+  const duration = moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes');
   const roomId = req.params.roomEmail;
 
   logger.info('Want to update meeting:', event);
-  const updateRoomMeeting = (room: Room) => {
-    updateMeetingOperation(meetingService,
-                           userMeetingId,
-                           event.title,
-                           startMoment,
-                           moment.duration(endMoment.diff(startMoment, 'minutes'), 'minutes'),
-                           updater,
-                           room)
-      .then(meeting => res.json(meeting))
-      .catch(err => sendError(err, res));
-  };
 
-  roomService.getRoomByName(roomId)
-             .then(updateRoomMeeting)
-             .catch(() => roomService.getRoomByMail(roomId))
-             .then(updateRoomMeeting)
-             .catch(err => sendError(err, res));
+  function canAmendMeeting(): Promise<null|Meeting> {
+    /* If we find the user as the updater then it's the owner and can amend it*/
+    return meetingService.getUserMeeting(updater, userMeetingId)
+                         /* otherwise admins can amend so check for that */
+                         .catch(() => checkUserIsAdmin(userService, updater))
+                         .catch((err) => {
+                           sendUnauthorized(res, err);
+                           return Promise.reject(err);
+                         });
+  }
+
+  /*
+  If we don't get a room then we've errored out on conflicts or permissions
+   */
+  isRoomAvailable(res, roomService, userService, meetingService, roomId, userMeetingId, startMoment, endMoment, updater)
+    .then(async (room) => {
+      /* if the person owns or can amend the meeting, we'll get a meeting */
+      await canAmendMeeting();  // the rejection breaks out of this block
+      meetingService.updateUserMeeting(userMeetingId, subj, startMoment, duration, updater, room)
+                    .then(meeting => res.json(meeting))
+                    .catch(err => sendError(res, err));
+    })
+    .catch((err) => logger.error(err));
 }
 
 
@@ -134,7 +205,7 @@ export function deleteMeeting(req: Request,
                        .catch(() => checkUserIsAdmin(userService, updater))
                        .catch((err) => sendUnauthorized(res, err))
                        .then(() => meetingService.deleteUserMeeting(new Participant(roomEmail), meetingId))
-                       .catch((err) => sendError(err, res));
+                       .catch((err) => sendError(res, err));
 }
 
 
@@ -185,19 +256,29 @@ function getUserMeetings(meetingService: MeetingsService,
 }
 
 
-export function handleRoomMeetingFetch(meetingService: MeetingsService,
-                                       room: Room,
-                                       owner: Participant,
-                                       start: Moment,
-                                       end: Moment): Promise<RoomMeetings> {
-  return meetingService.getUserMeetings(owner, start, end)
-                       .then(userMeetings => {
-                         return getRoomAndMergeUserMeetings(meetingService,
-                                                            room,
-                                                            start,
-                                                            end,
-                                                            userMeetings);
-                       });
+async function handleRoomMeetingFetch(meetingService: MeetingsService,
+                                      userService: UserService,
+                                      room: Room,
+                                      user: Participant,
+                                      start: Moment,
+                                      end: Moment): Promise<RoomMeetings> {
+  async function getAdminRoomMeetings() {
+    const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end);
+
+    const roomMeetings = await meetingService.getMeetings(room, start, end);
+    const participants = getUniqueOwners(roomMeetings);
+    const flattenedUserMeetings = await getAndFlattenAllUserMeetings(participants, getUserMeetings);
+    const meetings = mergeMeetingsForRoom(room, roomMeetings, flattenedUserMeetings);
+    return {room, meetings};
+  }
+
+  async function getPlainRoomMeetings() {
+    const userMeetings = await meetingService.getUserMeetings(user, start, end);
+    return getRoomAndMergeUserMeetings(meetingService, room, start, end, userMeetings);
+  }
+
+  const isAdminUser = userService.isUserAnAdmin(user.email);
+  return isAdminUser ? getAdminRoomMeetings() : getPlainRoomMeetings();
 }
 
 
@@ -229,6 +310,53 @@ export function handleUserMeetingFetch(roomList: RoomList,
 }
 
 
+function getUniqueOwners(meetings: Meeting[]): Participant[] {
+  const uniqueParticipants = {
+    emails: new Set<string>(),
+    participants: new Set<Participant>()
+  };
+
+  meetings.reduce((unique, meeting) => {
+    const owner = meeting.owner;
+    if (unique.emails.has(owner.email)) {
+      return unique;
+    }
+
+    unique.emails.add(owner.email);
+    unique.participants.add(owner);
+    return unique;
+  }, uniqueParticipants);
+
+  return Array.from(uniqueParticipants.participants);
+}
+
+
+function flattenRoomListRooms(roomLists: RoomList[]): Room[] {
+  return roomLists.reduce((acc, roomList) => {
+    acc.push.apply(acc, roomList.rooms);
+    return acc;
+  }, []);
+}
+
+
+function flattenRoomListMeetings(roomLists: RoomMeetings[]): Meeting[] {
+  return roomLists.reduce((acc, roomList) => {
+    acc.push.apply(acc, roomList.meetings);
+    return acc;
+  }, []);
+}
+
+
+async function getAndFlattenAllUserMeetings(participants: Participant[],
+                                            getUserMeetings: (owner: Participant) => Promise<Meeting[]>): Promise<Meeting[]> {
+  const allUserMeetings = await Promise.all(Array.from(participants).map(getUserMeetings));
+  return allUserMeetings.reduce((flattenedMeetings, userMeetings) => {
+    flattenedMeetings.push.apply(flattenedMeetings, userMeetings);
+    return flattenedMeetings;
+  }, new Array<Meeting>());
+}
+
+
 export async function handleAdminMeetingFetch(roomList: RoomList,
                                               meetingService: MeetingsService,
                                               credentials: Credentials,
@@ -237,57 +365,27 @@ export async function handleAdminMeetingFetch(roomList: RoomList,
 
   logger.info('Handling meeting fetch for admins');
   // room meetings convenience function
-  const getRoomMeetings = (room: Room) => {
-    return meetingService.getMeetings(room, start, end)
-                         .then(meetings => {
-                           return {room: room, meetings: meetings};
-                         });
-  };
+  const getRoomMeetings = (room: Room) => meetingService.getMeetings(room, start, end)
+                                                        .then(meetings => {
+                                                          return {room: room, meetings: meetings};
+                                                        });
 
   // user meetings convenience function
-  const getUserMeetings = (owner: Participant) => {
-    return meetingService.getUserMeetings(owner, start, end)
-                         .then(meetings => {
-                           return {owner: owner, meetings: meetings};
-                         });
-  };
+  const getUserMeetings = (owner: Participant) => meetingService.getUserMeetings(owner, start, end);
 
   /*
   Get all room meetings first
    */
   const allRoomMeetings = await Promise.all(roomList.rooms.map(getRoomMeetings));
-
+  const flattenedRoomMeetings = flattenRoomListMeetings(allRoomMeetings);
   /*
   Figure out the various owner so we can...
    */
-  const uniqueParticipants = {
-    emails: new Set<string>(),
-    participants: new Set<Participant>()
-  };
-
-  allRoomMeetings.reduce((unique, roomMeetings) => {
-    roomMeetings.meetings.forEach(meeting => {
-      const owner = meeting.owner;
-      if (unique.emails.has(owner.email)) {
-        return;
-      }
-
-      unique.emails.add(owner.email);
-      unique.participants.add(owner);
-    });
-    return unique;
-  }, uniqueParticipants);
-
-  logger.info('ALL OWNERS', Array.from(uniqueParticipants.participants));
+  const participants = getUniqueOwners(flattenedRoomMeetings);
   /*
   ..query their calendars for meetings from their perspectives.
    */
-  const allUserMeetings = await Promise.all(Array.from(uniqueParticipants.participants).map(getUserMeetings));
-  const flattenedUserMeetings = allUserMeetings.reduce((flattenedMeetings, userMeetingPair) => {
-    flattenedMeetings.push.apply(flattenedMeetings, userMeetingPair.meetings);
-    return flattenedMeetings;
-  }, new Array<Meeting>());
-
+  const flattenedUserMeetings = await getAndFlattenAllUserMeetings(participants, getUserMeetings);
   /*
   Then merge the room meetings against the user meetings
    */
@@ -352,7 +450,7 @@ export function matchMeeting(meeting: Meeting, otherMeetings: Meeting[]): Meetin
     const anyFailed = predicates.some(predicate => {
       const res = predicate();
       if (!res) {
-        logger.info(`Mismatched on ${predicate.name}`);
+        logger.trace(`Mismatched on ${predicate.name}`);
       }
 
       return res;
@@ -378,10 +476,9 @@ function reconcileRoomCache(meeting: Meeting, roomCache: ListCache<Meeting>, roo
   if (!userMeeting) {
     logger.debug(`Unable to match meeting ${roomId}, ${meeting.id}`);
     return toReturn;
-  } else {
-    logger.debug(`Matched ${meeting.id} to ${userMeeting.id}`);
   }
 
+  logger.debug(`Matched ${meeting.id} to ${userMeeting.id}`);
   roomCache.remove(userMeeting);
   assignProperties(toReturn, userMeeting);
 
@@ -401,9 +498,9 @@ function mergeMeetingsForRoom(room: Room, roomMeetings: Meeting[], userMeetings:
   function matchLeftOver(roomName: string, owner: Participant, roomMeeting: Meeting) {
     return (roomMeeting.owner.email === owner.email && roomMeeting.location.displayName === roomName);
   }
-  logger.info('User Meetings', userMeetings.length);
+  logger.debug('User Meetings', userMeetings.length);
   const roomCache = cacheMeetingsByRoom(userMeetings);
-  logger.info('RoomCache', roomCache);
+  logger.debug('RoomCache', roomCache);
 
   const roomId = room.name;
   const mergedMeetings = roomMeetings.map(meeting => reconcileRoomCache(meeting, roomCache, roomId));

@@ -28,7 +28,7 @@ export class MSGraphUserService extends MSGraphBase implements UserService {
 
 
   listInternalUsers(): Promise<Array<any>> {
-    logger.info('listInternalUsers', this.domain());
+    logger.debug('listInternalUsers', this.domain());
     const internalTeam = getInternalTeam(this.domain());
 
     return new Promise((resolve, reject) => {

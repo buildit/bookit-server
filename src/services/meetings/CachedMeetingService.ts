@@ -62,6 +62,7 @@ export class CachedMeetingService implements MeetingsService {
 
 
   clearCaches() {
+    logger.debug('Clearing caches');
     this.roomSubCaches = new Map<string, SubCache<Room>>();
     this.ownerSubCaches = new Map<string, SubCache<Participant>>();
 
@@ -97,6 +98,7 @@ export class CachedMeetingService implements MeetingsService {
    * @returns {Promise<TResult2|Meeting[]>}
    */
   getMeetings(room: Room, start: Moment, end: Moment): Promise<Meeting[]> {
+    // console.trace('CachedMeetingService::getMeetings()', room, start, end);
     const roomCache = this.getRoomCacheForRoom(room);
     const fetch = roomCache.isCacheWithinBound(start, end) ? Promise.resolve() : this.refreshRoomCache(room, start, end);
     return fetch.then(() => roomCache.getMeetings(start, end));
@@ -120,28 +122,32 @@ export class CachedMeetingService implements MeetingsService {
 
 
   updateUserMeeting(id: string, subj: string, start: Moment, duration: Duration, owner: Participant, room: Room): Promise<Meeting> {
-    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', id);
-    const originalMeeting = this.getCacheForOwner(owner).get(id);
+    logger.info('CachedMeetingService::updateUserMeeting() - updating meeting', owner.email, id);
+    const originalMeeting: Meeting = Array.from(this.ownerSubCaches.values())
+                                          .reduce((meeting, cache) => meeting || cache.get(id), undefined);
+
+    if (!originalMeeting) {
+      logger.error('Could not find meeting', owner.email, id);
+      return Promise.reject(`Unable to find meeting id: ${id}`);
+    }
+
     return this.delegatedMeetingsService
-               .updateUserMeeting(id, subj, start, duration, owner, room)
-               .then(userMeeting => {
-                 return this.evictRoomMeetingForUserMeeting(originalMeeting)
-                            .then(roomMeeting => {
-                              if (roomMeeting) {
-                                logger.info('Evicted', roomMeeting.id);
-                              }
+               .updateUserMeeting(id, subj, start, duration, originalMeeting.owner, room)
+               .then(updatedMeeting => {
+                 logger.debug('Updated meeting', updatedMeeting);
 
-                              return userMeeting;
-                            });
-               })
-               .then(userMeeting => {
-                 // MS has a different meeting id for each version of a meeting so we need to evict the old id
-                 this.evictUserMeeting(id);
-
-                 const roomMeeting = this.cacheRoomMeeting(room, userMeeting);
+                 const roomMeeting = this.cacheRoomMeeting(room, updatedMeeting);
                  this.matchAndReplaceRoomMeeting(roomMeeting, room);
 
-                 return this.cacheUserMeeting(owner, userMeeting);
+                 /*
+                  MS may provide a different meeting id for each version of a meeting so we need to evict the old id but
+                  only if the id has changed.
+                   */
+                 if (updatedMeeting.id !== id) {
+                   this.evictMeetingFromUserCache(originalMeeting.owner, id);
+                 }
+
+                 return this.cacheUserMeeting(originalMeeting.owner, updatedMeeting);
                })
                .catch(error => {
                  logger.error(error);
@@ -191,10 +197,15 @@ export class CachedMeetingService implements MeetingsService {
   private evictRoomMeetingForUserMeeting(userMeeting: Meeting): Promise<Meeting> {
     const roomCache = this.getRoomCacheForMeeting(userMeeting);
     const [searchStart, searchEnd] = this.getSearchDateRange(userMeeting);
+
+    logger.info('evictRoomMeetingForUserMeeting() - evicting room meeting for user meeting',
+                userMeeting,
+                searchStart,
+                searchEnd);
     return roomCache.getMeetings(searchStart, searchEnd)
                     .then(roomMeetings => {
                       if (roomMeetings) {
-                        logger.info('Got room meetings', roomMeetings.length);
+                        logger.info('evictRoomMeetingForUserMeeting() - got room meetings', roomMeetings.length);
                         return matchMeeting(userMeeting, roomMeetings);
                       }
 
@@ -202,8 +213,8 @@ export class CachedMeetingService implements MeetingsService {
                     })
                     .then(roomMeeting => {
                       if (roomMeeting) {
-                        logger.info(`Will evict room meeting ${roomMeeting.id}`);
-                        return this.evictRoomMeeting(roomMeeting.id);
+                        const evictedMeeting = this.evictRoomMeeting(roomMeeting.id);
+                        logger.info(`evictRoomMeetingForUserMeeting() - evicted room meeting ${evictedMeeting.id}`);
                       }
 
                       return null;
@@ -219,11 +230,21 @@ export class CachedMeetingService implements MeetingsService {
     setTimeout(() => {
       const opBegin = new Date();
       return this.waitForRoomMeeting(meeting, room)
-                 .then((meetings) => {
+                 .then(meetings => {
+                   if (meetings.length > 0) {
+                     logger.warn(`Matched multiple meetings for meeting id ${meeting.id}`);
+                   }
+
+                   /*
+                    The meeting we passed in was a "user" version that needs to be evicted because it was an
+                    optimistic insertion into the cache
+                     */
                    this.evictRoomMeeting(meeting.id);
+
+                   const foundMeeting = meetings[0];
                    const opEnd = new Date();
-                   this.cacheRoomMeeting(room, meeting);
-                   logger.info('MATCHED AND REPLACED MEETINGS!!!!!', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
+                   this.cacheRoomMeeting(room, foundMeeting);
+                   logger.debug('matchAndReplaceRoomMeeting() - matched and replaced', (Math.abs(opEnd.getMilliseconds() - opBegin.getMilliseconds())),  meetings);
                  });
 
     }, 1000);
@@ -306,7 +327,7 @@ export class CachedMeetingService implements MeetingsService {
     };
 
     return fetchMeetings().then(roomMeetings => {
-      logger.debug(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, roomMeetings.length);
+      logger.info(`CachedMeetingService::refreshCache() - refreshed ${room.email}`, roomMeetings.length);
       roomCache.cacheMeetings(roomMeetings);
     });
   }
@@ -322,9 +343,16 @@ export class CachedMeetingService implements MeetingsService {
       return this.delegatedMeetingsService.getUserMeetings(owner, fetchStart, fetchEnd);
     };
 
+    const filterMeetings = (meetings: Meeting[]): Meeting[] => {
+      return meetings.filter(meeting => {
+        return meeting.location.displayName.length;
+      });
+    };
+
     return fetchMeetings().then(userMeetings => {
       logger.debug(`CachedMeetingService::refreshCache() - refreshed ${owner.email}`);
-      userCache.cacheMeetings(userMeetings);
+      const validMeetings = filterMeetings(userMeetings);
+      userCache.cacheMeetings(validMeetings);
     });
   }
 
@@ -353,6 +381,12 @@ export class CachedMeetingService implements MeetingsService {
 
   private evictRoomMeeting(id: string) {
     return this.evictMeetingFromCache(this.roomSubCaches, id);
+  }
+
+
+  private evictMeetingFromUserCache(user: Participant, id: string): Meeting|null {
+    const subCache = this.ownerSubCaches.get(user.email);
+    return subCache.remove(id);
   }
 
 
@@ -401,7 +435,7 @@ class MockGraphMeetingService implements MeetingsService {
 
   clearCaches(initializing = false) {
     const type = initializing ? ' Initializing' : 'Clearing';
-    logger.info(`${type} Mock Graph caches`);
+    logger.debug(`${type} Mock Graph caches`);
     this.roomMeetingCache.clear();
     this.userMeetingCache.clear();
 
@@ -410,11 +444,12 @@ class MockGraphMeetingService implements MeetingsService {
 
 
   getMeetings(room: Room, start: moment.Moment, end: moment.Moment): Promise<Meeting[]> {
+    // logger.info('PassThroughMeetingService::getMeetings(${room.email})', this.roomMeetings());
     const roomMeetings = this.roomMeetings().filter(meeting => meeting.location.displayName === room.name);
     const mappedMeetings = roomMeetings.map(obscureMeetingDetails);
 
     if (mappedMeetings.length > 0) {
-      logger.info(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
+      logger.debug(`PassThroughMeetingService::getMeetings(${room.email}) - resolving`, mappedMeetings.map(m => m.id));
     }
 
     return Promise.resolve(roomMeetings);
@@ -431,7 +466,7 @@ class MockGraphMeetingService implements MeetingsService {
 
   getUserMeetings(user: Participant, start: Moment, end: Moment): Promise<Meeting[]> {
     const filtered = this.userMeetings().filter(meeting => meeting.owner.email === user.email);
-    logger.info('Filtered user meetings', filtered);
+    // logger.info('Filtered user meetings', filtered);
     return Promise.resolve(filtered);
   }
 
@@ -455,7 +490,7 @@ class MockGraphMeetingService implements MeetingsService {
         participants: [owner, room],
       };
 
-      logger.info('MockGraphMeetingService::createUserMeeting()', userMeeting);
+      logger.debug('MockGraphMeetingService::createUserMeeting()', userMeeting);
       this.userMeetingCache.put(userMeeting);
 
       const addRoomMeeting = () => {
@@ -501,7 +536,7 @@ class MockGraphMeetingService implements MeetingsService {
     }
 
     return new Promise((resolve) => {
-      logger.info('MockGraphMeetingService::updateUserMeeting() - updating', userMeetingId);
+      logger.debug('MockGraphMeetingService::updateUserMeeting() - updating', userMeetingId);
       const userMeeting = this.userMeetingCache.get(userMeetingId);
       update(userMeeting, start, duration, subj);
 

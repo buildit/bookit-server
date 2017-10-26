@@ -24,7 +24,7 @@ describe('Domain', () => {
     it('returns buildit domain regardless of case', () => {
       const _env: string = 'BuIlDiT';
       const result = getDomain(_env);
-      expect(result.domainName).to.equal('builditcontoso');
+      expect(result.domainName).to.equal('builditcontoso.onmicrosoft.com');
       expect(result.sites).to.be.an('array');
       expect(result.sites.length).to.equal(1);
       expect(result.sites[0]).to.equal('nyc');

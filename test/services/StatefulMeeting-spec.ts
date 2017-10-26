@@ -9,7 +9,6 @@ chai.should();
 import {RootLog as logger} from '../../src/utils/RootLogger';
 import {MeetingsService} from '../../src/services/meetings/MeetingService';
 import {Participant} from '../../src/model/Participant';
-import {createMeetingOperation} from '../../src/services/meetings/MeetingsOps';
 import {retryUntil} from '../../src/utils/retry';
 import {getEmail, getRoomEmail} from '../../src/config/bootstrap/rooms';
 import {Room} from '../../src/model/Room';
@@ -33,58 +32,16 @@ export function StatefulMeetingSpec(meetingService: MeetingsService, description
     this.timeout(defaultTimeoutMillis);
 
     it('should create a room booking', function testMeetingReturnedAsExpected() {
-      return createMeetingOperation(meetingService,
-                                    subject,
-                                    start.clone().add(1, 'minute'),
-                                    moment.duration(10, 'minute'),
-                                    bruceParticipant,
-                                    redRoom)
+      meetingService.createUserMeeting(subject,
+                                       start.clone().add(1, 'minute'),
+                                       moment.duration(10, 'minute'),
+                                       bruceParticipant,
+                                       redRoom)
         .then(meeting => {
           logger.info('Created the following meeting', meeting);
           return meeting;
         }).should.eventually.be.not.empty;
     });
-
-
-    describe('will not allow meeting overlaps', function testDoubleBookingBefore() {
-      before('wait until the cloud services registers the above initial meeting', function wait() {
-        logger.debug('waiting on meeting');
-        return retryUntil(() => meetingService.getMeetings(redRoom, start, end), meetings => meetings.length > 0);
-      });
-
-      it('will conflict on before', function theTest() {
-        logger.debug('about to create duplicate');
-        return createMeetingOperation(meetingService,
-                                      'double booking before',
-                                      start.clone().subtract(5, 'minutes'),
-                                      moment.duration(10, 'minutes'),
-                                      bruceParticipant,
-                                      redRoom)
-          .then((thing) => {
-            logger.debug('what is this?', thing);
-            throw new Error('WCOB should not be here!!!');
-          })
-          .catch(err => {
-            expect(err).to.be.eq('Found conflict');
-          });
-      });
-
-      it('will conflict on after', function theTest() {
-        return createMeetingOperation(meetingService,
-                                      'double booking after',
-                                      start.clone().add(5, 'minutes'),
-                                      moment.duration(10, 'minutes'),
-                                      bruceParticipant,
-                                      redRoom)
-          .then(() => {
-            throw new Error('WCOA Should not be here!!!');
-          })
-          .catch(err => {
-            expect(err).to.be.eq('Found conflict');
-          });
-      });
-    });
-
 
   });
 
